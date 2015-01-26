@@ -7,6 +7,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,7 @@ import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Adaptador;
 import br.com.gpaengenharia.classes.ProvedorDados;
 
-public class AtvPrincipal extends Activity {
+public class AtvPrincipal extends Activity implements OnGroupClickListener, OnChildClickListener{
 
     //tarefasProjetos nó de projetosTreeMap
     private TreeMap<String, List<String>> projetosTreeMap;
@@ -23,31 +25,28 @@ public class AtvPrincipal extends Activity {
     private ExpandableListView lvProjetos;
     private Adaptador adaptador;
     private ProvedorDados provedorDados = new ProvedorDados();
+    private Boolean colapsa = true;//não deixar colapsar o listView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_principal);
         lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
+        lvProjetos.setOnGroupClickListener(this);
+        lvProjetos.setOnChildClickListener(this);
         ordemTarefas();
-        lvProjetos.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView expandableListView, View clickedView, int groupPosition, int childPosition, long id) {
-                Toast.makeText(AtvPrincipal.this, projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition)
-                        + " - " + tarefasProjetos.get(groupPosition), Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
     }
 
     private void ordemTarefas(){
         projetosTreeMap = provedorDados.inverteTreeMap();
         setAdaptador();
+        colapsa = true;
     }
 
     private void ordemProjetos(){
         projetosTreeMap = provedorDados.getDadosTreeMap();
         setAdaptador();
+        colapsa = false;
     }
 
     private void setAdaptador(){
@@ -74,5 +73,17 @@ public class AtvPrincipal extends Activity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+        return colapsa;
+    }
+
+    @Override
+    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+        Toast.makeText(AtvPrincipal.this, projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition)
+                + " - " + tarefasProjetos.get(groupPosition), Toast.LENGTH_SHORT).show();
+        return false;
     }
 }

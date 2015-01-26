@@ -59,6 +59,8 @@ public class Adaptador extends BaseExpandableListAdapter {
         return false;
     }
 
+
+
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
         String projetoTitulo = (String) getGroup(groupPosition);
@@ -84,6 +86,7 @@ public class Adaptador extends BaseExpandableListAdapter {
         }
         TextView childTextView = (TextView) convertView.findViewById(R.id.textViewChild);
         childTextView.setText(tarefaTitulo);
+        //convertView.setVisibility(View.INVISIBLE);
         return convertView;
     }
 
