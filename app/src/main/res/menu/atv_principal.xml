@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:contexto="br.com.gpaengenharia.activities.AtvPrincipal">
+    <item android:id="@+id/menu_projetos" android:title="@string/menu_projetos"
+        android:orderInCategory="100" android:showAsAction="never" />
+    <item android:id="@+id/menu_tarefas" android:title="@string/menu_tarefas"
+        android:orderInCategory="100" android:showAsAction="never" />
+</menu>

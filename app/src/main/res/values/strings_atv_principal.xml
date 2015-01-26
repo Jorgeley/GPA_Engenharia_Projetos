@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- opções do menu-->
+    <string name="menu_projetos">projetos</string>
+    <string name="menu_tarefas">tarefas</string>
+</resources>
