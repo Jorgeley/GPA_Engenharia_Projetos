@@ -3,4 +3,7 @@
     <!-- opções do menu-->
     <string name="menu_projetos">projetos</string>
     <string name="menu_tarefas">tarefas</string>
+    <string name="menu_equipe">equipe</string>
+    <string name="menu_hoje">hoje</string>
+    <string name="menu_semana">semana</string>
 </resources>

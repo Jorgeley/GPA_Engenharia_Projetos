@@ -16,21 +16,24 @@ import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Adaptador;
 import br.com.gpaengenharia.classes.ProvedorDados;
+import br.com.gpaengenharia.classes.XmlGPA;
 
 public class AtvPrincipal extends Activity implements OnGroupClickListener, OnChildClickListener{
-
     //tarefasProjetos nó de projetosTreeMap
     private TreeMap<String, List<String>> projetosTreeMap;
     private List<String> tarefasProjetos;
     private ExpandableListView lvProjetos;
     private Adaptador adaptador;
     private ProvedorDados provedorDados = new ProvedorDados();
-    private Boolean colapsa = true;//não deixar colapsar o listView
+    private Boolean colapsa = true;//não deixar colapsar o listView qdo agrupado por tarefas
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_principal);
+        XmlGPA xml = new XmlGPA(this);
+        xml.criaXMLteste();
+        xml.leXMLteste();
         lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
         lvProjetos.setOnGroupClickListener(this);
         lvProjetos.setOnChildClickListener(this);

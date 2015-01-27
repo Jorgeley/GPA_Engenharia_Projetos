@@ -11,28 +11,23 @@ public class ProvedorDados{
 
     //gera TreeMap de projetos contendo tarefas como nós
     public TreeMap<String, List<String>> getDadosTreeMap() {
-
         //cria ArrayList de tarefas
         List<String> terraplanagem = new ArrayList<String>();
         List<String> asfaltamento = new ArrayList<String>();
         List<String> condominio = new ArrayList<String>();
-
         //adiciona tarefas no ArrayList
-        for (int i = 0; i < ArrayDados.terraplanagem.length; i++) {
-            terraplanagem.add(ArrayDados.terraplanagem[i]);
+        for (int i = 0; i < ArrayDadosTarefas.terraplanagem.length; i++) {
+            terraplanagem.add(ArrayDadosTarefas.terraplanagem[i]);
         }
         Collections.sort(terraplanagem);//ordena
-
-        for (int i = 0; i < ArrayDados.asfaltamento.length; i++) {
-            asfaltamento.add(ArrayDados.asfaltamento[i]);
+        for (int i = 0; i < ArrayDadosTarefas.asfaltamento.length; i++) {
+            asfaltamento.add(ArrayDadosTarefas.asfaltamento[i]);
         }
         Collections.sort(asfaltamento);
-
-        for (int i = 0; i < ArrayDados.condominio.length; i++) {
-            condominio.add(ArrayDados.condominio[i]);
+        for (int i = 0; i < ArrayDadosTarefas.condominio.length; i++) {
+            condominio.add(ArrayDadosTarefas.condominio[i]);
         }
         Collections.sort(condominio);
-
         //adiciona tarefas no projeto
         projetosTreeMap.put("Terraplanagem Aeroporto", terraplanagem);
         projetosTreeMap.put("Asfaltamento Periferia", asfaltamento);

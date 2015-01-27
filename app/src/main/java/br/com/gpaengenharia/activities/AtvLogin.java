@@ -10,21 +10,17 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.R;
 
-
-/**
- * Tela de Login
- */
+// Tela de Login
 public class AtvLogin extends Activity implements OnClickListener {
+    //TODO: implementar comunicação com webservice
     public static boolean ErroWebservice = false; //status webservice
     private AutoCompleteTextView TxtEmail;
     private EditText EdtSenha;
     private ProgressBar PrgLogin;
     private Button BtnLogin;
-    private ScrollView ScrollLogin;
     private LoginTask AtaskLogin = null;
     private Utils utils = new Utils(this);
 
@@ -35,7 +31,6 @@ public class AtvLogin extends Activity implements OnClickListener {
         TxtEmail = (AutoCompleteTextView) findViewById(R.id.email);
         EdtSenha = (EditText) findViewById(R.id.password);
         BtnLogin = (Button) findViewById(R.id.email_sign_in_button);
-        ScrollLogin = (ScrollView) findViewById(R.id.login_form);
         PrgLogin = (ProgressBar) findViewById(R.id.login_progress);
         BtnLogin.setOnClickListener(this);
     }
@@ -63,16 +58,13 @@ public class AtvLogin extends Activity implements OnClickListener {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
+            // TODO: implementar login real.
             try {
                 // Simulando um login
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
             }
-
-            // TODO: register the new account here.
             return true;
         }
 
@@ -80,11 +72,10 @@ public class AtvLogin extends Activity implements OnClickListener {
         protected void onPostExecute(final Boolean successo) {
             AtaskLogin = null;
             utils.barraProgresso(PrgLogin, false);
-
             if (successo) {
                 startActivity(new Intent(AtvLogin.this, AtvPrincipal.class));
             } else {
-
+                //TODO: implementar erro de login
             }
         }
 

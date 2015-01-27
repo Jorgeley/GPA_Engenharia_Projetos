@@ -12,7 +12,6 @@ import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 
 public class Adaptador extends BaseExpandableListAdapter {
-
     private Context contexto;
     private TreeMap<String, List<String>> projetosTreeMap;
     private List<String> tarefasProjetos;
