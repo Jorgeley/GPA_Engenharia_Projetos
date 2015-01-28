@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- opções do menu-->
-    <string name="menu_projetos">projetos</string>
-    <string name="menu_tarefas">tarefas</string>
-    <string name="menu_equipe">equipe</string>
-    <string name="menu_hoje">hoje</string>
-    <string name="menu_semana">semana</string>
+    <string name="menu_projetos">Projetos</string>
+        <string name="submenu_pessoais">Pessoais</string>
+        <string name="submenu_equipe">Equipe</string>
+        <string name="submenu_hoje">Hoje</string>
+        <string name="submenu_semana">Semana</string>
+    <string name="menu_agrupamento">Agrupamento</string>
+        <string name="submenu_tarefa">Tarefas</string>
+        <string name="submenu_projeto">Projetos</string>
+
 </resources>

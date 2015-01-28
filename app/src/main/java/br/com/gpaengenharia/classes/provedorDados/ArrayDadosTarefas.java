@@ -1,4 +1,4 @@
-package br.com.gpaengenharia.classes;
+package br.com.gpaengenharia.classes.provedorDados;
 
 //exemplo estático de tarefas
 public class ArrayDadosTarefas {

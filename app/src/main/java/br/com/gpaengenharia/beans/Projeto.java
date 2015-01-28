@@ -1,23 +1,19 @@
 package br.com.gpaengenharia.beans;
 
-public class Projeto {
+public class Projeto implements Comparable{
     private String nome;
-    private String projeto;
 
     public String getNome() {
         return nome;
-    }
-
-    public String getProjeto() {
-        return projeto;
     }
 
     public void setNome(String nome) {
         this.nome = nome;
     }
 
-    public void setProjeto(String projeto) {
-        this.projeto = projeto;
+    //se return 0, objetos iguais e não adiciona, se return 1 então adiciona
+    @Override
+    public int compareTo(Object another) {
+        return 1;
     }
-
 }

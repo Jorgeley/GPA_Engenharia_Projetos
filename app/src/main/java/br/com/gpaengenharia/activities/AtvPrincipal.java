@@ -15,8 +15,11 @@ import java.util.List;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Adaptador;
-import br.com.gpaengenharia.classes.ProvedorDados;
-import br.com.gpaengenharia.classes.XmlGPA;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 
 public class AtvPrincipal extends Activity implements OnGroupClickListener, OnChildClickListener{
     //tarefasProjetos nó de projetosTreeMap
@@ -24,30 +27,28 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
     private List<String> tarefasProjetos;
     private ExpandableListView lvProjetos;
     private Adaptador adaptador;
-    private ProvedorDados provedorDados = new ProvedorDados();
+    private ProvedorDados provedorDados;//instância polimórfica
     private Boolean colapsa = true;//não deixar colapsar o listView qdo agrupado por tarefas
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_principal);
-        XmlGPA xml = new XmlGPA(this);
-        xml.criaXMLteste();
-        xml.leXMLteste();
         lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
         lvProjetos.setOnGroupClickListener(this);
         lvProjetos.setOnChildClickListener(this);
+        provedorDados = new ProvedorDadosTarefasPessoais(this); //polimorfismo
         ordemTarefas();
     }
 
     private void ordemTarefas(){
-        projetosTreeMap = provedorDados.inverteTreeMap();
+        projetosTreeMap = provedorDados.getTarefas(true);
         setAdaptador();
         colapsa = true;
     }
 
     private void ordemProjetos(){
-        projetosTreeMap = provedorDados.getDadosTreeMap();
+        projetosTreeMap = provedorDados.getTarefas(false);
         setAdaptador();
         colapsa = false;
     }
@@ -68,10 +69,26 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.menu_tarefas:
+            case R.id.submenu_pessoais:
+                provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
                 ordemTarefas();
                 break;
-            case R.id.menu_projetos:
+            case R.id.submenu_equipe:
+                provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
+                ordemTarefas();
+                break;
+            case R.id.submenu_hoje:
+                provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
+                ordemTarefas();
+                break;
+            case R.id.submenu_semana:
+                provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
+                ordemTarefas();
+                break;
+            case R.id.submenu_tarefa:
+                ordemTarefas();
+                break;
+            case R.id.submenu_projeto:
                 ordemProjetos();
                 break;
         }

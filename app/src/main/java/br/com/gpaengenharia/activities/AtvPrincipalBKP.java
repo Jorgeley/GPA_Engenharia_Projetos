@@ -32,7 +32,7 @@ public class AtvPrincipalBKP extends ExpandableListActivity {
                     new int[]{R.id.grupo},    // ID of each group item.-Data under the key goes into this TextView.
                     createChildList(),              // childData describes second-level entries.
                     android.R.layout.simple_expandable_list_item_1,             // Layout for sub-level entries(second level).
-                    new String[]{"Tarefa"},      // Keys in childData maps to display.
+                    new String[]{"Projeto"},      // Keys in childData maps to display.
                     new int[]{R.id.item}     // Data under the keys above go into these TextViews.
             );
             setListAdapter(adaptador);       // setting the adaptador in the list.
@@ -59,7 +59,7 @@ public class AtvPrincipalBKP extends ExpandableListActivity {
             ArrayList secList = new ArrayList();
             for (int n = 0; n < 3; n++) {
                 HashMap child = new HashMap();
-                child.put("Tarefa", "Tarefa " + n);
+                child.put("Projeto", "Projeto " + n);
                 secList.add(child);
             }
             result.add(secList);
@@ -71,7 +71,7 @@ public class AtvPrincipalBKP extends ExpandableListActivity {
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
 
         Toast.makeText(this, (String) ((Map<String, String>)
-                        adaptador.getChild(groupPosition, childPosition)).get("Tarefa")+" selecionada...",
+                        adaptador.getChild(groupPosition, childPosition)).get("Projeto")+" selecionada...",
                 Toast.LENGTH_LONG).show();
         return super.onChildClick(parent, v, groupPosition, childPosition, id);
     }

@@ -1,7 +1,13 @@
 package br.com.gpaengenharia.beans;
 
-/**
- * Created by root on 27/01/15.
- */
 public class Tarefa {
+    private String nome;
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getNome() {
+        return nome;
+    }
 }
