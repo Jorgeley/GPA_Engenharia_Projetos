@@ -1,23 +1,7 @@
 package br.com.gpaengenharia.beans;
 
+/**
+ * Created by root on 27/01/15.
+ */
 public class Tarefa {
-    private String nome;
-    private String projeto;
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getProjeto() {
-        return projeto;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public void setProjeto(String projeto) {
-        this.projeto = projeto;
-    }
-
 }
