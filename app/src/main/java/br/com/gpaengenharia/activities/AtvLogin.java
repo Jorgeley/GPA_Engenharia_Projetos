@@ -13,7 +13,9 @@ import android.widget.ProgressBar;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.R;
 
-// Tela de Login
+/*
+ Tela de Login
+  */
 public class AtvLogin extends Activity implements OnClickListener {
     //TODO: implementar comunicação com webservice
     public static boolean ErroWebservice = false; //status webservice
@@ -28,20 +30,20 @@ public class AtvLogin extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_login);
-        TxtEmail = (AutoCompleteTextView) findViewById(R.id.email);
-        EdtSenha = (EditText) findViewById(R.id.password);
-        BtnLogin = (Button) findViewById(R.id.email_sign_in_button);
-        PrgLogin = (ProgressBar) findViewById(R.id.login_progress);
-        BtnLogin.setOnClickListener(this);
+        this.TxtEmail = (AutoCompleteTextView) findViewById(R.id.email);
+        this.EdtSenha = (EditText) findViewById(R.id.password);
+        this.BtnLogin = (Button) findViewById(R.id.email_sign_in_button);
+        this.PrgLogin = (ProgressBar) findViewById(R.id.login_progress);
+        this.BtnLogin.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        String login = TxtEmail.getText().toString();
-        String senha = EdtSenha.getText().toString();
-        utils.barraProgresso(PrgLogin,true);
-        AtaskLogin = new LoginTask(login, senha);
-        AtaskLogin.execute((Void) null);
+        String login = this.TxtEmail.getText().toString();
+        String senha = this.EdtSenha.getText().toString();
+        this.utils.barraProgresso(this.PrgLogin,true);
+        this.AtaskLogin = new LoginTask(login, senha);
+        this.AtaskLogin.execute((Void) null);
     }
 
     /**

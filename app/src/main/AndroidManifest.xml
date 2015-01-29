@@ -21,6 +21,10 @@
             android:name=".activities.AtvPrincipal"
             android:label="@string/titulo_atv_login" >
         </activity>
+        <activity
+            android:name=".activities.AtvTarefa"
+            android:label="@string/title_activity_atv_tarefa" >
+        </activity>
     </application>
 
 </manifest>

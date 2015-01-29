@@ -4,9 +4,17 @@ import android.content.Context;
 import android.util.Log;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
+/*
+Cria arquivo xml de exemplo para teste
+herda Xml e implementa XmlInterface
+ */
 public class XmlTarefasPessoais extends Xml implements XmlInterface{
+    //nome do arquivo para gravar o xml
     private final static String nomeArquivoXML = "tarefasPessoais.xml";
+    //arquivo para gravar o xml
+    private FileOutputStream arquivoXML;
 
     public XmlTarefasPessoais(Context contexto) {
         super(contexto);
@@ -20,7 +28,7 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
 
     @Override
     public void setNomeArquivoXML() {
-        this.nomeAquivoXML = nomeArquivoXML;
+        super.nomeAquivoXML = this.nomeArquivoXML;
     }
 
     /*
@@ -28,13 +36,13 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
      */
     public Boolean criaXmlProjetosPessoaisTeste() {
         try {
-            arquivoXML = contexto.openFileOutput(nomeAquivoXML, 0);
+            this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
         } catch (FileNotFoundException e) {
             Log.e("erro IO", e.getMessage());
         }
         XmlSerializer serializadorXML = android.util.Xml.newSerializer();
         try {
-            serializadorXML.setOutput(arquivoXML, "UTF-8");
+            serializadorXML.setOutput(this.arquivoXML, "UTF-8");
             serializadorXML.startDocument(null, Boolean.valueOf(true));
             serializadorXML.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
             serializadorXML.startTag(null, "GPA");
@@ -53,7 +61,7 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
             serializadorXML.endTag(null, "GPA");
             serializadorXML.endDocument();
             serializadorXML.flush();
-            arquivoXML.close();
+            this.arquivoXML.close();
         } catch (Exception e) {
             Log.e("erro serializerXML", e.getMessage());
         }

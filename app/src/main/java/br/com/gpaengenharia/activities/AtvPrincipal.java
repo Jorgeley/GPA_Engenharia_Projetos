@@ -1,6 +1,7 @@
 package br.com.gpaengenharia.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,42 +22,82 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 
+/*
+Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
+Também dá opção de agrupamento por tarefas ou projetos
+ */
 public class AtvPrincipal extends Activity implements OnGroupClickListener, OnChildClickListener{
-    //tarefasProjetos nó de projetosTreeMap
+    // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada
     private TreeMap<String, List<String>> projetosTreeMap;
+    // List<Tarefa> tarefasProjetos nó de projetosTreeMap
     private List<String> tarefasProjetos;
-    private ExpandableListView lvProjetos;
+    private ExpandableListView lvProjetos;//listView expansível dos projetos
     private Adaptador adaptador;
-    private ProvedorDados provedorDados;//instância polimórfica
-    private Boolean colapsa = true;//não deixar colapsar o listView qdo agrupado por tarefas
+    //instância polimórfica contendo os dados dos projetos pessoais, equipe, hoje e semana
+    private ProvedorDados provedorDados;
+    private Boolean colapsa = true;//não deixa colapsar o listView qdo agrupado por tarefas
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_principal);
-        lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
-        lvProjetos.setOnGroupClickListener(this);
-        lvProjetos.setOnChildClickListener(this);
-        provedorDados = new ProvedorDadosTarefasPessoais(this); //polimorfismo
-        ordemTarefas();
+        this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
+        this.lvProjetos.setOnGroupClickListener(this);
+        this.lvProjetos.setOnChildClickListener(this);
+        //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
+        this.provedorDados = new ProvedorDadosTarefasPessoais(this);
+        agrupaTarefas();
     }
 
-    private void ordemTarefas(){
-        projetosTreeMap = provedorDados.getTarefas(true);
+    //retorna a árvore de projetos invertida apenas com as tarefas
+    private void agrupaTarefas(){
+        this.projetosTreeMap = this.provedorDados.getTarefas(true);
         setAdaptador();
-        colapsa = true;
+        this.colapsa = true;
     }
 
-    private void ordemProjetos(){
-        projetosTreeMap = provedorDados.getTarefas(false);
+    //retorna a árvore de projetos padrão com sublista de tarefas em cada projeto
+    private void agrupaProjetos(){
+        this.projetosTreeMap = this.provedorDados.getTarefas(false);
         setAdaptador();
-        colapsa = false;
+        this.colapsa = false;
     }
 
+    //adapta os projetos no listView expansível
     private void setAdaptador(){
-        tarefasProjetos = new ArrayList<String>(projetosTreeMap.keySet());
-        adaptador = new Adaptador(this, projetosTreeMap, tarefasProjetos);
-        lvProjetos.setAdapter(adaptador);
+        this.tarefasProjetos = new ArrayList<String>(this.projetosTreeMap.keySet());
+        this.adaptador = new Adaptador(this, this.projetosTreeMap, this.tarefasProjetos);
+        this.lvProjetos.setAdapter(this.adaptador);
+    }
+
+    //opções do menu
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.submenu_pessoais:
+                this.provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
+                agrupaTarefas();
+                break;
+            case R.id.submenu_equipe:
+                this.provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
+                agrupaTarefas();
+                break;
+            case R.id.submenu_hoje:
+                this.provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
+                agrupaTarefas();
+                break;
+            case R.id.submenu_semana:
+                this.provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
+                agrupaTarefas();
+                break;
+            case R.id.submenu_tarefa:
+                agrupaTarefas();
+                break;
+            case R.id.submenu_projeto:
+                agrupaProjetos();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -67,43 +108,15 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.submenu_pessoais:
-                provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
-                ordemTarefas();
-                break;
-            case R.id.submenu_equipe:
-                provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
-                ordemTarefas();
-                break;
-            case R.id.submenu_hoje:
-                provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
-                ordemTarefas();
-                break;
-            case R.id.submenu_semana:
-                provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
-                ordemTarefas();
-                break;
-            case R.id.submenu_tarefa:
-                ordemTarefas();
-                break;
-            case R.id.submenu_projeto:
-                ordemProjetos();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-        return colapsa;
+        return this.colapsa;
     }
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        Toast.makeText(AtvPrincipal.this, projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition)
-                + " - " + tarefasProjetos.get(groupPosition), Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(AtvPrincipal.this, AtvTarefa.class));
+        /*Toast.makeText(AtvPrincipal.this, projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition)
+                + " - " + tarefasProjetos.get(groupPosition), Toast.LENGTH_SHORT).show();*/
         return false;
     }
 }

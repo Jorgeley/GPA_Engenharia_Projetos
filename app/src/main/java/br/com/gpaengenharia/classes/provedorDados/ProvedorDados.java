@@ -8,10 +8,13 @@ import java.util.TreeMap;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 
+/*
+Provê os dados dos beans Projeto e Tarefa
+ */
 public abstract class ProvedorDados{
     protected TreeMap<Projeto, List<Tarefa>> projetosTreeMapBean = new TreeMap<Projeto, List<Tarefa>>();
 
-    //gera TreeMap de projetos contendo tarefas como nós
+    //gera TreeMapTesteEstático de projetos contendo tarefas como nós
     public TreeMap<String, List<String>> getDadosTreeMapTeste() {
         TreeMap<String, List<String>> projetosTreeMap = new TreeMap<String, List<String>>();
         //cria ArrayList de tarefas
@@ -40,24 +43,27 @@ public abstract class ProvedorDados{
     }
 
     /*
-    Busca os beans Projeto e Tarefa do Xml e transforma em TreeMap de String
-    @param Boolean inverteAgrupamento:
-        se True inverte o agrupamento do TreeMap agrupando por tarefas
+    * Busca os beans Projeto e Tarefa do Xml e transforma em TreeMap de String
+    * @param Boolean inverteAgrupamento:
+    *   se True inverte o agrupamento do TreeMap agrupando por tarefas
         se False deixa agrupamento por projetos e tarefas com nós dos projetos
-     */
+    * */
     public TreeMap<String, List<String>> getTarefas(Boolean inverteAgrupamento){
+        //TreeMap dos projetos convertidos de beans para strings
         TreeMap<String, List<String>> projetosTreeMapString = new TreeMap<String, List<String>>();
-        for (Map.Entry<Projeto, List<Tarefa>> projeto : projetosTreeMapBean.entrySet()){
-            Projeto projetoAtual = projeto.getKey();
-            List<Tarefa> tarefasBean = projeto.getValue();
-            if (inverteAgrupamento) {
+        //para cada Projeto com sua lista de Tarefa no TreeMap de beans...
+        for (Map.Entry<Projeto, List<Tarefa>> projetosTarefasBean : this.projetosTreeMapBean.entrySet()){
+            Projeto projetoBean = projetosTarefasBean.getKey();//pega o projeto atual
+            List<Tarefa> tarefasBean = projetosTarefasBean.getValue();//pega a lista de tarefas do projeto
+            if (inverteAgrupamento) {//se for pra inverter o agrupamento...
+                //...para cada tarefa adiciona no TreeMap de String a tarefa e seu projeto, sem sublista...
                 for (Tarefa tarefa : tarefasBean)
-                    projetosTreeMapString.put(tarefa.getNome() + "\n" + projetoAtual.getNome(), null);
-            }else{
+                    projetosTreeMapString.put(tarefa.getNome() + "\n" + projetoBean.getNome(), null);
+            }else{//...senão, adiciona no TreeMap de String o projeto com sua sublista de tarefas
                 List<String> tarefasString = new ArrayList<String>();
                 for (Tarefa tarefa : tarefasBean)
                     tarefasString.add(tarefa.getNome());
-                projetosTreeMapString.put(projetoAtual.getNome(), tarefasString);
+                projetosTreeMapString.put(projetoBean.getNome(), tarefasString);
             }
         }
         return projetosTreeMapString;

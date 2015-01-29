@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 
+/*
+Adaptador do listView expansível
+ */
 public class Adaptador extends BaseExpandableListAdapter {
     private Context contexto;
     private TreeMap<String, List<String>> projetosTreeMap;
@@ -25,22 +28,22 @@ public class Adaptador extends BaseExpandableListAdapter {
 
     @Override
     public int getGroupCount() {
-        return projetosTreeMap.size();
+        return this.projetosTreeMap.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return projetosTreeMap.get(tarefasProjetos.get(groupPosition)).size();
+        return this.projetosTreeMap.get(this.tarefasProjetos.get(groupPosition)).size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return tarefasProjetos.get(groupPosition);
+        return this.tarefasProjetos.get(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition);
+        return this.projetosTreeMap.get(this.tarefasProjetos.get(groupPosition)).get(childPosition);
     }
 
     @Override
@@ -65,7 +68,7 @@ public class Adaptador extends BaseExpandableListAdapter {
         String projetoTitulo = (String) getGroup(groupPosition);
         if (convertView == null) {
             LayoutInflater inflater =
-                    (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    (LayoutInflater) this.contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.parent_layout, parent, false);
         }
         TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
@@ -80,7 +83,7 @@ public class Adaptador extends BaseExpandableListAdapter {
         String tarefaTitulo = (String) getChild(groupPosition, childPosition);
         if (convertView == null) {
             LayoutInflater inflater =
-                    (LayoutInflater) contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    (LayoutInflater) this.contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.child_layout, parent, false);
         }
         TextView childTextView = (TextView) convertView.findViewById(R.id.textViewChild);
