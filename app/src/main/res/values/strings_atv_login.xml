@@ -2,10 +2,10 @@
 
     <!-- Strings relacionadas `a AtvLogin -->
     <string name="titulo_atv_login">GPA Engenharia - Projetos</string>
-    <string name="prompt_email">Usuário</string>
-    <string name="prompt_password">Senha</string>
-    <string name="action_sign_in">Entrar</string>
-    <string name="action_sign_in_short">Entrar</string>
+    <string name="hint_email">Usuário</string>
+    <string name="hint_senha">Senha</string>
+    <string name="texto_entrar">Entrar</string>
+    <string name="texto_entrar_curto">Entrar</string>
 
     <string name="erro_email_invalido">Usuário inválido</string>
     <string name="erro_senha_invalida">Senha muito curta</string>

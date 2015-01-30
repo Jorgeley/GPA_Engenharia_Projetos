@@ -8,9 +8,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ExpandableListView.OnChildClickListener;
-import android.widget.Toast;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -74,26 +73,29 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.submenu_pessoais:
+            case R.id.novatarefa:
+                startActivity(new Intent(AtvPrincipal.this, AtvTarefa.class));
+                break;
+            case R.id.projetos_pessoais:
                 this.provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
                 agrupaTarefas();
                 break;
-            case R.id.submenu_equipe:
+            case R.id.projetos_equipe:
                 this.provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
                 agrupaTarefas();
                 break;
-            case R.id.submenu_hoje:
+            case R.id.projetos_hoje:
                 this.provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
                 agrupaTarefas();
                 break;
-            case R.id.submenu_semana:
+            case R.id.projetos_semana:
                 this.provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
                 agrupaTarefas();
                 break;
-            case R.id.submenu_tarefa:
+            case R.id.agrupamento_tarefa:
                 agrupaTarefas();
                 break;
-            case R.id.submenu_projeto:
+            case R.id.agrupamento_projeto:
                 agrupaProjetos();
                 break;
         }

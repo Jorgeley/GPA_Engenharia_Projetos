@@ -1,16 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:contexto="br.com.gpaengenharia.activities.AtvPrincipal">
+    <item android:title="@string/menu_novatarefa" android:id="@+id/novatarefa"/>
     <item android:title="@string/menu_projetos">
         <menu>
-            <item android:id="@+id/submenu_pessoais" android:title="@string/submenu_pessoais" android:orderInCategory="0" android:showAsAction="never" />
-            <item android:id="@+id/submenu_equipe" android:title="@string/submenu_equipe" android:orderInCategory="2" android:showAsAction="never" />
-            <item android:id="@+id/submenu_hoje" android:title="@string/submenu_hoje" android:orderInCategory="3" android:showAsAction="never" />
-            <item android:id="@+id/submenu_semana" android:title="@string/submenu_semana" android:orderInCategory="4" android:showAsAction="never" />
+            <item android:id="@+id/projetos_pessoais" android:title="@string/submenu_pessoais" android:orderInCategory="0" android:showAsAction="never" />
+            <item android:id="@+id/projetos_equipe" android:title="@string/submenu_equipe" android:orderInCategory="2" android:showAsAction="never" />
+            <item android:id="@+id/projetos_hoje" android:title="@string/submenu_hoje" android:orderInCategory="3" android:showAsAction="never" />
+            <item android:id="@+id/projetos_semana" android:title="@string/submenu_semana" android:orderInCategory="4" android:showAsAction="never" />
         </menu>
     </item>
     <item android:title="@string/menu_agrupamento">
         <menu>
-            <item android:id="@+id/submenu_tarefa" android:title="@string/submenu_tarefa" android:orderInCategory="1" android:showAsAction="never" />
-            <item android:id="@+id/submenu_projeto" android:title="@string/submenu_projeto" android:orderInCategory="1" android:showAsAction="never" />
+            <item android:id="@+id/agrupamento_tarefa" android:title="@string/submenu_tarefa" android:orderInCategory="1" android:showAsAction="never" />
+            <item android:id="@+id/agrupamento_projeto" android:title="@string/submenu_projeto" android:orderInCategory="1" android:showAsAction="never" />
         </menu>
     </item>
 </menu>

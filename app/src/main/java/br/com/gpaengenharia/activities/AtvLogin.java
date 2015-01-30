@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +15,7 @@ import br.com.gpaengenharia.R;
 /*
  Tela de Login
   */
-public class AtvLogin extends Activity implements OnClickListener {
+public class AtvLogin extends Activity{
     //TODO: implementar comunicação com webservice
     public static boolean ErroWebservice = false; //status webservice
     private AutoCompleteTextView TxtEmail;
@@ -24,24 +23,22 @@ public class AtvLogin extends Activity implements OnClickListener {
     private ProgressBar PrgLogin;
     private Button BtnLogin;
     private LoginTask AtaskLogin = null;
-    private Utils utils = new Utils(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_login);
+        Utils.contexto = this;
         this.TxtEmail = (AutoCompleteTextView) findViewById(R.id.email);
         this.EdtSenha = (EditText) findViewById(R.id.password);
         this.BtnLogin = (Button) findViewById(R.id.email_sign_in_button);
         this.PrgLogin = (ProgressBar) findViewById(R.id.login_progress);
-        this.BtnLogin.setOnClickListener(this);
     }
 
-    @Override
-    public void onClick(View v) {
+    public void onClickLogin(View v) {
         String login = this.TxtEmail.getText().toString();
         String senha = this.EdtSenha.getText().toString();
-        this.utils.barraProgresso(this.PrgLogin,true);
+        Utils.barraProgresso(this, this.PrgLogin, true);
         this.AtaskLogin = new LoginTask(login, senha);
         this.AtaskLogin.execute((Void) null);
     }
@@ -73,7 +70,7 @@ public class AtvLogin extends Activity implements OnClickListener {
         @Override
         protected void onPostExecute(final Boolean successo) {
             AtaskLogin = null;
-            utils.barraProgresso(PrgLogin, false);
+            Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
             if (successo) {
                 startActivity(new Intent(AtvLogin.this, AtvPrincipal.class));
             } else {
@@ -84,7 +81,7 @@ public class AtvLogin extends Activity implements OnClickListener {
         @Override
         protected void onCancelled() {
             AtaskLogin = null;
-            utils.barraProgresso(PrgLogin, false);
+            Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
         }
     }
 

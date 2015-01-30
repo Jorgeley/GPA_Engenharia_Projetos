@@ -16,6 +16,7 @@ repositories {
 }
 dependencies {
     compile 'com.google.code.ksoap2-android:ksoap2-android:3.0.0'
+    compile 'com.android.support:support-v4:21.0.3'
 }
 
 android {
@@ -23,7 +24,7 @@ android {
     buildToolsVersion "21.1.2"
     defaultConfig {
         applicationId "br.com.gpaengenharia"
-        minSdkVersion 10
+        minSdkVersion 11
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"

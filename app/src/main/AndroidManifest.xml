@@ -23,7 +23,7 @@
         </activity>
         <activity
             android:name=".activities.AtvTarefa"
-            android:label="@string/title_activity_atv_tarefa" >
+            android:label="@string/nome_app" >
         </activity>
     </application>
 

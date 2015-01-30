@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- opções do menu-->
+    <string name="menu_novatarefa">+Tarefa</string>
     <string name="menu_projetos">Projetos</string>
         <string name="submenu_pessoais">Pessoais</string>
         <string name="submenu_equipe">Equipe</string>
