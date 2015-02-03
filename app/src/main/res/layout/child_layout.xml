@@ -9,10 +9,8 @@
         android:id="@+id/textViewChild"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/white"
-        />
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp"
+        android:textSize="18dp"
+        android:paddingLeft="60dp"/>
 </LinearLayout>

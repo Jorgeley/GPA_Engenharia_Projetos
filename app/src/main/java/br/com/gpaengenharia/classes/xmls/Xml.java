@@ -2,7 +2,6 @@ package br.com.gpaengenharia.classes.xmls;
 
 import android.content.Context;
 import android.util.Log;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -15,7 +14,7 @@ import java.util.TreeMap;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 
-/*
+/**
 Lê xml nomeAquivoXML e grava em TreeMap <Projeto, List<Tarefa>> contendo
 cada projeto com sua lista de tarefas
  */
@@ -29,7 +28,8 @@ public abstract class Xml{
         this.contexto = contexto;
     }
 
-    //abre o arquivo xml para leitura e retorna o TreeMap de beans <Projeto List<Tarefa>>
+    /** abre o arquivo xml para leitura e retorna o TreeMap de beans <Projeto List<Tarefa>>
+     * @return TreeMap Projeto(bean), ListTarefa(bean) */
     public TreeMap<Projeto, List<Tarefa>> leXmlTeste(){
         XmlPullParserFactory pullParserFactory;
         try {
@@ -48,7 +48,9 @@ public abstract class Xml{
         return this.projetos;//retorna o TreeMap de beans
     }
 
-    //para cada node do Xml, adiciona no TreeMap de beans <Projeto List<Tarefa>>
+    /**para cada node do Xml, adiciona no TreeMap de beans <Projeto List<Tarefa>>
+     * @param parser
+     * @throws XmlPullParserException,IOException */
     private void parseXML(XmlPullParser parser) throws XmlPullParserException,IOException{
         //lista de beans Tarefa node de cada projeto no TreeMap
         List<Tarefa> tarefas = new ArrayList<Tarefa>();
@@ -86,6 +88,7 @@ public abstract class Xml{
         }
     }
 
+    /** gera log dos beans Projeto e Tarefa no TreeMap*/
     public void log(){
         Log.i("qtd",String.valueOf(this.projetos.size()));
         for (Map.Entry<Projeto, List<Tarefa>> projeto : this.projetos.entrySet()){

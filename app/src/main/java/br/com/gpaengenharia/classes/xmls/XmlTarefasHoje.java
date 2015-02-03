@@ -6,7 +6,7 @@ import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-/*
+/**
 Cria arquivo xml de exemplo para teste
 herda Xml e implementa XmlInterface
  */
@@ -21,20 +21,22 @@ public class XmlTarefasHoje extends Xml implements XmlInterface{
         setNomeArquivoXML();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setArquivoXML() {
         criaXmlProjetosHojeTeste();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setNomeArquivoXML() {
         super.nomeAquivoXML = this.nomeArquivoXML;
     }
 
-    /*
+    /**
     Cria XML exemplo e grava no dir do projeto
      */
-    public Boolean criaXmlProjetosHojeTeste() {
+    public void criaXmlProjetosHojeTeste() {
         try {
             this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
         } catch (FileNotFoundException e) {
@@ -65,6 +67,5 @@ public class XmlTarefasHoje extends Xml implements XmlInterface{
         } catch (Exception e) {
             Log.e("erro serializerXML", e.getMessage());
         }
-        return true;
     }
 }

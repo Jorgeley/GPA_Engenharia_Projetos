@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 
-/*
+/**
 Adaptador do listView expansível
  */
 public class Adaptador extends BaseExpandableListAdapter {
@@ -60,8 +60,6 @@ public class Adaptador extends BaseExpandableListAdapter {
     public boolean hasStableIds() {
         return false;
     }
-
-
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {

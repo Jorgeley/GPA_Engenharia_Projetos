@@ -11,7 +11,7 @@ public class Projeto implements Comparable{
         this.nome = nome;
     }
 
-    //se return 0, objetos iguais e não adiciona, se return 1 então adiciona
+    /** se return 0, objetos iguais e não adiciona, se return 1 então adiciona */
     @Override
     public int compareTo(Object another) {
         return 1;

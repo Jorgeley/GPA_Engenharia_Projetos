@@ -1,29 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="br.com.gpaengenharia" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="br.com.gpaengenharia" >
+    <uses-sdk android:minSdkVersion="11" />
 
     <application
         android:allowBackup="true"
+        android:theme="@style/TemaGeral"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/nome_app"
-        android:theme="@style/AppTheme" >
+        android:label="@string/nome_app">
+        <!--
+                Theme.Black (cx de textos com bordas, estilo web, menu some)
+                Theme.Dialog (janelas reduzidas em cascata do tamanho dos UI's, menu some)
+                Theme.Holo (tela cheia fundo preto com menu)
+                Theme.InputMethod (tudo transparente, só aparece os UI's)
+                Theme.Leanback.FormWizard (tela cheia, design bonito, UI's mto grandes)
+                Theme.Light (tela cheia, design bonito, UI's com bordas estilo web, menu some)
+                Theme.Panel (idem Theme.InputMethod)
+                Theme.Translucent (idem Theme.InputMethod)
+                Theme.Wallpaper (idem Theme.InputMethod)
+                Theme.WithActionBar (tela cheia, design bonito com menu, UI's com bordas estilo web)
+        -->
         <activity
             android:name=".activities.AtvLogin"
-            android:label="@string/nome_app"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:label=""
+            android:theme="@style/TemaGeral.TemaLogin" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activities.AtvPrincipal"
-            android:label="@string/titulo_atv_login" >
+            android:label=""
+            android:theme="@style/TemaGeral.TemaPrincipal">
         </activity>
         <activity
             android:name=".activities.AtvTarefa"
-            android:label="@string/nome_app" >
+            android:label=""
+            android:theme="@style/TemaGeral.TemaTarefa">
         </activity>
     </application>
 

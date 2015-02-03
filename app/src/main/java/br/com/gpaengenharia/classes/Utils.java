@@ -13,15 +13,13 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 /**
  * Utilidades para o projeto
  */
-public class Utils {
+public class Utils{
     public static Context contexto;
 
     public Utils(Context contexto){
@@ -29,9 +27,8 @@ public class Utils {
     }
 
     /** Método sobrecarregado para mostrar/ocultar a barra de progresso
-     * @param ProgressBar barraProgresso
-     * @param boolean mostra
-     * @return void
+     * @param barraProgresso
+     * @param mostra
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void barraProgresso(final ProgressBar barraProgresso, final boolean mostra) {
@@ -51,9 +48,9 @@ public class Utils {
     }
 
     /** Método sobrecarregado para mostrar/ocultar a barra de progresso
-     * @param Context contexto
-     * @param ProgressBar barraProgresso
-     * @param boolean mostra
+     * @param contexto
+     * @param barraProgresso
+     * @param mostra
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public static void barraProgresso(Context contexto, final ProgressBar barraProgresso, final boolean mostra) {
@@ -73,7 +70,7 @@ public class Utils {
     }
 
     /**método sobrecarregado para criar adaptador para Spinner
-     * @param String[] lista
+     * @param lista Array de strings
      * @return  adaptador de String para Spinner
      */
     public ArrayAdapter setAdaptador(String[] lista){
@@ -87,8 +84,8 @@ public class Utils {
     }
 
     /**método sobrecarregado para criar adaptador para Spinner
-     * @param Context contexto
-     * @param String[] lista
+     * @param contexto
+     * @param lista Array de strings
      * @return  adaptador de String para Spinner
      */
     public static ArrayAdapter setAdaptador(Context contexto, String[] lista){
@@ -108,6 +105,8 @@ public class Utils {
         Listener listener;
 
         public interface Listener{
+            /** pega a data escolhida
+             * @return data */
             public void getData(String data);
         }
 
@@ -122,6 +121,7 @@ public class Utils {
             return new DatePickerDialog(getActivity(), this, ano, mes, dia);
         }
 
+        @Override
         public void onDateSet(DatePicker view, int year, int month, int day) {
             //pega data escolhida no DatePicker
             Calendar calendario = Calendar.getInstance();

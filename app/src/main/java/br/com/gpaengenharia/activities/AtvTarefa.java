@@ -6,20 +6,22 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Spinner;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
+import android.widget.AdapterView.OnItemSelectedListener;
 
-public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Listener, AdapterView.OnItemSelectedListener{
+/** Mostra os dados da tarefa */
+public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Listener, OnItemSelectedListener{
     private EditText EdtVencimento;
     private Spinner SpnResponsavel;
     private Spinner SpnProjeto;
-    private String[] responsavel = new String[]{ "responsável" };
-    private String[] projeto = new String[]{ "projeto" };
+    private String[] responsavel = new String[]{ "responsável" };//arrayString do spinner responsavel
+    private String[] projeto = new String[]{ "projeto" };//arraytring do spinner projeto
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +40,11 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         EdtVencimento.setText(data);
     }
 
+    /** setado diretamente na propriedade OnClick do EDTvencimento */
     public void mostraDatePicker(View v) {
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(this.getFragmentManager(), "datePicker");
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -66,4 +68,5 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
     public void onNothingSelected(AdapterView<?> parent) {
 
     }
+
 }

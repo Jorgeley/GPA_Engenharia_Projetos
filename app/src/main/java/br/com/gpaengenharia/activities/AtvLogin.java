@@ -12,7 +12,7 @@ import android.widget.ProgressBar;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.R;
 
-/*
+/**
  Tela de Login
   */
 public class AtvLogin extends Activity{
@@ -35,6 +35,10 @@ public class AtvLogin extends Activity{
         this.PrgLogin = (ProgressBar) findViewById(R.id.login_progress);
     }
 
+    /**
+     * setado diretamente na propriedade OnClick do BTNlogin
+     * @param v
+     */
     public void onClickLogin(View v) {
         String login = this.TxtEmail.getText().toString();
         String senha = this.EdtSenha.getText().toString();

@@ -1,4 +1,5 @@
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -71,7 +72,8 @@
             android:layout_span="3"
             android:height="100dp"
             android:lines="100"
-            android:hint="@string/hint_edt_descricao" />
+            android:hint="@string/hint_edt_descricao"
+            android:gravity="bottom" />
     </TableRow>
 
     <TableRow
@@ -90,7 +92,8 @@
             android:layout_span="3"
             android:height="100dp"
             android:lines="100"
-            android:hint="@string/hint_edt_dialogo" />
+            android:hint="@string/hint_edt_dialogo"
+            android:gravity="bottom" />
     </TableRow>
 
     <TableRow

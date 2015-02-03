@@ -9,11 +9,12 @@
         android:id="@+id/textViewParent"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
+        android:paddingBottom="0dp"
         android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
         android:paddingTop="10dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
+        android:focusable="false"
         />
 
 </LinearLayout>
