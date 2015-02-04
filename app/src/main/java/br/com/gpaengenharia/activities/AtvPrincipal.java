@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Adaptador;
+import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
@@ -31,18 +32,15 @@ Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e s
 Também dá opção de agrupamento por tarefas ou projetos
  */
 public class AtvPrincipal extends Activity implements OnGroupClickListener, OnChildClickListener{
-    // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada
+    // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
     private TreeMap<String, List<String>> projetosTreeMap;
-    // List<Tarefa> tarefasProjetos nó de projetosTreeMap
-    private List<String> tarefasProjetos;
     private ExpandableListView lvProjetos;//listView expansível dos projetos
-    private Adaptador adaptador;
-    //instância polimórfica contendo os dados dos projetos pessoais, equipe, hoje e semana
+    private Adaptador adaptador; //adaptador do listView
+    //instância polimórfica que provê os dados dos projetos pessoais, equipe, hoje e semana
     private ProvedorDados provedorDados;
     private char agrupamento = 't';//t=agrupamento tarefas, p=agrupamento projetos
-    private float x1,x2, y1, y2; //coordenadas de touchEvent
     private ViewFlipper viewFlipper; //desliza os layouts
-    private Animation animFadein;
+    private Animation animFadein; //animaçãozinha para o dashboard
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,45 +56,14 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
         agrupaTarefas();
     }
 
-    //detecta movimentos de fling (deslizar entre telas)
+    /** repassa para a classe Utils o trabalho de deslizar as telas */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:{
-                x1 = event.getX();
-                y1 = event.getY();
-                break;
-            }
-            case MotionEvent.ACTION_UP: {
-                x2 = event.getX();
-                y2 = event.getY();
-                //desliza layouts da esquerda pra direita
-                if (x1 < x2) {
-                    //se já está no layout dashboard então não precisa deslizar
-                    if (this.viewFlipper.getCurrentView().getId() == R.id.LayoutDashboard)
-                        break;
-                    this.viewFlipper.setInAnimation(this, R.anim.entra_esquerda);
-                    this.viewFlipper.setOutAnimation(this, R.anim.sai_direita);
-                    this.viewFlipper.setDisplayedChild(this.viewFlipper.indexOfChild(findViewById(R.id.LayoutDashboard)));//showNext()
-                }else if (x1 > x2) {//desliza layouts da direita pra esquerda
-                        //se já está no layout tarefas então não precisa deslizar
-                        if (this.viewFlipper.getCurrentView().getId() == R.id.LayoutTarefas)
-                            break;
-                        this.deslizaLayoutTarefas();
-                }
-                break;
-            }
-                /*//de cima para baixo
-                if (y1 < y2){
-                    Toast.makeText(this, "UP to Down Swap Performed", Toast.LENGTH_LONG).show();
-                }
-                //de baixo pra cima
-                if (y1 > y2){
-                    Toast.makeText(this, "Down to UP Swap Performed", Toast.LENGTH_LONG).show();
-                }
-                break;*/
-        }
-        return false;
+        Utils.contexto = this;
+        return Utils.onTouchEvent(  event,
+                                    this.viewFlipper,
+                                    findViewById(R.id.LayoutDashboard),
+                                    findViewById(R.id.LayoutTarefas));
     }
 
     /** retorna a árvore de projetos invertida apenas com as tarefas */
@@ -118,8 +85,10 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
 
     /** adapta os projetos no listView expansível */
     private void setAdaptador(){
-        this.tarefasProjetos = new ArrayList<String>(this.projetosTreeMap.keySet());
-        this.adaptador = new Adaptador(this, this.projetosTreeMap, this.tarefasProjetos);
+        // List<Tarefa> tarefasProjetos sublista de projetosTreeMap
+        List<String> tarefasProjetos;
+        tarefasProjetos = new ArrayList<String>(this.projetosTreeMap.keySet());
+        this.adaptador = new Adaptador(this, this.projetosTreeMap, tarefasProjetos);
         this.lvProjetos.setAdapter(this.adaptador);
     }
 
@@ -157,56 +126,74 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
     //métodos sobrecarregados utilizados pelo menu acima e pelos botões da view atv_principal
     public void projetosPessoais(View v){
         v.startAnimation(animFadein);
-        this.deslizaLayoutTarefas();
-        this.provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
-        agrupaTarefas();
+        Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasPessoais)) {
+            this.provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     public void projetosPessoais(){
-        this.provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
-        agrupaTarefas();
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasPessoais)) {
+            this.provedorDados = new ProvedorDadosTarefasPessoais(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     public void projetosEquipe(View v){
         v.startAnimation(animFadein);
-        this.deslizaLayoutTarefas();
-        this.provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
-        agrupaTarefas();
+        Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasEquipe)) {
+            this.provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     public void projetosEquipe(){
-        this.provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
-        agrupaTarefas();
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasEquipe)) {
+            this.provedorDados = new ProvedorDadosTarefasEquipe(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     public void projetosHoje(View v){
         v.startAnimation(animFadein);
-        this.deslizaLayoutTarefas();
-        this.provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
-        agrupaTarefas();
+        Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasHoje)) {
+            this.provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     public void projetosHoje(){
-        this.provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
-        agrupaTarefas();
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasHoje)) {
+            this.provedorDados = new ProvedorDadosTarefasHoje(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     public void projetosSemana(View v){
         v.startAnimation(animFadein);
-        this.deslizaLayoutTarefas();
-        this.provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
-        agrupaTarefas();
+        Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
+            this.provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     public void projetosSemana(){
-        this.provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
-        agrupaTarefas();
-    }
-
-    private void deslizaLayoutTarefas(){
-        this.viewFlipper.setInAnimation(this, R.anim.entra_direita);
-        this.viewFlipper.setOutAnimation(this, R.anim.sai_esquerda);
-        this.viewFlipper.setDisplayedChild(this.viewFlipper.indexOfChild(findViewById(R.id.LayoutTarefas)));//showPrevious();
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
+            this.provedorDados = new ProvedorDadosTarefasSemana(this);//polimorfismo
+            agrupaTarefas();
+        }
     }
 
     @Override
@@ -232,4 +219,5 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
                 + " - " + tarefasProjetos.get(groupPosition), Toast.LENGTH_SHORT).show();*/
         return false;
     }
+
 }

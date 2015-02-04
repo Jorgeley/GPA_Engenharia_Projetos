@@ -12,6 +12,24 @@
 
         <!-- 2º layout: dashboard (menu) -->
         <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:id="@+id/LayoutTarefas"
+            android:gravity="center_horizontal">
+
+            <ExpandableListView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/LVprojetos"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="false"
+                android:layout_alignParentBottom="true"
+                android:touchscreenBlocksFocus="false" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/LayoutDashboard"
             android:orientation="vertical"
             android:layout_width="fill_parent"
@@ -188,24 +206,6 @@
                 </TableRow>
             </TableLayout>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:id="@+id/LayoutTarefas"
-            android:gravity="center_horizontal">
-
-            <ExpandableListView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/LVprojetos"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="false"
-                android:layout_alignParentBottom="true"
-                android:touchscreenBlocksFocus="false" />
         </LinearLayout>
 
         <!-- 1º layout: lista de tarefas/projetos -->

@@ -54,7 +54,7 @@ public class XmlTarefasEquipe extends Xml implements XmlInterface {
                 serializadorXML.attribute(null, "nome", "Projeto Equipe Exemplo " + String.valueOf(projeto));
                 for (int tarefa=1; tarefa<5; tarefa++) {
                     serializadorXML.startTag(null, "tarefa");
-                    serializadorXML.text("Tarefa Equipe Exemplo " + tarefa);
+                    serializadorXML.text("Tarefa Equipe Exemplo " + tarefa + projeto);
                     serializadorXML.endTag(null, "tarefa");;
                 }
                 serializadorXML.endTag(null, "projeto");

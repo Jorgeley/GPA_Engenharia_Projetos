@@ -76,7 +76,7 @@ public class Adaptador extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        Log.i("test", "parent view: " + parent.getTag());
+        //Log.i("test", "parent view: " + parent.getTag());
 
         String tarefaTitulo = (String) getChild(groupPosition, childPosition);
         if (convertView == null) {

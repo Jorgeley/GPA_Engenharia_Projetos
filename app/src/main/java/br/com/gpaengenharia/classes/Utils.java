@@ -9,12 +9,15 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ProgressBar;
+import android.widget.ViewFlipper;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import br.com.gpaengenharia.R;
 
 /**
  * Utilidades para o projeto
@@ -22,6 +25,8 @@ import java.util.Calendar;
 public class Utils{
     public static Context contexto;
 
+    /** @param contexto Contexto da activity
+     */
     public Utils(Context contexto){
         this.contexto = contexto;
     }
@@ -133,4 +138,64 @@ public class Utils{
                 listener.getData(data);
         }
     }
+
+    /**
+     *  detecta movimentos de fling (deslizar entre telas)
+     * @param event Evento onTouch da activity
+     * @param viewFlipper viewFlipper que fará o trabalho de deslizar a tela
+     * @param layoutEsquerda O view layout para deslizar para esquerda
+     * @param layoutDireita O view layout para deslizar para direita
+     * @return ok
+     */
+    public static boolean onTouchEvent(MotionEvent event, ViewFlipper viewFlipper, View layoutEsquerda, View layoutDireita){
+        float x1 = 0, x2, y1, y2; //coordenadas de touchEvent
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:{
+                x1 = event.getX();
+                y1 = event.getY();
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                x2 = event.getX();
+                y2 = event.getY();
+                //desliza layouts da esquerda pra direita
+                if (x1 < x2) {
+                    //se já está no layout dashboard então não precisa deslizar
+                    if (viewFlipper.getCurrentView().getId() == layoutEsquerda.getId())
+                        break;
+                    viewFlipper.setInAnimation(contexto, R.anim.entra_esquerda);
+                    viewFlipper.setOutAnimation(contexto, R.anim.sai_direita);
+                    viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(layoutEsquerda));//showNext()
+                }else if (x1 > x2) {//desliza layouts da direita pra esquerda
+                    //se já está no layout tarefas então não precisa deslizar
+                    if (viewFlipper.getCurrentView().getId() == layoutDireita.getId())
+                        break;
+                    deslizaLayoutDireita(viewFlipper, layoutDireita);
+                }
+                break;
+            }
+                /*//de cima para baixo
+                if (y1 < y2){
+                    Toast.makeText(this, "UP to Down Swap Performed", Toast.LENGTH_LONG).show();
+                }
+                //de baixo pra cima
+                if (y1 > y2){
+                    Toast.makeText(this, "Down to UP Swap Performed", Toast.LENGTH_LONG).show();
+                }
+                break;*/
+        }
+        return false;
+    }
+
+    /**
+     * Desliza um layout para a direita
+     * @param viewFlipper O viewFlipper que fará o trabalho de deslizar
+     * @param layoutDireita O layout para o qual deslizar para a direita
+     */
+    public static void deslizaLayoutDireita(ViewFlipper viewFlipper, View layoutDireita){
+        viewFlipper.setInAnimation(contexto, R.anim.entra_direita);
+        viewFlipper.setOutAnimation(contexto, R.anim.sai_esquerda);
+        viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(layoutDireita));//showPrevious();
+    }
+
 }
