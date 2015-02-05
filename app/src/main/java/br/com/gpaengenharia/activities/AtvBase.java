@@ -2,8 +2,6 @@ package br.com.gpaengenharia.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,11 +25,10 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 
-/**
-Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
-Também dá opção de agrupamento por tarefas ou projetos
+/** Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
+ Também dá opção de agrupamento por tarefas ou projetos
  */
-public class AtvPrincipal extends Activity implements OnGroupClickListener, OnChildClickListener{
+abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
     // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
     private TreeMap<String, List<String>> projetosTreeMap;
     private ExpandableListView lvProjetos;//listView expansível dos projetos
@@ -42,10 +39,8 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
     private ViewFlipper viewFlipper; //desliza os layouts
     private Animation animFadein; //animaçãozinha para o dashboard
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.atv_principal);
+    /** seta os views comuns dos layouts Adm e Colaborador */
+    protected void setViews(){
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
         this.animFadein = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
@@ -56,7 +51,10 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
         agrupaTarefas();
     }
 
-    /** repassa para a classe Utils o trabalho de deslizar as telas */
+    /**repassa para a classe Utils o trabalho de deslizar as telas
+     * @param event
+     * @return false se o evento onTouch foi capturado, true se ao contrário
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Utils.contexto = this;
@@ -92,12 +90,15 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
         this.lvProjetos.setAdapter(this.adaptador);
     }
 
-    /** opções do menu */
+    /**opções comuns dos menus Adm e Colaborador
+     * @param item
+     * @return o menu selecionado
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.novatarefa:
-                startActivity(new Intent(AtvPrincipal.this, AtvTarefa.class));
+                startActivity(new Intent(AtvBase.this, AtvTarefa.class));
                 break;
             case R.id.projetos_pessoais:
                 this.projetosPessoais();
@@ -123,7 +124,7 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
         return super.onOptionsItemSelected(item);
     }
 
-    //métodos sobrecarregados utilizados pelo menu acima e pelos botões da view atv_principal
+    //métodos sobrecarregados utilizados pelo menu acima e pelos botões da view layout_base
     public void projetosPessoais(View v){
         v.startAnimation(animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
@@ -196,17 +197,20 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    /**infla o xml do menu comum ao Adm e Colabordor
+     * @param menu
+     * @return o MenuInflater para adicionar mais opções de menu
+     */
+    public MenuInflater criaMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.atv_principal, menu);
-        return super.onCreateOptionsMenu(menu);
+        inflater.inflate(R.menu.menu_base, menu);
+        return inflater;
     }
 
     @Override
     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
         if (this.agrupamento == 't') {
-            startActivity(new Intent(AtvPrincipal.this, AtvTarefa.class));
+            startActivity(new Intent(AtvBase.this, AtvTarefa.class));
             return true;
         }else
             return false;
@@ -214,8 +218,8 @@ public class AtvPrincipal extends Activity implements OnGroupClickListener, OnCh
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        startActivity(new Intent(AtvPrincipal.this, AtvTarefa.class));
-        /*Toast.makeText(AtvPrincipal.this, projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition)
+        startActivity(new Intent(AtvBase.this, AtvTarefa.class));
+        /*Toast.makeText(AtvBase.this, projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition)
                 + " - " + tarefasProjetos.get(groupPosition), Toast.LENGTH_SHORT).show();*/
         return false;
     }

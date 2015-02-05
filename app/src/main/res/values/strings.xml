@@ -3,5 +3,9 @@
 
     <string name="nome_app">GPA - Projetos 1.0</string>
     <string name="versao">1.0 (beta)</string>
+    <string name="title_activity_atv_colaborador">" "</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_atv_administrador">" "</string>
 
 </resources>

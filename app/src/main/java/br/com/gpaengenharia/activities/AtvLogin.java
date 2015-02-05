@@ -76,7 +76,10 @@ public class AtvLogin extends Activity{
             AtaskLogin = null;
             Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
             if (successo) {
-                startActivity(new Intent(AtvLogin.this, AtvPrincipal.class));
+                if (login.equals("adm"))
+                    startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));
+                else
+                    startActivity(new Intent(AtvLogin.this, AtvColaborador.class));
             } else {
                 //TODO: implementar erro de login
             }
