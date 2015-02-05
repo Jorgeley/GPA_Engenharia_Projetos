@@ -9,6 +9,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -148,6 +149,11 @@ public class Utils{
      * @return ok
      */
     public static boolean onTouchEvent(MotionEvent event, ViewFlipper viewFlipper, View layoutEsquerda, View layoutDireita){
+        /*Log.i("classes",
+                "MotionEvent: "+event.getClass().toString()+"\n"
+                +"ViewFlipper: "+viewFlipper.getClass().toString()+"\n"
+                +"ViewEsquerda: "+layoutEsquerda.getClass().toString()+"\n"
+                +"ViewDireita: "+layoutDireita.getClass().toString());*/
         float x1 = 0, x2, y1, y2; //coordenadas de touchEvent
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:{
