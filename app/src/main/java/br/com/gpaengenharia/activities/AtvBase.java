@@ -39,6 +39,12 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     private ViewFlipper viewFlipper; //desliza os layouts
     private Animation animFadein; //animaçãozinha para o dashboard
 
+    @Override
+    public Intent getParentActivityIntent() {
+        Utils.deslizaLayoutEsquerda(this.viewFlipper, findViewById(R.id.LayoutDashboard));
+        return null;
+    }
+
     /** seta os views comuns dos layouts Adm e Colaborador */
     protected void setViews(){
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
@@ -98,6 +104,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.novatarefa:
+            case R.id.menu_novatarefa:
                 startActivity(new Intent(AtvBase.this, AtvTarefa.class));
                 break;
             case R.id.projetos_pessoais:
@@ -126,7 +133,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
 
     //métodos sobrecarregados utilizados pelo menu acima e pelos botões da view layout_base
     public void projetosPessoais(View v){
-        v.startAnimation(animFadein);
+        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasPessoais)) {
@@ -144,7 +151,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     }
 
     public void projetosEquipe(View v){
-        v.startAnimation(animFadein);
+        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasEquipe)) {
@@ -162,7 +169,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     }
 
     public void projetosHoje(View v){
-        v.startAnimation(animFadein);
+        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasHoje)) {
@@ -180,7 +187,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     }
 
     public void projetosSemana(View v){
-        v.startAnimation(animFadein);
+        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
@@ -210,6 +217,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     @Override
     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
         if (this.agrupamento == 't') {
+            //v.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
             startActivity(new Intent(AtvBase.this, AtvTarefa.class));
             return true;
         }else

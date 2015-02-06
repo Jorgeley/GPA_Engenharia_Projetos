@@ -19,19 +19,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/nome_app"
         android:theme="@style/TemaGeral" >
-
-        <!--
-                Theme.Black (cx de textos com bordas, estilo web, menu some)
-                Theme.Dialog (janelas reduzidas em cascata do tamanho dos UI's, menu some)
-                Theme.Holo (tela cheia fundo preto com menu)
-                Theme.InputMethod (tudo transparente, só aparece os UI's)
-                Theme.Leanback.FormWizard (tela cheia, design bonito, UI's mto grandes)
-                Theme.Light (tela cheia, design bonito, UI's com bordas estilo web, menu some)
-                Theme.Panel (idem Theme.InputMethod)
-                Theme.Translucent (idem Theme.InputMethod)
-                Theme.Wallpaper (idem Theme.InputMethod)
-                Theme.WithActionBar (tela cheia, design bonito com menu, UI's com bordas estilo web)
-        -->
         <activity
             android:name=".activities.AtvLogin"
             android:label=""
@@ -50,18 +37,26 @@
         <activity
             android:name=".activities.AtvColaborador"
             android:label="@string/title_activity_atv_colaborador"
-            android:parentActivityName=".activities.AtvColaborador">
+            android:parentActivityName=".activities.AtvColaborador" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="br.com.gpaengenharia.activities.AtvBase" />
         </activity>
         <activity
             android:name=".activities.AtvAdministrador"
-            android:label="@string/title_activity_atv_administrador"
+            android:label="@string/titulo_atv_administrador"
             android:parentActivityName=".activities.AtvAdministrador" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="br.com.gpaengenharia.activities.AtvBase" />
+        </activity>
+        <activity
+            android:name=".activities.AtvProjeto"
+            android:label="@string/titulo_atv_projeto" >
+        </activity>
+        <activity
+            android:name=".activities.AtvUsuarios"
+            android:label="@string/titulo_atv_usuarios" >
         </activity>
     </application>
 

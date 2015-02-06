@@ -27,9 +27,9 @@ public class AtvColaborador extends AtvBase{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        /*if (id == R.id.action_settings) {
             Toast.makeText(this, "col", Toast.LENGTH_SHORT).show();
-        }
+        }*/
         return super.onOptionsItemSelected(item);
     }
 

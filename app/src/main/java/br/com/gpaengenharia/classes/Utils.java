@@ -204,4 +204,15 @@ public class Utils{
         viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(layoutDireita));//showPrevious();
     }
 
+    /**
+     * Desliza um layout para a direita
+     * @param viewFlipper O viewFlipper que fará o trabalho de deslizar
+     * @param layoutEsquerda O layout para o qual deslizar para a esquerda
+     */
+    public static void deslizaLayoutEsquerda(ViewFlipper viewFlipper, View layoutEsquerda){
+        viewFlipper.setInAnimation(contexto, R.anim.entra_esquerda);
+        viewFlipper.setOutAnimation(contexto, R.anim.sai_direita);
+        viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(layoutEsquerda));//showPrevious();
+    }
+
 }

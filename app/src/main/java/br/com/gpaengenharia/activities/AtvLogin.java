@@ -9,6 +9,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.R;
 
@@ -16,6 +17,7 @@ import br.com.gpaengenharia.R;
  Tela de Login
   */
 public class AtvLogin extends Activity{
+    public static Usuario usuario; //objeto global
     //TODO: implementar comunicação com webservice
     public static boolean ErroWebservice = false; //status webservice
     private AutoCompleteTextView TxtEmail;
@@ -76,10 +78,15 @@ public class AtvLogin extends Activity{
             AtaskLogin = null;
             Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
             if (successo) {
-                if (login.equals("adm"))
+                if (login.equals("adm")) {
+                    usuario = new Usuario();
+                    usuario.setPerfil("adm");
                     startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));
-                else
+                }else {
+                    usuario = new Usuario();
+                    usuario.setPerfil("col");
                     startActivity(new Intent(AtvLogin.this, AtvColaborador.class));
+                }
             } else {
                 //TODO: implementar erro de login
             }

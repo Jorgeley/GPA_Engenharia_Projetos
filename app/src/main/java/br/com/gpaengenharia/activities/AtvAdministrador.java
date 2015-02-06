@@ -1,11 +1,10 @@
 package br.com.gpaengenharia.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
-
 import br.com.gpaengenharia.R;
 
 public class AtvAdministrador extends AtvBase{
@@ -27,9 +26,15 @@ public class AtvAdministrador extends AtvBase{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Toast.makeText(this, "adm", Toast.LENGTH_SHORT).show();
+        switch (item.getItemId()){
+            case R.id.actionbar_novoprojeto:
+            case R.id.menu_novoprojeto:
+                startActivity(new Intent(AtvAdministrador.this, AtvProjeto.class));
+                break;
+            case R.id.gerenciar_equipes:
+            case R.id.gerenciar_usuarios:
+                startActivity(new Intent(AtvAdministrador.this, AtvUsuarios.class));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

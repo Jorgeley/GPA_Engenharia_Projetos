@@ -1,9 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item android:id="@+id/actionbar_tarefa" android:icon="@drawable/tarefa" android:title="@string/submenu_tarefa" android:orderInCategory="1" android:showAsAction="ifRoom" />
-    <item android:id="@+id/actionbar_projeto" android:icon="@drawable/projeto" android:title="@string/submenu_projeto" android:orderInCategory="1" android:showAsAction="ifRoom" />
-    <item android:title="@string/menu_novatarefa" android:id="@+id/novatarefa"/>
-    <item android:title="@string/menu_projetos" android:icon="@android:drawable/ic_media_play">
+    <item android:id="@+id/actionbar_tarefa" android:icon="@drawable/tarefa" android:title="@string/submenu_tarefa" android:orderInCategory="1" android:showAsAction="always" />
+    <item android:id="@+id/actionbar_projeto" android:icon="@drawable/projeto" android:title="@string/submenu_projeto" android:orderInCategory="1" android:showAsAction="always" />
+    <item android:title="@string/menu_novatarefa" android:id="@+id/novatarefa" android:icon="@drawable/novatarefa" android:showAsAction="always"/>
+    <item android:title="@string/menu_novatarefa" android:id="@+id/menu_novatarefa" />
+    <item android:title="@string/menu_projetos" android:id="@+id/projetos" android:icon="@android:drawable/ic_media_play">
         <menu>
             <item android:id="@+id/projetos_pessoais" android:title="@string/submenu_pessoais" android:icon="@drawable/tarefa" android:orderInCategory="0" />
             <item android:id="@+id/projetos_equipe" android:title="@string/submenu_equipe" android:icon="@drawable/equipe" android:orderInCategory="2" />
@@ -11,7 +12,7 @@
             <item android:id="@+id/projetos_semana" android:title="@string/submenu_semana" android:icon="@drawable/semana" android:orderInCategory="4" />
         </menu>
     </item>
-    <item android:title="@string/menu_agrupamento" android:icon="@android:drawable/ic_media_play">
+    <item android:title="@string/menu_agrupamento" android:id="@+id/agrupamento" android:icon="@android:drawable/ic_media_play">
         <menu>
             <item android:id="@+id/agrupamento_tarefa" android:title="@string/submenu_tarefa" android:icon="@drawable/tarefa" android:orderInCategory="1" />
             <item android:id="@+id/agrupamento_projeto" android:title="@string/submenu_projeto" android:icon="@drawable/projeto" android:orderInCategory="1" />
