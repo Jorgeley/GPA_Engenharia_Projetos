@@ -7,6 +7,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import br.com.gpaengenharia.R;
 
+/**
+ * Activity do administrador de projetos
+ */
 public class AtvAdministrador extends AtvBase{
 
     @Override
@@ -15,7 +18,6 @@ public class AtvAdministrador extends AtvBase{
         setContentView(R.layout.atv_administrador);
         this.setViews();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

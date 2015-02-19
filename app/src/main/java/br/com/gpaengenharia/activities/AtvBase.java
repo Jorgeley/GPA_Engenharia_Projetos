@@ -25,8 +25,10 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 
-/** Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
- Também dá opção de agrupamento por tarefas ou projetos
+/**
+ * Activity Base para todos os atores do sistema
+ * Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
+ * Também dá opção de agrupamento por tarefas ou projetos
  */
 abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
     // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
@@ -39,6 +41,10 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     private ViewFlipper viewFlipper; //desliza os layouts
     private Animation animFadein; //animaçãozinha para o dashboard
 
+    /**
+     * desliza o layout dashboard da esquerda para a direita
+     * @return null, pois não é pra voltar na activity anterior
+     */
     @Override
     public Intent getParentActivityIntent() {
         Utils.deslizaLayoutEsquerda(this.viewFlipper, findViewById(R.id.LayoutDashboard));
@@ -204,7 +210,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
         }
     }
 
-    /**infla o xml do menu comum ao Adm e Colabordor
+    /**infla o xml do menu comum ao Adm e Colaborador
      * @param menu
      * @return o MenuInflater para adicionar mais opções de menu
      */

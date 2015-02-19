@@ -1,5 +1,7 @@
 package br.com.gpaengenharia.classes;
 
+import android.util.Log;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
@@ -7,60 +9,50 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 import br.com.gpaengenharia.activities.AtvLogin;
+import br.com.gpaengenharia.beans.Usuario;
 
 public class WebService {
     //Namespace of the Webservice - can be found in WSDL
-    private static String NAMESPACE = "http://service.programmerguru.com/";
+    private static String NAMESPACE = "http://192.168.1.103/GPA/public/webservice/soap/";
     //Webservice URL - WSDL File location
-    private static String URL = "http://192.168.2.2:8080/LoginWebService/LoginWebService?WSDL";//Make sure you changed IP address
+    private static String URL = "http://192.168.1.103/GPA/public/webservice/soap";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
-    private static String SOAP_ACTION = "http://service.programmerguru.com/";
+    private static String SOAP_ACTION = "http://192.168.1.103/GPA/public/webservice/soap#";
 
-    public static boolean invokeLoginWS(String userName,String passWord, String webMethName) {
-        boolean loginStatus = false;
-        // Create request
-        SoapObject request = new SoapObject(NAMESPACE, webMethName);
-        // Property which holds input parameters
-        PropertyInfo unamePI = new PropertyInfo();
-        PropertyInfo passPI = new PropertyInfo();
-        // Set Username
-        unamePI.setName("username");
-        // Set Value
-        unamePI.setValue(userName);
-        // Set dataType
-        unamePI.setType(String.class);
-        // Add the property to request object
-        request.addProperty(unamePI);
-        //Set Password
-        passPI.setName("password");
-        //Set dataType
-        passPI.setValue(passWord);
-        //Set dataType
-        passPI.setType(String.class);
-        //Add the property to request object
-        request.addProperty(passPI);
-        // Create envelope
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
-                SoapEnvelope.VER11);
-        // Set output SOAP object
-        envelope.setOutputSoapObject(request);
-        // Create HTTP call object
+    public static Usuario loginWebservice(String login, String senha, String metodo) {
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, metodo);
+        //setando propriedades do método do webservice 'autentica'
+        PropertyInfo loginWebservice = new PropertyInfo();
+        PropertyInfo senhaWebservice = new PropertyInfo();
+        loginWebservice.setName("login");
+        loginWebservice.setValue(login);
+        loginWebservice.setType(String.class);
+        requisicao.addProperty(loginWebservice);
+        senhaWebservice.setName("senha");
+        senhaWebservice.setValue(senha);
+        senhaWebservice.setType(String.class);
+        requisicao.addProperty(senhaWebservice);
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
-
-        try {
-            // Invoke web service
-            androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
-            // Get the response
-            SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
-            // Assign it to  boolean variable variable
-            loginStatus = Boolean.parseBoolean(response.toString());
-
+        //bean Usuario
+        Usuario usuario = new Usuario();
+        try {//faz a chamada do método 'autentica' do webservice
+            androidHttpTransport.call(SOAP_ACTION + metodo, envelope);
+            //pegando a resposta
+            SoapObject resposta = (SoapObject) envelope.getResponse();
+            usuario.setId((Integer) resposta.getPrimitiveProperty("id"));
+            usuario.setNome((String) resposta.getPrimitiveProperty("nome"));
+            usuario.setPerfil((String) resposta.getPrimitiveProperty("perfil"));
+            //Log.i("usuario " + resposta.getPrimitiveProperty("nome"), String.valueOf(resposta));
         } catch (Exception e) {
-            //Assign Error Status true in static variable 'errored'
-            AtvLogin.ErroWebservice = true;
+            //se não conseguir autenticar retorna null
+            usuario = null;
             e.printStackTrace();
         }
-        //Return booleam to calling object
-        return loginStatus;
+        return usuario;
     }
 }

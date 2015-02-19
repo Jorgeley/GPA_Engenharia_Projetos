@@ -4,22 +4,26 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.classes.WebService;
 
 /**
- Tela de Login
-  */
+ * Activity inicial, Tela de Login
+ */
 public class AtvLogin extends Activity{
     public static Usuario usuario; //objeto global
     //TODO: implementar comunicação com webservice
-    public static boolean ErroWebservice = false; //status webservice
+    public Usuario respostaWebservice; //status webservice
     private AutoCompleteTextView TxtEmail;
     private EditText EdtSenha;
     private ProgressBar PrgLogin;
@@ -63,14 +67,11 @@ public class AtvLogin extends Activity{
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: implementar login real.
-            try {
-                // Simulando um login
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+            usuario = WebService.loginWebservice(login, senha, "autentica");
+            if (usuario!=null)
+                return true;
+            else
                 return false;
-            }
-            return true;
         }
 
         @Override
@@ -78,17 +79,13 @@ public class AtvLogin extends Activity{
             AtaskLogin = null;
             Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
             if (successo) {
-                if (login.equals("adm")) {
-                    usuario = new Usuario();
-                    usuario.setPerfil("adm");
+                Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf(usuario.getNome()), Toast.LENGTH_LONG).show();
+                if (usuario.getPerfil()=="1")
                     startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));
-                }else {
-                    usuario = new Usuario();
-                    usuario.setPerfil("col");
+                else
                     startActivity(new Intent(AtvLogin.this, AtvColaborador.class));
-                }
             } else {
-                //TODO: implementar erro de login
+                Toast.makeText(AtvLogin.this, "Usuário ou senha inválidos", Toast.LENGTH_LONG).show();
             }
         }
 

@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 import br.com.gpaengenharia.R;
 
+/**
+ * Activity do colaborador de projetos (usuário comum)
+ */
 public class AtvColaborador extends AtvBase{
 
     @Override
@@ -15,7 +17,6 @@ public class AtvColaborador extends AtvBase{
         setContentView(R.layout.atv_colaborador);
         this.setViews();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -26,10 +27,9 @@ public class AtvColaborador extends AtvBase{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        /*if (id == R.id.action_settings) {
-            Toast.makeText(this, "col", Toast.LENGTH_SHORT).show();
-        }*/
+        switch (item.getItemId()){
+
+        }
         return super.onOptionsItemSelected(item);
     }
 

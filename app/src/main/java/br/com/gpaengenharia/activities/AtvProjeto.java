@@ -14,10 +14,12 @@ import android.widget.Spinner;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Utils;
 
+/**
+ * Activity de gerenciamento de projetos
+ */
 public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFragment.Listener, AdapterView.OnItemSelectedListener {
     private EditText EdtVencimento;
     private Spinner SpnResponsavel;
-    private ImageButton BtnNovoResponsavel;
     private String[] responsavel = new String[]{ "responsável" };//arrayString do spinner responsavel
 
 
@@ -29,9 +31,12 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
         EdtVencimento.setInputType(0);
         SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
         SpnResponsavel.setAdapter(Utils.setAdaptador(this, responsavel));
-        BtnNovoResponsavel = (ImageButton) findViewById(R.id.BTNnovoresponsavel);
     }
 
+    /**
+     * retorna a data do datePicker
+     * @param data
+     */
     @Override
     public void getData(String data) {
         EdtVencimento.setText(data);
@@ -45,17 +50,19 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.atv_projeto, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        switch (item.getItemId()){
+
+        }
         return super.onOptionsItemSelected(item);
     }
 
+    /** setado diretamente na propriedade OnClick do BTNnovoResponsavel */
     public void onClickBtnNovoResponsavel(View v){
         startActivity(new Intent(this, AtvUsuarios.class));
     }

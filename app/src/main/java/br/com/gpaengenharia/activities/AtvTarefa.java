@@ -1,27 +1,29 @@
 package br.com.gpaengenharia.activities;
 
-import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TableRow;
+import android.widget.Toast;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 
-/** Mostra os dados da tarefa */
+/**
+ * Activity de gerenciamento de tarefas
+ */
 public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Listener, OnItemSelectedListener{
     private EditText EdtTarefa;
     private EditText EdtDescricao;
@@ -40,16 +42,19 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         EdtDescricao = (EditText) findViewById(R.id.EDTdescricao);
         EdtDialogo = (EditText) findViewById(R.id.EDTdialogo);
         EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
-        EdtVencimento.setInputType(0);
+        EdtVencimento.setInputType(0); //não aparece teclado
         SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
         SpnResponsavel.setAdapter(Utils.setAdaptador(this, responsavel));
         SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
         SpnProjeto.setAdapter(Utils.setAdaptador(this, projeto));
-        //caso usuário seja adminnistrador, adiciona botões de administração no layout
+        //caso usuário seja administrador, adiciona botões de administração no layout
         if (AtvLogin.usuario.getPerfil() == "adm")
             addBotoes();
     }
 
+    /**retorna a data do datePicker
+     * @param data
+     */
     @Override
     public void getData(String data) {
         EdtVencimento.setText(data);
@@ -97,14 +102,29 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.atv_tarefa, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+        switch (item.getItemId()){
+            case R.id.actionbar_comenta:
+            case R.id.menu_comenta:
+                LayoutInflater factory = LayoutInflater.from(this);
+                final View layoutComentario = factory.inflate(R.layout.comentario, null);
+                AlertDialog.Builder comentario = new AlertDialog.Builder(this)
+                        .setIconAttribute(android.R.attr.alertDialogIcon)
+                        .setTitle(R.string.actionbar_comenta)
+                        .setView(layoutComentario)
+                        .setPositiveButton(R.string.actionbar_grava, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Toast.makeText(AtvTarefa.this, "comentario gravado", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    comentario.show();
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 
