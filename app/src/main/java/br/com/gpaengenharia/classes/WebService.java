@@ -1,14 +1,13 @@
 package br.com.gpaengenharia.classes;
 
 import android.util.Log;
-
+import com.sandinh.phpparser.PhpUnserializer;
+import org.kobjects.base64.Base64;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
-import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.beans.Usuario;
 
 public class WebService {
@@ -43,7 +42,12 @@ public class WebService {
         try {//faz a chamada do método 'autentica' do webservice
             androidHttpTransport.call(SOAP_ACTION + "autentica", envelope);
             //pegando a resposta
-            SoapObject resposta = (SoapObject) envelope.getResponse();
+            String respostaCodificada = (String) envelope.getResponse();
+            byte[] respostaBase64 = Base64.decode(respostaCodificada);
+            Log.i("base64", respostaBase64.toString());
+            /*GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(respostaBase64));
+            Log.i("gzip", String.valueOf(gzip.read()));*/
+            SoapObject resposta = (SoapObject) PhpUnserializer.parse(String.valueOf(respostaBase64));
             usuario.setId((Integer) resposta.getPrimitiveProperty("id"));
             usuario.setNome((String) resposta.getPrimitiveProperty("nome"));
             usuario.setPerfil((String) resposta.getPrimitiveProperty("perfil"));
