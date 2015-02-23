@@ -29,7 +29,7 @@ public class ProvedorDadosTarefasEquipe extends ProvedorDados implements Provedo
         if (super.projetosTreeMapBean.isEmpty()) {
             XmlTarefasEquipe xml = new XmlTarefasEquipe(this.contexto);
             xml.criaXmlProjetosEquipeTeste();
-            super.projetosTreeMapBean = xml.leXmlTeste();
+            super.projetosTreeMapBean = xml.leXml();
         }
     }
 

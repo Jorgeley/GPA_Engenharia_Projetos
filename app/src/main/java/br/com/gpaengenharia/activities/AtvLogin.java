@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -12,10 +11,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.WebService;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
 /**
  * Activity inicial, Tela de Login
@@ -67,10 +69,16 @@ public class AtvLogin extends Activity{
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            usuario = WebService.loginWebservice(login, senha, "autentica");
-            if (usuario!=null)
+            usuario = WebService.login(login, senha);//login via webservice
+            if (usuario!=null) {
+                XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
+                try {//baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
+                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return true;
-            else
+            }else
                 return false;
         }
 
@@ -79,6 +87,8 @@ public class AtvLogin extends Activity{
             AtaskLogin = null;
             Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
             if (successo) {
+                /* OUT OF MEMORY!!!
+                WebService.tarefas(usuario.getId());*/
                 Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf(usuario.getNome()), Toast.LENGTH_LONG).show();
                 if (usuario.getPerfil()=="1")
                     startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));

@@ -29,7 +29,7 @@ public class ProvedorDadosTarefasHoje extends ProvedorDados implements ProvedorD
         if (super.projetosTreeMapBean.isEmpty()) {
             XmlTarefasHoje xml = new XmlTarefasHoje(this.contexto);
             xml.criaXmlProjetosHojeTeste();
-            super.projetosTreeMapBean = xml.leXmlTeste();
+            super.projetosTreeMapBean = xml.leXml();
         }
     }
 }

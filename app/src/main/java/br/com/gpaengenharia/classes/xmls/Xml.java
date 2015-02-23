@@ -30,7 +30,7 @@ public abstract class Xml{
 
     /** abre o arquivo xml para leitura e retorna o TreeMap de beans <Projeto List<Tarefa>>
      * @return TreeMap Projeto(bean), ListTarefa(bean) */
-    public TreeMap<Projeto, List<Tarefa>> leXmlTeste(){
+    public TreeMap<Projeto, List<Tarefa>> leXml(){
         XmlPullParserFactory pullParserFactory;
         try {
             pullParserFactory = XmlPullParserFactory.newInstance();
@@ -67,10 +67,14 @@ public abstract class Xml{
                     nomeNode = parser.getName();
                     if (nomeNode.equals("projeto")) {//...se tag é projeto...
                         projetoAtual = new Projeto();
-                        projetoAtual.setNome(parser.getAttributeValue(0));//...seta o bean Projeto
+                        projetoAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));//...seta o bean Projeto
+                        parser.nextTag();
+                        projetoAtual.setNome(parser.nextText());
                         //Log.i("novo projeto", projetoAtual.getNome());
                     }else if (nomeNode.equals("tarefa")) {//...se tag é tarefa...
                         Tarefa tarefaAtual = new Tarefa();
+                        tarefaAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));
+                        parser.nextTag();
                         tarefaAtual.setNome(parser.nextText());//...seta o bean Tarefa
                         //Log.i("adicionando", tarefaAtual.getNome());
                         tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
@@ -86,6 +90,7 @@ public abstract class Xml{
             }
             tipoEvento = parser.next();
         }
+        //this.log();
     }
 
     /** gera log dos beans Projeto e Tarefa no TreeMap*/

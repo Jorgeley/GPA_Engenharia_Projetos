@@ -29,7 +29,7 @@ public class ProvedorDadosTarefasSemana extends ProvedorDados implements Provedo
         if (super.projetosTreeMapBean.isEmpty()) {
             XmlTarefasSemana xml = new XmlTarefasSemana(this.contexto);
             xml.criaXmlProjetosSemanaTeste();
-            super.projetosTreeMapBean = xml.leXmlTeste();
+            super.projetosTreeMapBean = xml.leXml();
         }
     }
 }

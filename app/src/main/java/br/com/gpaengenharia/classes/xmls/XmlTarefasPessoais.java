@@ -5,6 +5,9 @@ import android.util.Log;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+
+import br.com.gpaengenharia.classes.http.Http;
 
 /**
 Cria arquivo xml de exemplo para teste
@@ -31,6 +34,24 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
     @Override
     public void setNomeArquivoXML() {
         super.nomeAquivoXML = this.nomeArquivoXML;
+    }
+
+    /**
+     * Faz download do XML do webservice e salva localmente
+     * @throws IOException
+     */
+    public void criaXmlProjetosPessoaisWebservice() throws IOException {
+        //faz o download do XML
+        final String xml = Http.getInstance(Http.NORMAL)
+                .downloadArquivo("http://192.168.1.103:8888/GPA/public/webservice/projetos",super.contexto);
+        //Log.i("xml", xml);
+        try {
+            this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
+            this.arquivoXML.write(xml.getBytes());
+            this.arquivoXML.close();
+        } catch (FileNotFoundException e) {
+            Log.e("erro IO", e.getMessage());
+        }
     }
 
     /**

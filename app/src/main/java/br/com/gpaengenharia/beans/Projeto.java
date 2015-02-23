@@ -2,6 +2,7 @@ package br.com.gpaengenharia.beans;
 
 public class Projeto implements Comparable{
     private String nome;
+    private Integer id;
 
     public String getNome() {
         return nome;
@@ -15,5 +16,9 @@ public class Projeto implements Comparable{
     @Override
     public int compareTo(Object another) {
         return 1;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
