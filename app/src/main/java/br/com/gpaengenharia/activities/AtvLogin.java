@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
 
 import br.com.gpaengenharia.beans.Usuario;
@@ -71,9 +72,14 @@ public class AtvLogin extends Activity{
         protected Boolean doInBackground(Void... params) {
             usuario = WebService.login(login, senha);//login via webservice
             if (usuario!=null) {
+                /**
+                 * TODO nao fazer o download do arquivo se ele ja existir
+                 * if (new File("tarefasPessoais.xml").exists())
+                 */
                 XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
-                try {//baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
-                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice();
+                //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
+                try {
+                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(usuario.getId());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -89,8 +95,8 @@ public class AtvLogin extends Activity{
             if (successo) {
                 /* OUT OF MEMORY!!!
                 WebService.tarefas(usuario.getId());*/
-                Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf(usuario.getNome()), Toast.LENGTH_LONG).show();
-                if (usuario.getPerfil()=="1")
+                Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf("["+usuario.getPerfil()+"]"+usuario.getNome()), Toast.LENGTH_LONG).show();
+                if (usuario.getPerfil().equals("adm"))
                     startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));
                 else
                     startActivity(new Intent(AtvLogin.this, AtvColaborador.class));

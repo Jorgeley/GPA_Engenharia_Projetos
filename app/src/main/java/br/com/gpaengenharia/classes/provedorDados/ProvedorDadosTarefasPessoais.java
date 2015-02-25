@@ -36,29 +36,3 @@ public class ProvedorDadosTarefasPessoais extends ProvedorDados implements Prove
         }
     }
 }
-
-class DownloadTask extends AsyncTask<Void, Void, Boolean> {
-    private Context contexto;
-
-    private DownloadTask(Context contexto){
-        this.contexto = contexto;
-    }
-
-    @Override
-    protected Boolean doInBackground(Void... params) {
-            try {
-                XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this.contexto);
-                xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-            return true;
-    }
-
-    @Override
-    protected void onPostExecute(final Boolean successo) {
-        if (successo) {
-        }
-    }
-}

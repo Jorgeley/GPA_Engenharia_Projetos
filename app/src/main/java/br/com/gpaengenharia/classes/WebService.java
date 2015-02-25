@@ -1,13 +1,17 @@
 package br.com.gpaengenharia.classes;
 
 import android.util.Log;
-import com.sandinh.phpparser.PhpUnserializer;
-import org.kobjects.base64.Base64;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
+
+import java.util.Vector;
+
+import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.beans.Usuario;
 
 public class WebService {
@@ -42,16 +46,11 @@ public class WebService {
         try {//faz a chamada do método 'autentica' do webservice
             androidHttpTransport.call(SOAP_ACTION + "autentica", envelope);
             //pegando a resposta
-            String respostaCodificada = (String) envelope.getResponse();
-            byte[] respostaBase64 = Base64.decode(respostaCodificada);
-            Log.i("base64", respostaBase64.toString());
-            /*GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(respostaBase64));
-            Log.i("gzip", String.valueOf(gzip.read()));*/
-            SoapObject resposta = (SoapObject) PhpUnserializer.parse(String.valueOf(respostaBase64));
-            usuario.setId((Integer) resposta.getPrimitiveProperty("id"));
-            usuario.setNome((String) resposta.getPrimitiveProperty("nome"));
-            usuario.setPerfil((String) resposta.getPrimitiveProperty("perfil"));
-            //Log.i("usuario " + resposta.getPrimitiveProperty("nome"), String.valueOf(resposta));
+            Vector<SoapObject> resposta = (Vector<SoapObject>) envelope.getResponse();
+            //Log.i("usuario ", String.valueOf(resposta));
+            usuario.setId((Integer) resposta.get(0).getPrimitiveProperty("id"));
+            usuario.setNome((String) resposta.get(0).getPrimitiveProperty("nome"));
+            usuario.setPerfil((String) resposta.get(1).getPrimitiveProperty("perfil"));
         } catch (Exception e) {
             //se não conseguir autenticar retorna null
             usuario = null;
@@ -61,31 +60,32 @@ public class WebService {
         return usuario;
     }
 
-    /* OUT OF MEMORY!!!
-    public static void tarefas(int idUsuario){
-        Log.i("idUsuario", String.valueOf(idUsuario));
+    public static String projetos(int idUsuario) {
+        //Log.i("idUsuario", String.valueOf(idUsuario));
         //requisição SOAP
-        SoapObject requisicao = new SoapObject(NAMESPACE, "tarefas");
+        SoapObject requisicao = new SoapObject(NAMESPACE, "projetos");
         //setando propriedades do método do webservice 'autentica'
         PropertyInfo idUsuarioWebservice = new PropertyInfo();
-        idUsuarioWebservice.setName("usuario");
-        idUsuarioWebservice.setValue(idUsuarioWebservice);
-        idUsuarioWebservice.setType(int.class);
+        idUsuarioWebservice.setName("idUsuario");
+        idUsuarioWebservice.setValue(idUsuario);
+        idUsuarioWebservice.setType(Integer.class);
         requisicao.addProperty(idUsuarioWebservice);
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);
         //requisição HTTP
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String xml = null;
         try {//faz a chamada do método 'projetos' do webservice
-            Log.i("SOAP", SOAP_ACTION+"tarefas");
-            androidHttpTransport.call(SOAP_ACTION + "tarefas", envelope);
+            //Log.i("SOAP", SOAP_ACTION+"projetos");
+            androidHttpTransport.call(SOAP_ACTION + "projetos", envelope);
             //pegando a resposta
-            SoapObject resposta = (SoapObject) envelope.getResponse();
-            Log.i("xml", String.valueOf(resposta));
+            xml = (String) envelope.getResponse();
+            //Log.i("xml", resposta);
         } catch (Exception e) {
             //se não conseguir autenticar retorna null
             e.printStackTrace();
         }
-    }*/
+        return xml;
+    }
 }

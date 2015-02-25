@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.http.Http;
 
 /**
@@ -40,11 +41,15 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
      * Faz download do XML do webservice e salva localmente
      * @throws IOException
      */
-    public void criaXmlProjetosPessoaisWebservice() throws IOException {
-        //faz o download do XML
+    public void criaXmlProjetosPessoaisWebservice(int usuarioId) throws IOException {
+        /*//faz o download do XML
         final String xml = Http.getInstance(Http.NORMAL)
                 .downloadArquivo("http://192.168.1.103:8888/GPA/public/webservice/projetos",super.contexto);
-        //Log.i("xml", xml);
+        //Log.i("xml", xml);*/
+        /**
+         * TODO nao deixar o webservice ser chamado sem restricao
+         */
+        String xml = WebService.projetos(usuarioId);
         try {
             this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
             this.arquivoXML.write(xml.getBytes());

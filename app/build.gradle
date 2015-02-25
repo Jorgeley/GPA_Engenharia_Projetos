@@ -17,8 +17,6 @@ repositories {
 dependencies {
     compile 'com.android.support:support-v4:21.0.3'
     compile 'com.google.code.ksoap2-android:ksoap2-android:3.0.0'
-    compile 'com.sandinh:php-unserializer_2.11:1.0.4'
-    compile 'com.sandinh:spray-util:1.3.0'
 }
 
 android {
