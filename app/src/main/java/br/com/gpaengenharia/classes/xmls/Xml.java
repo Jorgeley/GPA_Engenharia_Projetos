@@ -7,8 +7,13 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import br.com.gpaengenharia.beans.Projeto;
@@ -75,8 +80,25 @@ public abstract class Xml{
                         Tarefa tarefaAtual = new Tarefa();
                         tarefaAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));
                         parser.nextTag();
-                        tarefaAtual.setNome(parser.nextText());//...seta o bean Tarefa
-                        //Log.i("adicionando", tarefaAtual.getNome());
+                        tarefaAtual.setNome(parser.nextText());//...seta nome da tarefa
+                        parser.nextTag();
+                        tarefaAtual.setDescricao(parser.nextText());//...seta descricacao
+                        parser.nextTag();
+                        //pula os comentarios
+                        if (parser.getName().equalsIgnoreCase("comentarios")) { //TODO arrumar esse gato aqui
+                            parser.nextTag();
+                            parser.nextTag();
+                        }
+                        SimpleDateFormat formatoData = new SimpleDateFormat("MM/dd/yyyy", new Locale("pt", "BR"));
+                        Date data = null;
+                        try {
+                            //Log.i("data", parser.nextText());
+                            data = formatoData.parse(parser.nextText());//seta data
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        tarefaAtual.setVencimento(data);//...seta o bean Tarefa
+                        Log.i("adicionando", String.valueOf(data + "->" + tarefaAtual.getVencimento()));
                         tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                     }
                     break;

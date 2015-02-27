@@ -1,8 +1,12 @@
 package br.com.gpaengenharia.classes.provedorDados;
 
+import android.util.Log;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import br.com.gpaengenharia.beans.Projeto;
@@ -57,11 +61,15 @@ public abstract class ProvedorDados{
             Projeto projetoBean = projetosTarefasBean.getKey();//pega o projeto atual
             List<Tarefa> tarefasBean = projetosTarefasBean.getValue();//pega a lista de tarefas do projeto
             if (inverteAgrupamento) {//se for pra inverter o agrupamento...
-                List<String> projetosString = new ArrayList<String>();
-                projetosString.add(projetoBean.getNome());
+                String nomeProjeto = projetoBean.getNome();
                 //...para cada tarefa adiciona no TreeMap de String a tarefa e seu projeto, sem sublista...
-                for (Tarefa tarefa : tarefasBean)
+                for (Tarefa tarefa : tarefasBean) {
+                    SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yyy", new Locale("pt","BR"));
+                    String data = formataData.format(tarefa.getVencimento());
+                    List<String> projetosString = new ArrayList<String>();
+                    projetosString.add(0, nomeProjeto + " [" + data + ']');
                     projetosTreeMapString.put(tarefa.getNome(), projetosString);
+                }
             }else{//...senão, adiciona no TreeMap de String o projeto com sua sublista de tarefas
                 List<String> tarefasString = new ArrayList<String>();
                 for (Tarefa tarefa : tarefasBean)
