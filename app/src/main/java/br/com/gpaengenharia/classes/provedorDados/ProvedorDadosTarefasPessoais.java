@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.TreeMap;
 
+import br.com.gpaengenharia.beans.Projeto;
+import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
 /**

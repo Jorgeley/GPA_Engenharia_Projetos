@@ -98,7 +98,7 @@ public abstract class Xml{
                             e.printStackTrace();
                         }
                         tarefaAtual.setVencimento(data);//...seta o bean Tarefa
-                        Log.i("adicionando", String.valueOf(data + "->" + tarefaAtual.getVencimento()));
+                        //Log.i("adicionando", String.valueOf(data + "->" + tarefaAtual.getVencimento()));
                         tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                     }
                     break;

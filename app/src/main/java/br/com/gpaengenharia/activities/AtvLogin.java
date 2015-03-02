@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -70,22 +71,29 @@ public class AtvLogin extends Activity{
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            usuario = WebService.login(login, senha);//login via webservice
-            if (usuario!=null) {
-                /**
-                 * TODO nao fazer o download do arquivo se ele ja existir
-                 * if (new File("tarefasPessoais.xml").exists())
-                 */
+            if (login=="adm"){
+                Log.i("login", "logando localmente como Adm sem webservice");
                 XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
-                //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
-                try {
-                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(usuario.getId());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                xmlTarefasPessoais.criaXmlProjetosPessoaisTeste();
                 return true;
-            }else
-                return false;
+            }else {
+                usuario = WebService.login(login, senha);//login via webservice
+                if (usuario != null) {
+                    /**
+                     * TODO nao fazer o download do arquivo se ele ja existir
+                     * if (new File("tarefasPessoais.xml").exists())
+                     */
+                    XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
+                    //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
+                    try {
+                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(usuario.getId());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return true;
+                } else
+                    return false;
+            }
         }
 
         @Override

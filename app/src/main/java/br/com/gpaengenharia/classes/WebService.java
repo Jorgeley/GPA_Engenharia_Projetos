@@ -15,12 +15,14 @@ import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.beans.Usuario;
 
 public class WebService {
+    //private static String SERVIDOR = "192.168.0.118:8888";
+    private static String SERVIDOR = "192.168.1.103:8888";
     //Namespace of the Webservice - can be found in WSDL
-    private static String NAMESPACE = "http://192.168.1.103/GPA/public/webservice/soap/";
+    private static String NAMESPACE = "http://"+SERVIDOR+"/GPA/public/webservice/soap/";
     //Webservice URL - WSDL File location
-    private static String URL = "http://192.168.1.103:8888/GPA/public/webservice/soap";//Make sure you changed IP address
+    private static String URL = "http://"+SERVIDOR+"/GPA/public/webservice/soap";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
-    private static String SOAP_ACTION = "http://192.168.1.103:8888/GPA/public/webservice/soap#";
+    private static String SOAP_ACTION = "http://"+SERVIDOR+"/GPA/public/webservice/soap#";
 
     public static Usuario login(String login, String senha) {
         //requisição SOAP

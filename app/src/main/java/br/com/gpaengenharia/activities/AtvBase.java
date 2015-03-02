@@ -14,9 +14,12 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.beans.Projeto;
+import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.Adaptador;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
@@ -32,7 +35,7 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
  */
 abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
     // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
-    private TreeMap<String, List<String>> projetosTreeMap;
+    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
     private ExpandableListView lvProjetos;//listView expansível dos projetos
     private Adaptador adaptador; //adaptador do listView
     //instância polimórfica que provê os dados dos projetos pessoais, equipe, hoje e semana
@@ -78,7 +81,7 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
 
     /** retorna a árvore de projetos invertida apenas com as tarefas */
     private void agrupaTarefas(){
-        this.projetosTreeMap = this.provedorDados.getTarefas(true);
+        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas(true);
         setAdaptador();
         //expande todos os grupos
         for (int grupo = 0; grupo < this.adaptador.getGroupCount(); grupo++)
@@ -88,17 +91,16 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
 
     /** retorna a árvore de projetos padrão com sublista de tarefas em cada projeto */
     private void agrupaProjetos(){
-        this.projetosTreeMap = this.provedorDados.getTarefas(false);
+        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas(false);
         setAdaptador();
         this.agrupamento = 'p';
     }
 
     /** adapta os projetos no listView expansível */
     private void setAdaptador(){
-        // List<Tarefa> tarefasProjetos sublista de projetosTreeMap
-        List<String> tarefasProjetos;
-        tarefasProjetos = new ArrayList<String>(this.projetosTreeMap.keySet());
-        this.adaptador = new Adaptador(this, this.projetosTreeMap, tarefasProjetos);
+        /*// List<Tarefa> tarefasProjetos sublista de projetosTreeMap
+        List<Tarefa> tarefasProjetos = (List<Tarefa>) this.projetosTreeMap.keySet();*/
+        this.adaptador = new Adaptador(this, this.projetosTreeMap);
         this.lvProjetos.setAdapter(this.adaptador);
     }
 

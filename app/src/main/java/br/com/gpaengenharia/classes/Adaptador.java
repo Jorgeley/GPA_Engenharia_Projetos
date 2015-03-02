@@ -7,23 +7,31 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.beans.Projeto;
+import br.com.gpaengenharia.beans.Tarefa;
 
 /**
 Adaptador do listView expansível
  */
 public class Adaptador extends BaseExpandableListAdapter {
     private Context contexto;
-    private TreeMap<String, List<String>> projetosTreeMap;
-    private List<String> tarefasProjetos;
+    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
+    private Object[] projetosArray;
+    private Projeto projeto;
+    //private List<Tarefa> tarefasProjetos;
 
-    public Adaptador(Context contexto,TreeMap<String, List<String>> projetosTreeMap, List<String> tarefasProjetos) {
-        this.projetosTreeMap = projetosTreeMap;
+    public Adaptador(Context contexto,TreeMap<Projeto, List<Tarefa>> projetosTreeMap) {
         this.contexto = contexto;
         this.projetosTreeMap = projetosTreeMap;
-        this.tarefasProjetos = tarefasProjetos;
+        this.projetosArray = this.projetosTreeMap.keySet().toArray();
+        //this.tarefasProjetos = tarefasProjetos;
     }
 
     @Override
@@ -33,17 +41,26 @@ public class Adaptador extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return this.projetosTreeMap.get(this.tarefasProjetos.get(groupPosition)).size();
+        this.projeto = (Projeto) projetosArray[groupPosition];
+        Log.i("getChildrenCount",this.projeto.getNome());
+        Log.i("getChildrenCount", String.valueOf(this.projetosTreeMap.get(this.projeto)));
+        return this.projetosTreeMap.get(this.projeto).size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return this.tarefasProjetos.get(groupPosition);
+        this.projeto = (Projeto) projetosArray[groupPosition];
+        /**
+         *  keyset:pega as chaves do TreeMap(no caso objetos Projeto),
+         *  transforma em array e pega na posiçao correta
+         */
+        return this.projeto;
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return this.projetosTreeMap.get(this.tarefasProjetos.get(groupPosition)).get(childPosition);
+        this.projeto = (Projeto) projetosArray[groupPosition];
+        return this.projetosTreeMap.get(this.projeto).get(childPosition);
     }
 
     @Override
@@ -63,14 +80,14 @@ public class Adaptador extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
-        String projetoTitulo = (String) getGroup(groupPosition);
+        Projeto projeto = (Projeto) getGroup(groupPosition);
         if (convertView == null) {
             LayoutInflater inflater =
                     (LayoutInflater) this.contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.parent_layout, parent, false);
         }
         TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
-        parentTextView.setText(projetoTitulo);
+        parentTextView.setText(projeto.getNome());
         return convertView;
     }
 
@@ -78,14 +95,14 @@ public class Adaptador extends BaseExpandableListAdapter {
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         //Log.i("test", "parent view: " + parent.getTag());
 
-        String tarefaTitulo = (String) getChild(groupPosition, childPosition);
+        Tarefa tarefa = (Tarefa) getChild(groupPosition, childPosition);
         if (convertView == null) {
             LayoutInflater inflater =
                     (LayoutInflater) this.contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.child_layout, parent, false);
         }
         TextView childTextView = (TextView) convertView.findViewById(R.id.textViewChild);
-        childTextView.setText(tarefaTitulo);
+        childTextView.setText(tarefa.getNome());
         //convertView.setVisibility(View.INVISIBLE);
         return convertView;
     }
