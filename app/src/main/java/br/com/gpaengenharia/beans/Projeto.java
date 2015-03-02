@@ -1,8 +1,16 @@
 package br.com.gpaengenharia.beans;
 
 public class Projeto implements Comparable{
-    private String nome;
     private Integer id;
+    private String nome;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome;
@@ -12,18 +20,15 @@ public class Projeto implements Comparable{
         this.nome = nome;
     }
 
-    /** se return 0, objetos iguais e não adiciona, se return 1 então adiciona */
     @Override
-    public int compareTo(Object another) {
-        return 1;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public boolean equals(Object another) {
+        return (this.id == ((Projeto)another).getId());
     }
 
     @Override
-    public boolean equals(Object o) {
-        return true;
+    public int compareTo(Object o) {
+        if (this.id == ((Projeto)o).getId())
+            return 0;
+        else return 1;
     }
 }
