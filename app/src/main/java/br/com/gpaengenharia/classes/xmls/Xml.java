@@ -1,6 +1,7 @@
 package br.com.gpaengenharia.classes.xmls;
 
 import android.content.Context;
+import android.os.Parcel;
 import android.util.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -77,7 +78,7 @@ public abstract class Xml{
                         projetoAtual.setNome(parser.nextText());
                         //Log.i("novo projeto", projetoAtual.getNome());
                     }else if (nomeNode.equals("tarefa")) {//...se tag é tarefa...
-                        Tarefa tarefaAtual = new Tarefa();
+                        Tarefa tarefaAtual = new Tarefa(Parcel.obtain());
                         tarefaAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));
                         parser.nextTag();
                         tarefaAtual.setNome(parser.nextText());//...seta nome da tarefa

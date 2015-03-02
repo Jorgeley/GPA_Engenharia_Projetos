@@ -2,6 +2,9 @@ package br.com.gpaengenharia.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -14,13 +17,13 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
-import br.com.gpaengenharia.classes.Adaptador;
+import br.com.gpaengenharia.classes.AdaptadorProjetos;
+import br.com.gpaengenharia.classes.AdaptadorTarefas;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
@@ -36,8 +39,11 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
     // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
     private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
+    // <Tarefa, List<Projeto>> inverçao do TreeMap acima: árvore de tarefas com sublista de projetos em cada tarefa
+    private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap;
     private ExpandableListView lvProjetos;//listView expansível dos projetos
-    private Adaptador adaptador; //adaptador do listView
+    private AdaptadorProjetos adaptadorProjetos; //adaptadorProjetos do listView
+    private AdaptadorTarefas adaptadorTarefas; //adaptadorProjetos do listView
     //instância polimórfica que provê os dados dos projetos pessoais, equipe, hoje e semana
     private ProvedorDados provedorDados;
     private char agrupamento = 't';//t=agrupamento tarefas, p=agrupamento projetos
@@ -81,27 +87,43 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
 
     /** retorna a árvore de projetos invertida apenas com as tarefas */
     private void agrupaTarefas(){
-        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas(true);
-        setAdaptador();
-        //expande todos os grupos
-        for (int grupo = 0; grupo < this.adaptador.getGroupCount(); grupo++)
-            this.lvProjetos.expandGroup(grupo);
+        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
+        this.tarefasTreeMap = new TreeMap<Tarefa, List<Projeto>>();
+        //gera novo TreeMap invertido com Tarefa e List<Projeto>
+        Object[] projetosArray = this.projetosTreeMap.keySet().toArray();
+        for (Object objetoProjeto : projetosArray){
+            Projeto projeto = (Projeto) objetoProjeto;
+            Object[] tarefasArray = this.projetosTreeMap.get(projeto).toArray();
+            for (Object objetoTarefa : tarefasArray) {
+                Tarefa tarefa = (Tarefa) objetoTarefa;
+                ArrayList<Projeto> projetos = new ArrayList<Projeto>();
+                projetos.add(projeto);
+                this.tarefasTreeMap.put(tarefa, projetos);
+            }
+        }
+        setAdaptador(true);
         this.agrupamento = 't';
     }
 
     /** retorna a árvore de projetos padrão com sublista de tarefas em cada projeto */
     private void agrupaProjetos(){
-        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas(false);
-        setAdaptador();
+        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
+        setAdaptador(false);
         this.agrupamento = 'p';
     }
 
     /** adapta os projetos no listView expansível */
-    private void setAdaptador(){
-        /*// List<Tarefa> tarefasProjetos sublista de projetosTreeMap
-        List<Tarefa> tarefasProjetos = (List<Tarefa>) this.projetosTreeMap.keySet();*/
-        this.adaptador = new Adaptador(this, this.projetosTreeMap);
-        this.lvProjetos.setAdapter(this.adaptador);
+    private void setAdaptador(boolean inverte){
+        if (inverte) {
+            this.adaptadorTarefas = new AdaptadorTarefas(this, this.tarefasTreeMap);
+            this.lvProjetos.setAdapter(this.adaptadorTarefas);
+            //expande todos os grupos
+            for (int grupo = 0; grupo < this.adaptadorTarefas.getGroupCount(); grupo++)
+                this.lvProjetos.expandGroup(grupo);
+        }else {
+            this.adaptadorProjetos = new AdaptadorProjetos(this, this.projetosTreeMap);
+            this.lvProjetos.setAdapter(this.adaptadorProjetos);
+        }
     }
 
     /**opções comuns dos menus Adm e Colaborador
@@ -225,8 +247,12 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     @Override
     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
         if (this.agrupamento == 't') {
+            Bundle bundleTarefa = new Bundle();
+            bundleTarefa.putParcelable("tarefa", (Tarefa) parent.getExpandableListAdapter().getGroup(groupPosition));
+            Intent atvTarefa = new Intent(AtvBase.this, AtvTarefa.class);
+            atvTarefa.putExtras(bundleTarefa);
             //v.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
-            startActivity(new Intent(AtvBase.this, AtvTarefa.class));
+            startActivity(atvTarefa);
             return true;
         }else
             return false;
@@ -234,10 +260,15 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        startActivity(new Intent(AtvBase.this, AtvTarefa.class));
-        /*Toast.makeText(AtvBase.this, projetosTreeMap.get(tarefasProjetos.get(groupPosition)).get(childPosition)
-                + " - " + tarefasProjetos.get(groupPosition), Toast.LENGTH_SHORT).show();*/
-        return false;
+        if (this.agrupamento == 'p') {
+            Bundle bundleTarefa = new Bundle();
+            bundleTarefa.putParcelable("tarefa", (Tarefa) parent.getExpandableListAdapter().getChild(groupPosition, childPosition));
+            Intent atvTarefa = new Intent(AtvBase.this, AtvTarefa.class);
+            atvTarefa.putExtras(bundleTarefa);
+            startActivity(atvTarefa);
+            return true;
+        }else
+            return false;
     }
 
 }

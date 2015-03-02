@@ -48,10 +48,11 @@ public abstract class ProvedorDados{
         return projetosTreeMap;
     }
 
-    public TreeMap<Projeto, List<Tarefa>> getTreeMapBeanProjetosTarefas(boolean inverteAgrupamento) {
+    public TreeMap<Projeto, List<Tarefa>> getTreeMapBeanProjetosTarefas() {
         return this.projetosTreeMapBean;
     }
 
+    @Deprecated
     /**Busca os beans Projeto e Tarefa do Xml e transforma em TreeMap de String
      * inverteAgrupamento:
      * @param inverteAgrupamento se True inverte o agrupamento do TreeMap agrupando por tarefas

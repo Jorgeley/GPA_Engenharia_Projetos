@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +18,13 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
 
@@ -25,6 +32,7 @@ import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
  * Activity de gerenciamento de tarefas
  */
 public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Listener, OnItemSelectedListener{
+    private Tarefa tarefa;
     private EditText EdtTarefa;
     private EditText EdtDescricao;
     private EditText EdtDialogo;
@@ -47,6 +55,15 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         SpnResponsavel.setAdapter(Utils.setAdaptador(this, responsavel));
         SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
         SpnProjeto.setAdapter(Utils.setAdaptador(this, projeto));
+        Bundle bundleTarefa = getIntent().getExtras();
+        if (bundleTarefa != null) {
+            this.tarefa = bundleTarefa.getParcelable("tarefa");
+            EdtTarefa.setText(this.tarefa.getNome());
+            EdtDescricao.setText(this.tarefa.getDescricao());
+            SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
+            String data = formatoData.format(this.tarefa.getVencimento());//seta data
+            EdtVencimento.setText(data);
+        }
         //caso usuário seja administrador, adiciona botões de administração no layout
         if (AtvLogin.usuario.getPerfil() == "adm")
             addBotoes();
