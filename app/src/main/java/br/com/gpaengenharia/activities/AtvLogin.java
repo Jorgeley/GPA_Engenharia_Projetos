@@ -77,10 +77,11 @@ public class AtvLogin extends Activity{
                 xmlTarefasPessoais.criaXmlProjetosPessoaisTeste();
                 return true;
             }else {
+                //TODO nao enviar senhas sem segurança
                 usuario = WebService.login(login, senha);//login via webservice
                 if (usuario != null) {
                     /**
-                     * TODO nao fazer o download do arquivo se ele ja existir
+                     * TODO nao fazer o download do arquivo se ele ja existir e estar atualizado
                      * if (new File("tarefasPessoais.xml").exists())
                      */
                     XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);

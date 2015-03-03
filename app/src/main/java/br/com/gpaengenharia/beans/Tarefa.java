@@ -7,7 +7,9 @@ import java.util.Date;
 public class Tarefa implements Comparable, Parcelable {
     private Integer id;
     private String nome;
+    private String responsavel;
     private String descricao;
+    private Long comentario;
     private Date vencimento;
 
     public Integer getId() {
@@ -18,20 +20,20 @@ public class Tarefa implements Comparable, Parcelable {
         this.id = id;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
     public String getNome() {
         return nome;
     }
 
-    public Date getVencimento() {
-        return vencimento;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
-    public void setVencimento(Date vencimento) {
-        this.vencimento = vencimento;
+    public String getResponsavel() {
+        return responsavel;
+    }
+
+    public void setResponsavel(String responsavel) {
+        this.responsavel = responsavel;
     }
 
     public String getDescricao() {
@@ -40,6 +42,22 @@ public class Tarefa implements Comparable, Parcelable {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public Long getComentario() {
+        return comentario;
+    }
+
+    public void setComentario(Long comentario) {
+        this.comentario = comentario;
+    }
+
+    public Date getVencimento() {
+        return vencimento;
+    }
+
+    public void setVencimento(Date vencimento) {
+        this.vencimento = vencimento;
     }
 
     @Override
@@ -54,10 +72,12 @@ public class Tarefa implements Comparable, Parcelable {
         else return 1;
     }
 
-    public Tarefa(Parcel in) {
+    protected Tarefa(Parcel in) {
         id = in.readByte() == 0x00 ? null : in.readInt();
         nome = in.readString();
+        responsavel = in.readString();
         descricao = in.readString();
+        comentario = in.readByte() == 0x00 ? null : in.readLong();
         long tmpVencimento = in.readLong();
         vencimento = tmpVencimento != -1 ? new Date(tmpVencimento) : null;
     }
@@ -76,7 +96,14 @@ public class Tarefa implements Comparable, Parcelable {
             dest.writeInt(id);
         }
         dest.writeString(nome);
+        dest.writeString(responsavel);
         dest.writeString(descricao);
+        if (comentario == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeLong(comentario);
+        }
         dest.writeLong(vencimento != null ? vencimento.getTime() : -1L);
     }
 

@@ -2,20 +2,25 @@ package br.com.gpaengenharia.classes.xmls;
 
 import android.content.Context;
 import android.os.Parcel;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
@@ -62,54 +67,64 @@ public abstract class Xml{
         List<Tarefa> tarefas = new ArrayList<Tarefa>();
         int tipoEvento = parser.getEventType();
         Projeto projetoAtual = null;
+        Set<String> tagsProjeto = new HashSet<String>(Arrays.asList("nome", "responsavel"));
+        Set<String> tagsTarefa = new HashSet<String>(Arrays.asList("nome", "responsavel", "descricao", "comentarios", "vencimento"));
         //enquanto não chega no fim do documento xml...
         while (tipoEvento != XmlPullParser.END_DOCUMENT){
-            String nomeNode = null;
+            String nomeNode = parser.getName();
             switch (tipoEvento){
-                /*case XmlPullParser.START_DOCUMENT:
-                    List<Tarefa> tarefas = new ArrayList<Tarefa>();
-                    break;*/
                 case XmlPullParser.START_TAG: //se é inicio de nova tag no xml...
-                    nomeNode = parser.getName();
                     if (nomeNode.equals("projeto")) {//...se tag é projeto...
-                        projetoAtual = new Projeto();
-                        projetoAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));//...seta o bean Projeto
+                        projetoAtual = new Projeto(Parcel.obtain());
+                        projetoAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));
                         parser.nextTag();
-                        projetoAtual.setNome(parser.nextText());
-                        //Log.i("novo projeto", projetoAtual.getNome());
-                    }else if (nomeNode.equals("tarefa")) {//...se tag é tarefa...
+                        nomeNode = parser.getName();
+                        while (tagsProjeto.contains(nomeNode)) {
+                            switch (nomeNode) {
+                                case "nome": projetoAtual.setNome(parser.nextText()); break;
+                                case "responsavel": projetoAtual.setResponsavel(parser.nextText()); break;
+                            }
+                            parser.nextTag();
+                            nomeNode = parser.getName();
+                        }
+                    }
+                    if (nomeNode.equals("tarefa")) {//...se tag é tarefa...
                         Tarefa tarefaAtual = new Tarefa(Parcel.obtain());
                         tarefaAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));
                         parser.nextTag();
-                        tarefaAtual.setNome(parser.nextText());//...seta nome da tarefa
-                        parser.nextTag();
-                        tarefaAtual.setDescricao(parser.nextText());//...seta descricacao
-                        parser.nextTag();
-                        //pula os comentarios
-                        if (parser.getName().equalsIgnoreCase("comentarios")) { //TODO arrumar esse gato aqui
+                        nomeNode = parser.getName();
+                        while (tagsTarefa.contains(nomeNode)) {
+                            switch (nomeNode){
+                                case "nome" : tarefaAtual.setNome(parser.nextText()); break;
+                                case "responsavel" : tarefaAtual.setResponsavel(parser.nextText()); break;
+                                case "descricao" : tarefaAtual.setDescricao(parser.nextText()); break;
+                                case "comentarios" : //TODO arrumar esse gato aqui
+                                    parser.nextTag();
+                                    break;
+                                case "vencimento" :
+                                    SimpleDateFormat formatoData = new SimpleDateFormat("MM/dd/yyyy", new Locale("pt", "BR"));
+                                    Date data = null;
+                                    try {
+                                        data = formatoData.parse(parser.nextText());
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                    }
+                                    tarefaAtual.setVencimento(data);
+                                    break;
+                            }
+                            tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                             parser.nextTag();
-                            parser.nextTag();
+                            nomeNode = parser.getName();
                         }
-                        SimpleDateFormat formatoData = new SimpleDateFormat("MM/dd/yyyy", new Locale("pt", "BR"));
-                        Date data = null;
-                        try {
-                            //Log.i("data", parser.nextText());
-                            data = formatoData.parse(parser.nextText());//seta data
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        tarefaAtual.setVencimento(data);//...seta o bean Tarefa
-                        //Log.i("adicionando", String.valueOf(data + "->" + tarefaAtual.getVencimento()));
-                        tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                     }
                     break;
                 case XmlPullParser.END_TAG://se é fim de tag...
-                    nomeNode = parser.getName();
                     if (nomeNode.equalsIgnoreCase("projeto")) {//...se tag é projeto...
-                        //Log.i("adicionando projeto", projetoAtual.getNome());
-                        this.projetos.put(projetoAtual, tarefas);//...adiciona no TreeMap os beans Projeto e List<Tarefa>
+                        //...adiciona no TreeMap os beans Projeto e List<Tarefa>
+                        this.projetos.put(projetoAtual, tarefas);
                         tarefas = new ArrayList<Tarefa>();
                     }
+                    break;
             }
             tipoEvento = parser.next();
         }
@@ -123,7 +138,7 @@ public abstract class Xml{
             String tituloProjeto = projeto.getKey().getNome();
             List<Tarefa> tarefasProjeto = projeto.getValue();
             for (Tarefa tarefa : tarefasProjeto){
-                Log.i(tituloProjeto, tarefa.getNome());
+                Log.i(projeto.getKey().getId()+':'+tituloProjeto, tarefa.getId()+':'+tarefa.getNome());
             }
         }
     }

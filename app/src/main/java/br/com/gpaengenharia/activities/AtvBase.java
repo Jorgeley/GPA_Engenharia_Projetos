@@ -15,6 +15,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,8 +40,8 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
     // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
     private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
-    // <Tarefa, List<Projeto>> inverçao do TreeMap acima: árvore de tarefas com sublista de projetos em cada tarefa
-    private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap;
+    // <Tarefa, List<Projeto>> inversao do TreeMap acima: árvore de tarefas com sublista de projetos em cada tarefa
+    private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap = new TreeMap<Tarefa, List<Projeto>>();
     private ExpandableListView lvProjetos;//listView expansível dos projetos
     private AdaptadorProjetos adaptadorProjetos; //adaptadorProjetos do listView
     private AdaptadorTarefas adaptadorTarefas; //adaptadorProjetos do listView
@@ -88,20 +89,24 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     /** retorna a árvore de projetos invertida apenas com as tarefas */
     private void agrupaTarefas(){
         this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
-        this.tarefasTreeMap = new TreeMap<Tarefa, List<Projeto>>();
-        //gera novo TreeMap invertido com Tarefa e List<Projeto>
-        Object[] projetosArray = this.projetosTreeMap.keySet().toArray();
-        for (Object objetoProjeto : projetosArray){
-            Projeto projeto = (Projeto) objetoProjeto;
-            Object[] tarefasArray = this.projetosTreeMap.get(projeto).toArray();
-            for (Object objetoTarefa : tarefasArray) {
-                Tarefa tarefa = (Tarefa) objetoTarefa;
-                ArrayList<Projeto> projetos = new ArrayList<Projeto>();
-                projetos.add(projeto);
-                this.tarefasTreeMap.put(tarefa, projetos);
+        if (tarefasTreeMap.isEmpty()) {
+            //gera novo TreeMap invertido com Tarefa e List<Projeto>
+            Object[] projetosArray = this.projetosTreeMap.keySet().toArray();//chaves(Projeto) do TreeMap p/ array
+            for (Object objetoProjeto : projetosArray) { //para cada objeto Projeto...
+                Projeto projeto = (Projeto) objetoProjeto; //...pega o objeto Projeto...
+                //...pega objetos(Tarefa) no indice (Projeto) do TreeMap e transforma em array
+                Object[] tarefasArray = this.projetosTreeMap.get(projeto).toArray();
+                for (Object objetoTarefa : tarefasArray) { //para cada objeto Tarefa...
+                    Tarefa tarefa = (Tarefa) objetoTarefa; //...pega o objeto Tarefa...
+                    ArrayList<Projeto> projetos = new ArrayList<Projeto>(); //...cria ArrayList de Projeto...
+                    projetos.add(projeto); //...adiciona o objeto Projeto no ArrayList...
+                    //...e finalmente adiciona o objeto Tarefa como indice do novo TreeMap contendo ArrayList de Projeto
+                    this.tarefasTreeMap.put(tarefa, projetos);
+                }
             }
         }
         setAdaptador(true);
+        this.lvProjetos.setDividerHeight(-20);//diminui a distancia entre cada grupo do ExpandableListView (miauuuuu)
         this.agrupamento = 't';
     }
 
@@ -112,16 +117,24 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
         this.agrupamento = 'p';
     }
 
-    /** adapta os projetos no listView expansível */
+    /**
+     * adapta os projetos no listView expansível
+     * @param inverte true = TreeMap <Tarefa,ArrayList<Projeto>>
+     *                false = TreeMap <Projeto, ArrayList<Tarefa>>
+     */
     private void setAdaptador(boolean inverte){
         if (inverte) {
-            this.adaptadorTarefas = new AdaptadorTarefas(this, this.tarefasTreeMap);
+            //singleton
+            if (!(this.adaptadorTarefas instanceof AdaptadorTarefas))
+                this.adaptadorTarefas = new AdaptadorTarefas(this, this.tarefasTreeMap);
             this.lvProjetos.setAdapter(this.adaptadorTarefas);
             //expande todos os grupos
             for (int grupo = 0; grupo < this.adaptadorTarefas.getGroupCount(); grupo++)
                 this.lvProjetos.expandGroup(grupo);
         }else {
-            this.adaptadorProjetos = new AdaptadorProjetos(this, this.projetosTreeMap);
+            //singleton
+            if (!(this.adaptadorProjetos instanceof AdaptadorProjetos))
+                this.adaptadorProjetos = new AdaptadorProjetos(this, this.projetosTreeMap);
             this.lvProjetos.setAdapter(this.adaptadorProjetos);
         }
     }
@@ -247,8 +260,10 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     @Override
     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
         if (this.agrupamento == 't') {
+            //envia o objeto Tarefa parcelable selecionado para atvTarefa
             Bundle bundleTarefa = new Bundle();
             bundleTarefa.putParcelable("tarefa", (Tarefa) parent.getExpandableListAdapter().getGroup(groupPosition));
+            bundleTarefa.putParcelable("projeto", (Projeto) parent.getExpandableListAdapter().getChild(groupPosition, 0));
             Intent atvTarefa = new Intent(AtvBase.this, AtvTarefa.class);
             atvTarefa.putExtras(bundleTarefa);
             //v.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));

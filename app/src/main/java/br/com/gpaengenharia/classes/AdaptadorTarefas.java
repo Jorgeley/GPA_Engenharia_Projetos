@@ -1,13 +1,18 @@
 package br.com.gpaengenharia.classes;
 
 import android.content.Context;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.CaptioningManager;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 
 import br.com.gpaengenharia.R;
@@ -77,6 +82,7 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
+        Projeto projeto = (Projeto) getChild(groupPosition, 0);
         Tarefa tarefa = (Tarefa) getGroup(groupPosition);
         if (convertView == null) {
             LayoutInflater inflater =
@@ -84,23 +90,20 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
             convertView = inflater.inflate(R.layout.parent_layout, parent, false);
         }
         TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
-        parentTextView.setText(tarefa.getNome());
+        SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
+        String data = formatoData.format(tarefa.getVencimento());//seta data
+        Spanned projetoString = Html.fromHtml(tarefa.getNome()+"<br><small><font color='gray'>" + projeto.getNome()+" ["+data+"]</font></small>");
+        parentTextView.setText(projetoString);
         return convertView;
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        //Log.i("test", "parent view: " + parent.getTag());
-
-        Projeto projeto = (Projeto) getChild(groupPosition, childPosition);
         if (convertView == null) {
             LayoutInflater inflater =
                     (LayoutInflater) this.contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.child_layout, parent, false);
         }
-        TextView childTextView = (TextView) convertView.findViewById(R.id.textViewChild);
-        childTextView.setText(projeto.getNome());
-        //convertView.setVisibility(View.INVISIBLE);
         return convertView;
     }
 

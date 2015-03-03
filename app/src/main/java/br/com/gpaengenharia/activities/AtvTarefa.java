@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,10 +20,10 @@ import android.widget.TableRow;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
@@ -32,6 +32,7 @@ import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
  * Activity de gerenciamento de tarefas
  */
 public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Listener, OnItemSelectedListener{
+    private Projeto projeto;
     private Tarefa tarefa;
     private EditText EdtTarefa;
     private EditText EdtDescricao;
@@ -39,8 +40,8 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
     private EditText EdtVencimento;
     private Spinner SpnResponsavel;
     private Spinner SpnProjeto;
-    private String[] responsavel = new String[]{ "responsável" };//arrayString do spinner responsavel
-    private String[] projeto = new String[]{ "projeto" };//arraytring do spinner projeto
+    private String[] responsaveis = new String[]{ "responsável" };//arrayString do spinner responsaveis
+    private String[] projetos = new String[]{ "projetos" };//arraytring do spinner projeto
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,14 +53,18 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
         EdtVencimento.setInputType(0); //não aparece teclado
         SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
-        SpnResponsavel.setAdapter(Utils.setAdaptador(this, responsavel));
+        SpnResponsavel.setAdapter(Utils.setAdaptador(this, responsaveis));
         SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
-        SpnProjeto.setAdapter(Utils.setAdaptador(this, projeto));
+        SpnProjeto.setAdapter(Utils.setAdaptador(this, projetos));
         Bundle bundleTarefa = getIntent().getExtras();
+        //se tiver sido enviado objetos Projeto e Tarefa, recupera-os e seta nos views
         if (bundleTarefa != null) {
+            this.projeto = bundleTarefa.getParcelable("projeto");
             this.tarefa = bundleTarefa.getParcelable("tarefa");
             EdtTarefa.setText(this.tarefa.getNome());
-            EdtDescricao.setText(this.tarefa.getDescricao());
+            projetos[0] = this.projeto.getNome();
+            responsaveis[0] = this.tarefa.getResponsavel()!=null ? this.tarefa.getResponsavel() : "responsavel";
+            EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
             String data = formatoData.format(this.tarefa.getVencimento());//seta data
             EdtVencimento.setText(data);
@@ -67,6 +72,10 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         //caso usuário seja administrador, adiciona botões de administração no layout
         if (AtvLogin.usuario.getPerfil() == "adm")
             addBotoes();
+        else{ //desabilita Spinners
+            this.SpnProjeto.setEnabled(false);
+            this.SpnResponsavel.setEnabled(false);
+        }
     }
 
     /**retorna a data do datePicker
@@ -85,6 +94,9 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
 
     /** adiciona botões addProjeto e addResponsavel ao layout  */
     private void addBotoes(){
+        //Habilita Spinners
+        this.SpnProjeto.setEnabled(true);
+        this.SpnResponsavel.setEnabled(true);
         //cria botões
         ImageButton BtnAddProjeto = new ImageButton(this);
         BtnAddProjeto.setImageResource(android.R.drawable.ic_menu_add);
