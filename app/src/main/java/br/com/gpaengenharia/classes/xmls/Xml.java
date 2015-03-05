@@ -3,6 +3,7 @@ package br.com.gpaengenharia.classes.xmls;
 import android.content.Context;
 import android.os.Parcel;
 import android.support.annotation.NonNull;
+import android.text.Html;
 import android.util.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -98,8 +99,18 @@ public abstract class Xml{
                                 case "nome" : tarefaAtual.setNome(parser.nextText()); break;
                                 case "responsavel" : tarefaAtual.setResponsavel(parser.nextText()); break;
                                 case "descricao" : tarefaAtual.setDescricao(parser.nextText()); break;
-                                case "comentarios" : //TODO arrumar esse gato aqui
+                                case "comentarios" :
                                     parser.nextTag();
+                                    nomeNode = parser.getName();
+                                    tarefaAtual.setComentario("");
+                                    while (nomeNode.equals("comentario")) {
+                                        tarefaAtual.setComentario(
+                                                tarefaAtual.getComentario()
+                                                +parser.nextText()+"\n"
+                                        );
+                                        parser.nextTag();
+                                        nomeNode = parser.getName();
+                                    }
                                     break;
                                 case "vencimento" :
                                     SimpleDateFormat formatoData = new SimpleDateFormat("MM/dd/yyyy", new Locale("pt", "BR"));

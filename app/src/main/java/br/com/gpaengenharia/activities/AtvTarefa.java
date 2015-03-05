@@ -4,9 +4,12 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,25 +18,27 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.Toast;
-
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
+import br.com.gpaengenharia.classes.WebService;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
 /**
  * Activity de gerenciamento de tarefas
  */
-public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Listener, OnItemSelectedListener{
-    private Projeto projeto;
-    private Tarefa tarefa;
+public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Listener, OnItemSelectedListener, DialogInterface.OnClickListener{
+    private Projeto projeto; //bean
+    private Tarefa tarefa; //bean
     private EditText EdtTarefa;
     private EditText EdtDescricao;
     private EditText EdtDialogo;
@@ -50,8 +55,8 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         EdtTarefa = (EditText) findViewById(R.id.EDTtarefa);
         EdtDescricao = (EditText) findViewById(R.id.EDTdescricao);
         EdtDialogo = (EditText) findViewById(R.id.EDTdialogo);
+        EdtDialogo.setMovementMethod(new ScrollingMovementMethod());
         EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
-        EdtVencimento.setInputType(0); //não aparece teclado
         SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
         SpnResponsavel.setAdapter(Utils.setAdaptador(this, responsaveis));
         SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
@@ -65,6 +70,7 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
             projetos[0] = this.projeto.getNome();
             responsaveis[0] = this.tarefa.getResponsavel()!=null ? this.tarefa.getResponsavel() : "responsavel";
             EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
+            EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
             String data = formatoData.format(this.tarefa.getVencimento());//seta data
             EdtVencimento.setText(data);
@@ -135,26 +141,94 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         return true;
     }
 
+    View layoutComentario = null;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.actionbar_comenta:
             case R.id.menu_comenta:
                 LayoutInflater factory = LayoutInflater.from(this);
-                final View layoutComentario = factory.inflate(R.layout.comentario, null);
-                AlertDialog.Builder comentario = new AlertDialog.Builder(this)
+                layoutComentario = factory.inflate(R.layout.comentario, null);
+                final AlertDialog.Builder comentario = new AlertDialog.Builder(this)
                         .setIconAttribute(android.R.attr.alertDialogIcon)
                         .setTitle(R.string.actionbar_comenta)
                         .setView(layoutComentario)
-                        .setPositiveButton(R.string.actionbar_grava, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                Toast.makeText(AtvTarefa.this, "comentario gravado", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    comentario.show();
+                        .setPositiveButton(R.string.actionbar_grava, this);
+                comentario.show();
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**adiciona comentario via webservice em segundo plano
+     * @param dialogInterface
+     * @param i
+     */
+    private ComentarioTask aTaskComentario = null;
+    private ProgressBar prgComentario;
+    @Override
+    public void onClick(DialogInterface dialogInterface, int i) {
+        prgComentario = (ProgressBar) findViewById(R.id.prgComentario);
+        Utils.barraProgresso(this, this.prgComentario, true);
+        EditText EdtComentario = (EditText) layoutComentario.findViewById(R.id.EDTcomentario);
+        String comentario = EdtComentario.getText().toString();
+        aTaskComentario = new ComentarioTask(comentario);
+        aTaskComentario.execute((Void)null);
+    }
+
+    /**
+     * Classe responsavel por adicionar o comentario em segundo plano
+     */
+    public class ComentarioTask extends AsyncTask<Void, Void, Boolean> {
+        private final String textoComentario;
+
+        public ComentarioTask(String textoComentario) {
+            this.textoComentario = textoComentario;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            //chama o webservice
+            final String[] respostas = WebService.gravacomentario(
+                    AtvLogin.usuario.getId(),
+                    AtvTarefa.this.tarefa.getId(),
+                    this.textoComentario
+            );
+            /**se deu resultado o webservice entao sinaliza para a Activity AtvBase atualizar o
+             * TreeMap e tambem ja grava localmente o Xml com as tarefas atualizadas
+             */
+            if (respostas != null) {
+                /**flag enviada p/ Activity AtvBase sinalizando que deve atualizar o TreeMap se
+                 * caso reabrir a tarefa que confere com o Id abaixo, pois houve atualizaçao dos
+                 * comentarios da mesma pela Activity AtvTarefa (esta)  */
+                AtvBase.atualizarTarefaId = AtvTarefa.this.tarefa.getId();
+                XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
+                try { //grava localmente o Xml atualizado resultante do webservice
+                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(respostas[0]);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //necessario para atualizar o EdtDialogo com o comentario adicionado
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        EdtDialogo.setText(EdtDialogo.getText() + respostas[1]+"\n");
+                    }
+                });
+                return true;
+            }else
+                return false;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean successo) {
+            aTaskComentario = null;
+            Utils.barraProgresso(AtvTarefa.this, prgComentario, false);
+            if (successo) {
+                Toast.makeText(AtvTarefa.this, "comentario gravado", Toast.LENGTH_SHORT).show();
+            }else
+                Toast.makeText(AtvTarefa.this, "nao foi possivel gravar o comentario", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

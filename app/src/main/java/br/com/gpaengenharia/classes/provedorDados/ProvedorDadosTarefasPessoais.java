@@ -32,9 +32,7 @@ public class ProvedorDadosTarefasPessoais extends ProvedorDados implements Prove
     /** {@inheritDoc} */
     @Override
     public void setProjetosTreeMapBean() {
-        if (super.projetosTreeMapBean.isEmpty()) {
             XmlTarefasPessoais xml = new XmlTarefasPessoais(this.contexto);
             super.projetosTreeMapBean = xml.leXml();
-        }
     }
 }

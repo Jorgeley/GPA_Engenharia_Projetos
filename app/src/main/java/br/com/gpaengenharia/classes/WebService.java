@@ -1,5 +1,7 @@
 package br.com.gpaengenharia.classes;
 
+import android.util.Log;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
@@ -13,13 +15,17 @@ import br.com.gpaengenharia.beans.Usuario;
  */
 public class WebService {
     //private static String SERVIDOR = "192.168.0.118:8888";
-    private static String SERVIDOR = "192.168.1.103:8888";
+    //private static String SERVIDOR = "192.168.1.103:8888";
+    private static String SERVIDOR = "www.grupo-gpa.com";
     //Namespace of the Webservice - can be found in WSDL
-    private static String NAMESPACE = "http://"+SERVIDOR+"/GPA/public/webservice/soap/";
+    //private static String NAMESPACE = "http://"+SERVIDOR+"/GPA/public/webservice/soap/";
+    private static String NAMESPACE = "http://"+SERVIDOR+"/webservice/soap/";
     //Webservice URL - WSDL File location
-    private static String URL = "http://"+SERVIDOR+"/GPA/public/webservice/soap";//Make sure you changed IP address
+    //private static String URL = "http://"+SERVIDOR+"/GPA/public/webservice/soap";//Make sure you changed IP address
+    private static String URL = "http://"+SERVIDOR+"/webservice/soap";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
-    private static String SOAP_ACTION = "http://"+SERVIDOR+"/GPA/public/webservice/soap#";
+    //private static String SOAP_ACTION = "http://"+SERVIDOR+"/GPA/public/webservice/soap#";
+    private static String SOAP_ACTION = "http://"+SERVIDOR+"/webservice/soap#";
 
     /**
      * faz o login via webservice no servidor e retorna o objeto Usuario
@@ -106,22 +112,23 @@ public class WebService {
      * @param textoComentario
      * @return XML de projetos com as tarefas
      */
-    public static String gravaComentario(int idUsuario, int idTarefa, String textoComentario){
+    public static String[] gravacomentario(int idUsuario, int idTarefa, String textoComentario){
+        Log.i("gravacomentario", idUsuario+"->"+idTarefa+":"+textoComentario);
         //requisição SOAP
-        SoapObject requisicao = new SoapObject(NAMESPACE, "gravaComentario");
-        //setando parametro 'idUsuario' do método do webservice 'gravaComentario'
+        SoapObject requisicao = new SoapObject(NAMESPACE, "gravacomentario");
+        //setando parametro 'idUsuario' do método do webservice 'gravacomentario'
         PropertyInfo idUsuarioWebservice = new PropertyInfo();
         idUsuarioWebservice.setName("idUsuario");
         idUsuarioWebservice.setValue(idUsuario);
         idUsuarioWebservice.setType(Integer.class);
         requisicao.addProperty(idUsuarioWebservice);
-        //setando parametro 'idTarefa' do método do webservice 'gravaComentario'
+        //setando parametro 'idTarefa' do método do webservice 'gravacomentario'
         PropertyInfo idTarefaWebservice = new PropertyInfo();
         idTarefaWebservice.setName("idTarefa");
         idTarefaWebservice.setValue(idTarefa);
         idTarefaWebservice.setType(Integer.class);
         requisicao.addProperty(idTarefaWebservice);
-        //setando parametro 'textoComentario' do método do webservice 'gravaComentario'
+        //setando parametro 'textoComentario' do método do webservice 'gravacomentario'
         PropertyInfo textoComentarioWebservice = new PropertyInfo();
         textoComentarioWebservice.setName("textoComentario");
         textoComentarioWebservice.setValue(textoComentario);
@@ -133,17 +140,21 @@ public class WebService {
         //requisição HTTP
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
         String xml = null;
-        try {//faz a chamada do método 'gravaComentario' do webservice
-            //Log.i("SOAP", SOAP_ACTION+"projetos");
-            androidHttpTransport.call(SOAP_ACTION + "gravaComentario", envelope);
+        String comentario = null;
+        Log.i("SOAP_ACTION",SOAP_ACTION + "gravacomentario");
+        try {//faz a chamada do método 'gravacomentario' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "gravacomentario", envelope);
             //pegando a resposta
-            xml = (String) envelope.getResponse();
+            Vector<String> resposta = (Vector<String>) envelope.getResponse();
+            xml = resposta.get(0);
+            comentario = resposta.get(1);
             //Log.i("xml", resposta);
         } catch (Exception e) {
             //se não conseguir autenticar retorna null
             e.printStackTrace();
         }
-        return xml;
+        String[] respostas = {xml, comentario};
+        return respostas;
     }
 
 }

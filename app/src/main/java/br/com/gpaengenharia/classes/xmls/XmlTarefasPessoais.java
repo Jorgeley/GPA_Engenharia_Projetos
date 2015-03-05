@@ -60,6 +60,21 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
     }
 
     /**
+     * Grava o arquivo XML passado como parametro, esse metodo e usado pelo Dialog gravar comentario
+     * @param xml
+     * @throws IOException
+     */
+    public void criaXmlProjetosPessoaisWebservice(String xml) throws IOException {
+        try {
+            this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
+            this.arquivoXML.write(xml.getBytes());
+            this.arquivoXML.close();
+        } catch (FileNotFoundException e) {
+            Log.e("erro IO", e.getMessage());
+        }
+    }
+
+    /**
     Cria XML exemplo e grava no dir do projeto
      */
     public void criaXmlProjetosPessoaisTeste() {

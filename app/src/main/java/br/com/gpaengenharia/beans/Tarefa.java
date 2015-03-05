@@ -9,7 +9,7 @@ public class Tarefa implements Comparable, Parcelable {
     private String nome;
     private String responsavel;
     private String descricao;
-    private Long comentario;
+    private String comentario;
     private Date vencimento;
 
     public Integer getId() {
@@ -44,11 +44,11 @@ public class Tarefa implements Comparable, Parcelable {
         this.descricao = descricao;
     }
 
-    public Long getComentario() {
+    public String getComentario() {
         return comentario;
     }
 
-    public void setComentario(Long comentario) {
+    public void setComentario(String comentario) {
         this.comentario = comentario;
     }
 
@@ -72,12 +72,12 @@ public class Tarefa implements Comparable, Parcelable {
         else return 1;
     }
 
-    protected Tarefa(Parcel in) {
+    public Tarefa(Parcel in) {
         id = in.readByte() == 0x00 ? null : in.readInt();
         nome = in.readString();
         responsavel = in.readString();
         descricao = in.readString();
-        comentario = in.readByte() == 0x00 ? null : in.readLong();
+        comentario = in.readString();
         long tmpVencimento = in.readLong();
         vencimento = tmpVencimento != -1 ? new Date(tmpVencimento) : null;
     }
@@ -98,12 +98,7 @@ public class Tarefa implements Comparable, Parcelable {
         dest.writeString(nome);
         dest.writeString(responsavel);
         dest.writeString(descricao);
-        if (comentario == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeLong(comentario);
-        }
+        dest.writeString(comentario);
         dest.writeLong(vencimento != null ? vencimento.getTime() : -1L);
     }
 

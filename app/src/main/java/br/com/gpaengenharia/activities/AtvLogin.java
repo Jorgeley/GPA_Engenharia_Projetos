@@ -7,17 +7,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import java.io.File;
 import java.io.IOException;
-
+import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.Utils;
-import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
@@ -26,12 +22,9 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
  */
 public class AtvLogin extends Activity{
     public static Usuario usuario; //objeto global
-    //TODO: implementar comunicação com webservice
-    public Usuario respostaWebservice; //status webservice
     private AutoCompleteTextView TxtEmail;
     private EditText EdtSenha;
     private ProgressBar PrgLogin;
-    private Button BtnLogin;
     private LoginTask AtaskLogin = null;
 
     @Override
@@ -41,7 +34,6 @@ public class AtvLogin extends Activity{
         Utils.contexto = this;
         this.TxtEmail = (AutoCompleteTextView) findViewById(R.id.email);
         this.EdtSenha = (EditText) findViewById(R.id.password);
-        this.BtnLogin = (Button) findViewById(R.id.email_sign_in_button);
         this.PrgLogin = (ProgressBar) findViewById(R.id.login_progress);
     }
 
@@ -74,6 +66,7 @@ public class AtvLogin extends Activity{
             if (login=="adm"){
                 Log.i("login", "logando localmente como Adm sem webservice");
                 XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
+                //grava um arquivo XML estatico para teste
                 xmlTarefasPessoais.criaXmlProjetosPessoaisTeste();
                 return true;
             }else {
@@ -112,12 +105,6 @@ public class AtvLogin extends Activity{
             } else {
                 Toast.makeText(AtvLogin.this, "Usuário ou senha inválidos", Toast.LENGTH_LONG).show();
             }
-        }
-
-        @Override
-        protected void onCancelled() {
-            AtaskLogin = null;
-            Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
         }
     }
 
