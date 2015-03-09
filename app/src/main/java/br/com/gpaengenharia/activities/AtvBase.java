@@ -3,6 +3,7 @@ package br.com.gpaengenharia.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -13,6 +14,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +32,11 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 
 /**
- * Activity Base para todos os atores do sistema
+ * Activity Base para todos os usuarios do sistema
  * Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
  * Também dá opção de agrupamento por tarefas ou projetos
  */
-abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
+public abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
 
     /**desliza o layout dashboard da esquerda para a direita
      * @return null, pois não é pra voltar na activity anterior
@@ -52,7 +54,9 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     //instância polimórfica que provê os dados dos projetos pessoais, equipe, hoje e semana
     private ProvedorDados provedorDados;
     private Animation animFadein; //animaçãozinha para o dashboard
+    public static boolean atualizaListView;
     protected void setViews(){
+        atualizaListView = false;
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
         this.animFadein = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
@@ -61,6 +65,20 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.provedorDados = new ProvedorDadosTarefasPessoais(this);
         agrupaTarefas();
+    }
+
+    @Override
+    public void onUserInteraction() {
+        if (atualizaListView){
+            Log.i("onUserInteraction", this.tarefasTreeMap.size()+" interagiu");
+            this.tarefasTreeMap.clear();
+            this.agrupaTarefas();
+            this.adaptadorTarefas = new AdaptadorTarefas(this, this.tarefasTreeMap);
+            this.lvProjetos.setAdapter(this.adaptadorTarefas);
+            this.lvProjetos.invalidate();
+            Log.i("onUserInteraction", this.tarefasTreeMap.size()+" interagiu");
+        }
+        super.onUserInteraction();
     }
 
     /**repassa para a classe Utils o trabalho de deslizar as telas
@@ -91,13 +109,19 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
             for (Object objetoProjeto : projetosArray) { //para cada objeto Projeto...
                 Projeto projeto = (Projeto) objetoProjeto; //...pega o objeto Projeto...
                 //...pega objetos(Tarefa) no indice (Projeto) do TreeMap e transforma em array
-                Object[] tarefasArray = this.projetosTreeMap.get(projeto).toArray();
-                for (Object objetoTarefa : tarefasArray) { //para cada objeto Tarefa...
-                    Tarefa tarefa = (Tarefa) objetoTarefa; //...pega o objeto Tarefa...
-                    ArrayList<Projeto> projetos = new ArrayList<Projeto>(); //...cria ArrayList de Projeto...
-                    projetos.add(projeto); //...adiciona o objeto Projeto no ArrayList...
-                    //...e finalmente adiciona o objeto Tarefa como indice do novo TreeMap contendo ArrayList de Projeto
-                    this.tarefasTreeMap.put(tarefa, projetos);
+                Log.i("tarefas de "+projeto.getNome(), String.valueOf(this.projetosTreeMap));
+                //List<Tarefa> tarefasArray = this.projetosTreeMap.get(projeto) ???
+                if (this.projetosTreeMap.containsKey(projeto)) {
+                    //Object[] tarefasArray = this.projetosTreeMap.get(projeto).toArray();
+                    List<Tarefa> tarefas = this.projetosTreeMap.get(projeto);
+                    for (Tarefa tarefa : tarefas) { //para cada objeto Tarefa...
+                        //Tarefa tarefa = (Tarefa) tarefa; //...pega o objeto Tarefa...
+                        Log.i("tarefa adicionada", tarefa.getNome());
+                        ArrayList<Projeto> projetos = new ArrayList<Projeto>(); //...cria ArrayList de Projeto...
+                        projetos.add(projeto); //...adiciona o objeto Projeto no ArrayList...
+                        //...e finalmente adiciona o objeto Tarefa como indice do novo TreeMap contendo ArrayList de Projeto
+                        this.tarefasTreeMap.put(tarefa, projetos);
+                    }
                 }
             }
         }

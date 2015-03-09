@@ -50,7 +50,9 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
         this.tarefa = (Tarefa) tarefasArray[groupPosition];
         /*Log.i("getChildrenCount",this.tarefa.getNome());
         Log.i("getChildrenCount", String.valueOf(this.tarefasTreeMap.get(this.tarefa)));*/
-        return this.tarefasTreeMap.get(this.tarefa).size();
+        return (this.tarefasTreeMap.get(this.tarefa) != null)
+                    ? this.tarefasTreeMap.get(this.tarefa).size()
+                    : 0;
     }
 
     @Override
@@ -62,7 +64,9 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
     @Override
     public Object getChild(int groupPosition, int childPosition) {
         this.tarefa = (Tarefa) tarefasArray[groupPosition];
-        return this.tarefasTreeMap.get(this.tarefa).get(childPosition);
+        return (this.tarefasTreeMap.get(this.tarefa) != null)
+                    ? this.tarefasTreeMap.get(this.tarefa).get(childPosition)
+                    : null;
     }
 
     @Override
@@ -83,17 +87,19 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,View convertView, ViewGroup parent) {
         Projeto projeto = (Projeto) getChild(groupPosition, 0);
-        Tarefa tarefa = (Tarefa) getGroup(groupPosition);
-        if (convertView == null) {
-            LayoutInflater inflater =
-                    (LayoutInflater) this.contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.parent_layout, parent, false);
+        if (projeto != null) {
+            Tarefa tarefa = (Tarefa) getGroup(groupPosition);
+            if (convertView == null) {
+                LayoutInflater inflater =
+                        (LayoutInflater) this.contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.parent_layout, parent, false);
+            }
+            TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
+            SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
+            String data = formatoData.format(tarefa.getVencimento());//seta data
+            Spanned projetoString = Html.fromHtml(tarefa.getNome() + "<br><small><font color='gray'>" + projeto.getNome() + " [" + data + "]</font></small>");
+            parentTextView.setText(projetoString);
         }
-        TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
-        SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
-        String data = formatoData.format(tarefa.getVencimento());//seta data
-        Spanned projetoString = Html.fromHtml(tarefa.getNome()+"<br><small><font color='gray'>" + projeto.getNome()+" ["+data+"]</font></small>");
-        parentTextView.setText(projetoString);
         return convertView;
     }
 
