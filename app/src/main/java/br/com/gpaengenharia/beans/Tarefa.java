@@ -67,9 +67,12 @@ public class Tarefa implements Comparable, Parcelable {
 
     @Override
     public int compareTo(Object o) {
-        if (this.id == ((Tarefa)o).getId())
-            return 0;
-        else return 1;
+        if (this.id < ((Tarefa)o).getId())
+            return -1;
+        else if (this.id == ((Tarefa)o).getId())
+                return 0;
+            else
+                return 1;
     }
 
     public Tarefa(Parcel in) {

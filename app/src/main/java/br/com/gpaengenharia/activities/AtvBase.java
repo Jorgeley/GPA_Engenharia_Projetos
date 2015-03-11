@@ -3,6 +3,7 @@ package br.com.gpaengenharia.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +17,7 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Projeto;
@@ -30,11 +32,11 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 
 /**
- * Activity Base para todos os atores do sistema
+ * Activity Base para todos os usuarios do sistema
  * Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
  * Também dá opção de agrupamento por tarefas ou projetos
  */
-abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
+public abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
 
     /**desliza o layout dashboard da esquerda para a direita
      * @return null, pois não é pra voltar na activity anterior
@@ -48,19 +50,36 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
 
     /**seta os views comuns dos layouts Adm e Colaborador
      */
+    // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
+    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
     private ExpandableListView lvProjetos;//listView expansível dos projetos
     //instância polimórfica que provê os dados dos projetos pessoais, equipe, hoje e semana
     private ProvedorDados provedorDados;
-    private Animation animFadein; //animaçãozinha para o dashboard
+    public static boolean atualizaListView;
     protected void setViews(){
+        atualizaListView = false;
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
-        this.animFadein = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
         this.lvProjetos.setOnGroupClickListener(this);
         this.lvProjetos.setOnChildClickListener(this);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.provedorDados = new ProvedorDadosTarefasPessoais(this);
+        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
         agrupaTarefas();
+    }
+
+    @Override
+    public void onUserInteraction() {
+        if (atualizaListView){
+            this.provedorDados = new ProvedorDadosTarefasPessoais(this);
+            this.projetosTreeMap.clear();
+            this.tarefasTreeMap.clear();
+            this.adaptadorTarefas = null;
+            this.adaptadorProjetos = null;
+            agrupaTarefas();
+            atualizaListView = false;
+        }
+        //super.onUserInteraction();
     }
 
     /**repassa para a classe Utils o trabalho de deslizar as telas
@@ -78,27 +97,19 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
 
     /**retorna a árvore de projetos invertida apenas com as tarefas
      */
-    // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
-    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
     // <Tarefa, List<Projeto>> inversao do TreeMap acima: árvore de tarefas com sublista de projetos em cada tarefa
     private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap = new TreeMap<Tarefa, List<Projeto>>();
     private char agrupamento = 't';//t=agrupamento tarefas, p=agrupamento projetos
     private void agrupaTarefas(){
-        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
+        if (this.projetosTreeMap.isEmpty())
+            this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
         if (this.tarefasTreeMap.isEmpty()) {
             //gera novo TreeMap invertido com Tarefa e List<Projeto>
-            Object[] projetosArray = this.projetosTreeMap.keySet().toArray();//chaves(Projeto) do TreeMap p/ array
-            for (Object objetoProjeto : projetosArray) { //para cada objeto Projeto...
-                Projeto projeto = (Projeto) objetoProjeto; //...pega o objeto Projeto...
-                //...pega objetos(Tarefa) no indice (Projeto) do TreeMap e transforma em array
-                Object[] tarefasArray = this.projetosTreeMap.get(projeto).toArray();
-                for (Object objetoTarefa : tarefasArray) { //para cada objeto Tarefa...
-                    Tarefa tarefa = (Tarefa) objetoTarefa; //...pega o objeto Tarefa...
-                    ArrayList<Projeto> projetos = new ArrayList<Projeto>(); //...cria ArrayList de Projeto...
-                    projetos.add(projeto); //...adiciona o objeto Projeto no ArrayList...
-                    //...e finalmente adiciona o objeto Tarefa como indice do novo TreeMap contendo ArrayList de Projeto
+            for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : this.projetosTreeMap.entrySet()){
+                List<Projeto> projetos = new ArrayList<Projeto>();
+                projetos.add(projetoTarefas.getKey());
+                for (Tarefa tarefa : projetoTarefas.getValue())
                     this.tarefasTreeMap.put(tarefa, projetos);
-                }
             }
         }
         setAdaptador(true);
@@ -110,8 +121,10 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     /** retorna a árvore de projetos padrão com sublista de tarefas em cada projeto
      */
     private void agrupaProjetos(){
-        this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
+        if (this.projetosTreeMap == null)
+            this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
         setAdaptador(false);
+        this.lvProjetos.setDividerHeight(0);
         this.agrupamento = 'p';
     }
 
@@ -127,9 +140,6 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
             if (!(this.adaptadorTarefas instanceof AdaptadorTarefas))
                 this.adaptadorTarefas = new AdaptadorTarefas(this, this.tarefasTreeMap);
             this.lvProjetos.setAdapter(this.adaptadorTarefas);
-            //expande todos os grupos
-            for (int grupo = 0; grupo < this.adaptadorTarefas.getGroupCount(); grupo++)
-                this.lvProjetos.expandGroup(grupo);
         }else {
             //singleton
             if (!(this.adaptadorProjetos instanceof AdaptadorProjetos))
@@ -180,7 +190,6 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
      */
     //métodos sobrecarregados utilizados pelo menu acima e pelos botões da view layout_base
     public void projetosPessoais(View v){
-        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasPessoais)) {
@@ -198,7 +207,6 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     }
 
     public void projetosEquipe(View v){
-        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasEquipe)) {
@@ -216,7 +224,6 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     }
 
     public void projetosHoje(View v){
-        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasHoje)) {
@@ -234,7 +241,6 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
     }
 
     public void projetosSemana(View v){
-        v.startAnimation(this.animFadein);
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
@@ -280,7 +286,6 @@ abstract class AtvBase extends Activity implements OnGroupClickListener, OnChild
             bundleTarefa.putParcelable("projeto", (Projeto) parent.getExpandableListAdapter().getChild(groupPosition, 0));
             Intent atvTarefa = new Intent(AtvBase.this, AtvTarefa.class);
             atvTarefa.putExtras(bundleTarefa);
-            //v.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_out));
             startActivity(atvTarefa);
             return true;
         }else

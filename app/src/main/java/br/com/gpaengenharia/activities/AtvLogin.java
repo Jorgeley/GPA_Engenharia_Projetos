@@ -13,6 +13,8 @@ import android.widget.Toast;
 import java.io.IOException;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Usuario;
+import br.com.gpaengenharia.classes.AgendaServico;
+import br.com.gpaengenharia.classes.ServicoTarefas;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
@@ -44,7 +46,6 @@ public class AtvLogin extends Activity{
     public void onClickLogin(View v) {
         String login = this.TxtEmail.getText().toString();
         String senha = this.EdtSenha.getText().toString();
-        Utils.barraProgresso(this, this.PrgLogin, true);
         this.AtaskLogin = new LoginTask(login, senha);
         this.AtaskLogin.execute((Void) null);
     }
@@ -54,6 +55,12 @@ public class AtvLogin extends Activity{
      */
     public class LoginTask extends AsyncTask<Void, Void, Boolean> {
         private final String login;
+
+        @Override
+        protected void onPreExecute() {
+            Utils.barraProgresso(AtvLogin.this, PrgLogin, true);
+        }
+
         private final String senha;
 
         LoginTask(String login, String senha) {
@@ -78,12 +85,15 @@ public class AtvLogin extends Activity{
                      * if (new File("tarefasPessoais.xml").exists())
                      */
                     XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
+                    //startService(new Intent(AtvLogin.this, ServicoTarefas.class));
                     //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
                     try {
                         xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(usuario.getId());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    /*AgendaServico agendaServico = new AgendaServico();
+                    agendaServico.onReceive(AtvLogin.this, new Intent());*/
                     return true;
                 } else
                     return false;
