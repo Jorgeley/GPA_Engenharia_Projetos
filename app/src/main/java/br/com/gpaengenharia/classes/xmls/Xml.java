@@ -123,10 +123,10 @@ public abstract class Xml{
                                     tarefaAtual.setVencimento(data);
                                     break;
                             }
-                            tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                             parser.nextTag();
                             nomeNode = parser.getName();
                         }
+                        tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                     }
                     break;
                 case XmlPullParser.END_TAG://se é fim de tag...

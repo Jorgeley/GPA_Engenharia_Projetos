@@ -80,10 +80,6 @@ public class AtvLogin extends Activity{
                 //TODO nao enviar senhas sem segurança
                 usuario = WebService.login(login, senha);//login via webservice
                 if (usuario != null) {
-                    /**
-                     * TODO nao fazer o download do arquivo se ele ja existir e estar atualizado
-                     * if (new File("tarefasPessoais.xml").exists())
-                     */
                     XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
                     //startService(new Intent(AtvLogin.this, ServicoTarefas.class));
                     //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
@@ -92,8 +88,8 @@ public class AtvLogin extends Activity{
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    /*AgendaServico agendaServico = new AgendaServico();
-                    agendaServico.onReceive(AtvLogin.this, new Intent());*/
+                    AgendaServico agendaServico = new AgendaServico();
+                    agendaServico.onReceive(AtvLogin.this, new Intent());
                     return true;
                 } else
                     return false;

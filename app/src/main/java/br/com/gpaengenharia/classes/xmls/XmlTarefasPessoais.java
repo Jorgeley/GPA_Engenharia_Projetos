@@ -39,9 +39,11 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
 
     /**
      * Faz download do XML do webservice e salva localmente
+     * @param usuarioId
+     * @return true: houve atualizaçao, false: nao houve atualizaçao
      * @throws IOException
      */
-    public void criaXmlProjetosPessoaisWebservice(int usuarioId) throws IOException {
+    public boolean criaXmlProjetosPessoaisWebservice(int usuarioId) throws IOException {
         /*//faz o download do XML
         final String xml = Http.getInstance(Http.NORMAL)
                 .downloadArquivo("http://192.168.1.103:8888/GPA/public/webservice/projetos",super.contexto);
@@ -50,13 +52,17 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
          * TODO nao deixar o webservice ser chamado sem restricao
          */
         String xml = WebService.projetos(usuarioId);
-        try {
-            this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
-            this.arquivoXML.write(xml.getBytes());
-            this.arquivoXML.close();
-        } catch (FileNotFoundException e) {
-            Log.e("erro IO", e.getMessage());
-        }
+        if (xml != null) {
+            try {
+                this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
+                this.arquivoXML.write(xml.getBytes());
+                this.arquivoXML.close();
+            } catch (FileNotFoundException e) {
+                Log.e("erro IO", e.getMessage());
+            }
+            return true;
+        }else
+            return false;
     }
 
     /**

@@ -5,10 +5,17 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import java.io.IOException;
+import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.activities.AtvAdministrador;
 import br.com.gpaengenharia.activities.AtvBase;
+import br.com.gpaengenharia.activities.AtvColaborador;
 import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
+/**
+ * serviço agendado pela classe AgendaServico para ser executado de 10 em 10 minutos
+ * verifica via webservice se houve atualizaçoes nas tarefas do usuario
+ */
 public class ServicoTarefas extends Service implements Runnable{
 
     @Override
@@ -18,7 +25,6 @@ public class ServicoTarefas extends Service implements Runnable{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //TODO nao sincronizar caso ja esteja sincronizado
         if (AtvLogin.usuario != null)
             new Thread(this).start();
         return super.onStartCommand(intent, flags, startId);
@@ -27,12 +33,27 @@ public class ServicoTarefas extends Service implements Runnable{
     @Override
     public void run() {
         XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this);
-        //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
+        boolean atualiacao = false;
+        //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente caso houve alteraçoes
         try {
-            xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId());
+            atualiacao = xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        AtvBase.atualizaListView = true;
+        if (atualiacao) {//se tiver atualizaçao notifica o usuario
+            Intent intent;
+            if (AtvLogin.usuario.getPerfil() == "adm")
+                intent = new Intent(this, AtvAdministrador.class);
+            else
+                intent = new Intent(this, AtvColaborador.class);
+            Notificacao.create(this,
+                    "GPA",
+                    "tarefas atualizadas",
+                    R.drawable.logo_notificacao,
+                    1,
+                    intent
+            );
+            AtvBase.atualizaListView = true;
+        }
     }
 }

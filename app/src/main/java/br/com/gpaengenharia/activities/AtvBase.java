@@ -24,6 +24,7 @@ import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.AdaptadorProjetos;
 import br.com.gpaengenharia.classes.AdaptadorTarefas;
+import br.com.gpaengenharia.classes.Notificacao;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
@@ -38,7 +39,8 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
  */
 public abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
 
-    /**desliza o layout dashboard da esquerda para a direita
+    /**
+     * desliza o layout dashboard da esquerda para a direita
      * @return null, pois não é pra voltar na activity anterior
      */
     private ViewFlipper viewFlipper; //desliza os layouts
@@ -48,13 +50,15 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         return null;
     }
 
-    /**seta os views comuns dos layouts Adm e Colaborador
+    /**
+     * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate
      */
     // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
     private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
     private ExpandableListView lvProjetos;//listView expansível dos projetos
     //instância polimórfica que provê os dados dos projetos pessoais, equipe, hoje e semana
     private ProvedorDados provedorDados;
+    //flag setada pela classe ServicoTarefas indicando que houve atualizaçao das tarefas
     public static boolean atualizaListView;
     protected void setViews(){
         atualizaListView = false;
@@ -68,6 +72,18 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         agrupaTarefas();
     }
 
+    /**
+     * executar atulizaçao das tarefas quando o usuario voltar
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.onUserInteraction();
+    }
+
+    /**
+     * atualiza tarefas caso a classe ServicoTarefas tenha setado a flag atualizaListView
+     */
     @Override
     public void onUserInteraction() {
         if (atualizaListView){
@@ -77,12 +93,13 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.adaptadorTarefas = null;
             this.adaptadorProjetos = null;
             agrupaTarefas();
+            Notificacao.cancell(this,1);
             atualizaListView = false;
         }
-        //super.onUserInteraction();
     }
 
-    /**repassa para a classe Utils o trabalho de deslizar as telas
+    /**
+     * repassa para a classe Utils o trabalho de deslizar as telas
      * @param event
      * @return false se o evento onTouch foi capturado, true se ao contrário
      */
@@ -95,9 +112,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                                     findViewById(R.id.LayoutTarefas));
     }
 
-    /**retorna a árvore de projetos invertida apenas com as tarefas
+    /**
+     * retorna a árvore de projetos invertida, lista de tarefas contendo sublista de projetos
      */
-    // <Tarefa, List<Projeto>> inversao do TreeMap acima: árvore de tarefas com sublista de projetos em cada tarefa
+    // <Tarefa, List<Projeto>> inversao do projetosTreeMap
     private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap = new TreeMap<Tarefa, List<Projeto>>();
     private char agrupamento = 't';//t=agrupamento tarefas, p=agrupamento projetos
     private void agrupaTarefas(){
@@ -118,7 +136,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.agrupamento = 't';
     }
 
-    /** retorna a árvore de projetos padrão com sublista de tarefas em cada projeto
+    /**
+     * retorna a árvore de projetos padrão: lista de projetos contendo sublista de tarefas
      */
     private void agrupaProjetos(){
         if (this.projetosTreeMap == null)
@@ -128,7 +147,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.agrupamento = 'p';
     }
 
-    /**adapta os projetos no listView expansível
+    /**
+     * adapta os projetos no listView expansível
      * @param inverte true = TreeMap <Tarefa,ArrayList<Projeto>>
      *                false = TreeMap <Projeto, ArrayList<Tarefa>>
      */
