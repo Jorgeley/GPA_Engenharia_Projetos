@@ -4,21 +4,28 @@ import android.content.Context;
 import android.util.Log;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-
+import br.com.gpaengenharia.activities.AtvLogin;
+import br.com.gpaengenharia.classes.ServicoTarefas;
 import br.com.gpaengenharia.classes.WebService;
-import br.com.gpaengenharia.classes.http.Http;
 
 /**
-Cria arquivo xml de exemplo para teste
-herda Xml e implementa XmlInterface
+ * Cria arquivo xml com as tarefas pessoais do usuario
+ * herda Xml e implementa XmlInterface
  */
 public class XmlTarefasPessoais extends Xml implements XmlInterface{
     //nome do arquivo para gravar o xml
     private final static String nomeArquivoXML = "tarefasPessoais.xml";
-    //arquivo para gravar o xml
-    private FileOutputStream arquivoXML;
+
+    public static String getNomeArquivoXML() {
+        return nomeArquivoXML;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setNomeArquivoXML() {
+        super.nomeArquivoXML = this.nomeArquivoXML;
+    }
 
     public XmlTarefasPessoais(Context contexto) {
         super(contexto);
@@ -31,53 +38,37 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
         criaXmlProjetosPessoaisTeste();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void setNomeArquivoXML() {
-        super.nomeAquivoXML = this.nomeArquivoXML;
-    }
-
     /**
-     * Faz download do XML do webservice e salva localmente
+     * Faz download do XML via webservice e salva localmente
      * @param usuarioId
      * @return true: houve atualizaçao, false: nao houve atualizaçao
      * @throws IOException
      */
-    public boolean criaXmlProjetosPessoaisWebservice(int usuarioId) throws IOException {
-        /*//faz o download do XML
-        final String xml = Http.getInstance(Http.NORMAL)
-                .downloadArquivo("http://192.168.1.103:8888/GPA/public/webservice/projetos",super.contexto);
-        //Log.i("xml", xml);*/
+    public static boolean criaXmlProjetosPessoaisWebservice(int usuarioId) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
-        String xml = WebService.projetos(usuarioId);
+        Log.i("intanceof", String.valueOf(contexto));
+        if (!(contexto instanceof ServicoTarefas))
+            WebService.login = true;
+        WebService webService = new WebService();
+        webService.setIdUsuario(usuarioId);
+        String xml = webService.projetosPessoais();
         if (xml != null) {
-            try {
-                this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
-                this.arquivoXML.write(xml.getBytes());
-                this.arquivoXML.close();
-            } catch (FileNotFoundException e) {
-                Log.e("erro IO", e.getMessage());
-            }
+            escreveXML(xml);
             return true;
         }else
             return false;
     }
 
     /**
-     * Grava o arquivo XML passado como parametro, esse metodo e usado pelo Dialog gravar comentario
+     * Reescreve o arquivo XML passado como parametro, esse metodo e usado pelo Dialog
+     * 'gravar comentario' na 'AtvTarefa'
      * @param xml
      * @throws IOException
      */
-    public void criaXmlProjetosPessoaisWebservice(String xml) throws IOException {
-        try {
-            this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
-            this.arquivoXML.write(xml.getBytes());
-            this.arquivoXML.close();
-        } catch (FileNotFoundException e) {
-            Log.e("erro IO", e.getMessage());
-        }
+    public static void criaXmlProjetosPessoaisWebservice(String xml) throws IOException {
+        escreveXML(xml);
     }
 
     /**
@@ -85,7 +76,7 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
      */
     public void criaXmlProjetosPessoaisTeste() {
         try {
-            this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
+            this.arquivoXML = super.contexto.openFileOutput(super.nomeArquivoXML, 0);
         } catch (FileNotFoundException e) {
             Log.e("erro IO", e.getMessage());
         }
@@ -95,7 +86,7 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
             serializadorXML.startDocument(null, Boolean.valueOf(true));
             serializadorXML.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
             serializadorXML.startTag(null, "GPA");
-            serializadorXML.startTag(null, "projetos-pessoais");
+            serializadorXML.startTag(null, "projetosPessoais-pessoais");
             for (int projeto=1; projeto<5; projeto++) {
                 serializadorXML.startTag(null, "projeto");
                 serializadorXML.attribute(null, "nome", "Projeto Exemplo " + String.valueOf(projeto));
@@ -106,7 +97,7 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
                 }
                 serializadorXML.endTag(null, "projeto");
             }
-            serializadorXML.endTag(null, "projetos-pessoais");
+            serializadorXML.endTag(null, "projetosPessoais-pessoais");
             serializadorXML.endTag(null, "GPA");
             serializadorXML.endDocument();
             serializadorXML.flush();

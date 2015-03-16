@@ -10,6 +10,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.io.File;
 import java.io.IOException;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Usuario;
@@ -80,14 +82,6 @@ public class AtvLogin extends Activity{
                 //TODO nao enviar senhas sem segurança
                 usuario = WebService.login(login, senha);//login via webservice
                 if (usuario != null) {
-                    XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
-                    //startService(new Intent(AtvLogin.this, ServicoTarefas.class));
-                    //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente
-                    try {
-                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(usuario.getId());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     AgendaServico agendaServico = new AgendaServico();
                     agendaServico.onReceive(AtvLogin.this, new Intent());
                     return true;

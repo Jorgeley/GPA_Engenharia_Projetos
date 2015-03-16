@@ -15,6 +15,9 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ViewFlipper;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +34,13 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
 /**
  * Activity Base para todos os usuarios do sistema
  * Lista as tarefas pessoais com opção de trocar para tarefas da equipe, hoje e semana.
- * Também dá opção de agrupamento por tarefas ou projetos
+ * Também dá opção de agrupamento por tarefas ou projetosPessoais
  */
 public abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
 
@@ -53,10 +58,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     /**
      * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate
      */
-    // <Projeto, List<Tarefa>> árvore de projetos com sublista de tarefas em cada projeto
+    // <Projeto, List<Tarefa>> árvore de projetosPessoais com sublista de tarefas em cada projeto
     private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
-    private ExpandableListView lvProjetos;//listView expansível dos projetos
-    //instância polimórfica que provê os dados dos projetos pessoais, equipe, hoje e semana
+    private ExpandableListView lvProjetos;//listView expansível dos projetosPessoais
+    //instância polimórfica que provê os dados dos projetosPessoais pessoais, equipe, hoje e semana
     private ProvedorDados provedorDados;
     //flag setada pela classe ServicoTarefas indicando que houve atualizaçao das tarefas
     public static boolean atualizaListView;
@@ -77,6 +82,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      */
     @Override
     protected void onResume() {
+        if (AtvLogin.usuario == null)
+            startActivity(new Intent(this, AtvLogin.class));
         super.onResume();
         this.onUserInteraction();
     }
@@ -113,11 +120,11 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
     /**
-     * retorna a árvore de projetos invertida, lista de tarefas contendo sublista de projetos
+     * retorna a árvore de projetosPessoais invertida, lista de tarefas contendo sublista de projetosPessoais
      */
     // <Tarefa, List<Projeto>> inversao do projetosTreeMap
     private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap = new TreeMap<Tarefa, List<Projeto>>();
-    private char agrupamento = 't';//t=agrupamento tarefas, p=agrupamento projetos
+    private char agrupamento = 't';//t=agrupamento tarefas, p=agrupamento projetosPessoais
     private void agrupaTarefas(){
         if (this.projetosTreeMap.isEmpty())
             this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
@@ -137,7 +144,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
     /**
-     * retorna a árvore de projetos padrão: lista de projetos contendo sublista de tarefas
+     * retorna a árvore de projetosPessoais padrão: lista de projetosPessoais contendo sublista de tarefas
      */
     private void agrupaProjetos(){
         if (this.projetosTreeMap == null)
@@ -148,7 +155,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
     /**
-     * adapta os projetos no listView expansível
+     * adapta os projetosPessoais no listView expansível
      * @param inverte true = TreeMap <Tarefa,ArrayList<Projeto>>
      *                false = TreeMap <Projeto, ArrayList<Tarefa>>
      */

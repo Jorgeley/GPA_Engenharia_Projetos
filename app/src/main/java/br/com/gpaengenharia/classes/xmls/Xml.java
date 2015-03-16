@@ -2,22 +2,20 @@ package br.com.gpaengenharia.classes.xmls;
 
 import android.content.Context;
 import android.os.Parcel;
-import android.support.annotation.NonNull;
-import android.text.Html;
 import android.util.Log;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -27,17 +25,35 @@ import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 
 /**
-Lê xml nomeAquivoXML e grava em TreeMap <Projeto, List<Tarefa>> contendo
-cada projeto com sua lista de tarefas
+ * Lê xml 'nomeArquivoXML' e grava em TreeMap <Projeto, List<Tarefa>> contendo
+ * cada projeto com sua lista de tarefas
  */
 public abstract class Xml{
-    protected Context contexto;
+    protected static Context contexto;
     //TreeMap de beans contendo cada projeto com sua lista de tarefas
     private TreeMap<Projeto,List<Tarefa>> projetos = new TreeMap<Projeto,List<Tarefa>>();
-    protected String nomeAquivoXML;//nome do arquivo para ler o xml
+    protected static String nomeArquivoXML;//nome do arquivo para ler o xml
+    //arquivo para gravar o xml
+    protected static FileOutputStream arquivoXML;
 
     public Xml(Context contexto){
         this.contexto = contexto;
+    }
+
+    /**
+     * Reescreve o arquivo XML passado como parametro, metodo chamado pelas classes filhas
+     * 'XmlTarefasPessoais', 'XmlTarefasEquipes', etc...
+     * @param xml
+     * @throws IOException
+     */
+    protected static void escreveXML(String xml) throws IOException {
+        try {
+            arquivoXML = contexto.openFileOutput(nomeArquivoXML, 0);
+            arquivoXML.write(xml.getBytes());
+            arquivoXML.close();
+        } catch (FileNotFoundException e) {
+            Log.e("erro IO", e.getMessage());
+        }
     }
 
     /** abre o arquivo xml para leitura e retorna o TreeMap de beans <Projeto List<Tarefa>>
@@ -47,8 +63,8 @@ public abstract class Xml{
         try {
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
-            //InputStream in_s = contexto.getAssets().open(nomeAquivoXML);
-            InputStream in_s = this.contexto.openFileInput(this.nomeAquivoXML);
+            //InputStream in_s = contexto.getAssets().open(nomeArquivoXML);
+            InputStream in_s = this.contexto.openFileInput(this.nomeArquivoXML);
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in_s, null);
             parseXML(parser);

@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import br.com.gpaengenharia.R;
 
 /**
- * Activity do administrador de projetos
+ * Activity do administrador de projetosPessoais
  */
 public class AtvAdministrador extends AtvBase{
 

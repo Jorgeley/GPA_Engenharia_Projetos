@@ -1,8 +1,13 @@
 package br.com.gpaengenharia.classes.provedorDados;
 
 import android.content.Context;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.TreeMap;
+
+import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 
 /**
@@ -13,6 +18,13 @@ public class ProvedorDadosTarefasEquipe extends ProvedorDados implements Provedo
     private Context contexto;
 
     public ProvedorDadosTarefasEquipe(Context contexto) {
+        File arquivo = new File(contexto.getFilesDir()+"/"+ XmlTarefasEquipe.getNomeArquivoXML());
+        if (!arquivo.exists())
+            try {
+                XmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         this.contexto = contexto;
         setProjetosTreeMapBean();
     }
@@ -26,11 +38,8 @@ public class ProvedorDadosTarefasEquipe extends ProvedorDados implements Provedo
     /** {@inheritDoc} **/
     @Override
     public void setProjetosTreeMapBean(){
-        if (super.projetosTreeMapBean.isEmpty()) {
             XmlTarefasEquipe xml = new XmlTarefasEquipe(this.contexto);
-            xml.criaXmlProjetosEquipeTeste();
             super.projetosTreeMapBean = xml.leXml();
-        }
     }
 
 }

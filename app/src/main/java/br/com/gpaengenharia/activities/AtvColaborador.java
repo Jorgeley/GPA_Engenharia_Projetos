@@ -7,7 +7,7 @@ import android.view.MenuItem;
 import br.com.gpaengenharia.R;
 
 /**
- * Activity do colaborador de projetos (usuário comum)
+ * Activity do colaborador de projetosPessoais (usuário comum)
  */
 public class AtvColaborador extends AtvBase{
 

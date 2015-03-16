@@ -30,7 +30,7 @@ public class XmlTarefasSemana extends Xml implements XmlInterface{
     /** {@inheritDoc} */
     @Override
     public void setNomeArquivoXML() {
-        super.nomeAquivoXML = this.nomeArquivoXML;
+        super.nomeArquivoXML = this.nomeArquivoXML;
     }
 
     /**
@@ -38,7 +38,7 @@ public class XmlTarefasSemana extends Xml implements XmlInterface{
      */
     public void criaXmlProjetosSemanaTeste() {
         try {
-            this.arquivoXML = super.contexto.openFileOutput(super.nomeAquivoXML, 0);
+            this.arquivoXML = super.contexto.openFileOutput(super.nomeArquivoXML, 0);
         } catch (FileNotFoundException e) {
             Log.e("erro IO", e.getMessage());
         }
@@ -48,7 +48,7 @@ public class XmlTarefasSemana extends Xml implements XmlInterface{
             serializadorXML.startDocument(null, Boolean.valueOf(true));
             serializadorXML.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
             serializadorXML.startTag(null, "GPA");
-            serializadorXML.startTag(null, "projetos-semana");
+            serializadorXML.startTag(null, "projetosPessoais-semana");
             for (int projeto=1; projeto<5; projeto++) {
                 serializadorXML.startTag(null, "projeto");
                 serializadorXML.attribute(null, "nome", "Projeto Semana Exemplo " + String.valueOf(projeto));
@@ -59,7 +59,7 @@ public class XmlTarefasSemana extends Xml implements XmlInterface{
                 }
                 serializadorXML.endTag(null, "projeto");
             }
-            serializadorXML.endTag(null, "projetos-semana");
+            serializadorXML.endTag(null, "projetosPessoais-semana");
             serializadorXML.endTag(null, "GPA");
             serializadorXML.endDocument();
             serializadorXML.flush();

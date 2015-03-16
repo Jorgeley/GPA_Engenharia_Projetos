@@ -18,8 +18,8 @@ import br.com.gpaengenharia.beans.Tarefa;
 public abstract class ProvedorDados{
     protected TreeMap<Projeto, List<Tarefa>> projetosTreeMapBean = new TreeMap<Projeto, List<Tarefa>>();
 
-    /**gera TreeMapTesteEstático de projetos contendo tarefas como nós
-     * @return TreeMap String, ListString dos projetos com as tarefas (estático)
+    /**gera TreeMapTesteEstático de projetosPessoais contendo tarefas como nós
+     * @return TreeMap String, ListString dos projetosPessoais com as tarefas (estático)
      */
     public TreeMap<String, List<String>> getDadosTreeMapTeste() {
         TreeMap<String, List<String>> projetosTreeMap = new TreeMap<String, List<String>>();
@@ -56,10 +56,10 @@ public abstract class ProvedorDados{
     /**Busca os beans Projeto e Tarefa do Xml e transforma em TreeMap de String
      * inverteAgrupamento:
      * @param inverteAgrupamento se True inverte o agrupamento do TreeMap agrupando por tarefas
-     *                          se False deixa agrupamento por projetos e tarefas com nós dos projetos
-     * @return TreeMap String, ListString dos projetos com as tarefas **/
+     *                          se False deixa agrupamento por projetosPessoais e tarefas com nós dos projetosPessoais
+     * @return TreeMap String, ListString dos projetosPessoais com as tarefas **/
     public TreeMap<String, List<String>> getTarefas(boolean inverteAgrupamento){
-        //TreeMap dos projetos convertidos de beans para strings
+        //TreeMap dos projetosPessoais convertidos de beans para strings
         TreeMap<String, List<String>> projetosTreeMapString = new TreeMap<String, List<String>>();
         //para cada Projeto com sua lista de Tarefa no TreeMap de beans...
         for (Map.Entry<Projeto, List<Tarefa>> projetosTarefasBean : this.projetosTreeMapBean.entrySet()){

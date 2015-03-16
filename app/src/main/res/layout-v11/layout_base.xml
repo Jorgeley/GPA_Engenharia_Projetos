@@ -208,7 +208,7 @@
 
         </LinearLayout>
 
-        <!-- 1º layout: lista de tarefas/projetos -->
+        <!-- 1º layout: lista de tarefas/projetosPessoais -->
 
     </ViewFlipper>
 

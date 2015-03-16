@@ -15,7 +15,7 @@ import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.classes.Utils;
 
 /**
- * Activity de gerenciamento de projetos
+ * Activity de gerenciamento de projetosPessoais
  */
 public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFragment.Listener, AdapterView.OnItemSelectedListener {
     private EditText EdtVencimento;

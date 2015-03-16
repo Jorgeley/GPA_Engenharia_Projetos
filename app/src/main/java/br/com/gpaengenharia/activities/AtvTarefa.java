@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,7 +47,7 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
     private Spinner SpnResponsavel;
     private Spinner SpnProjeto;
     private String[] responsaveis = new String[]{ "responsável" };//arrayString do spinner responsaveis
-    private String[] projetos = new String[]{ "projetos" };//arraytring do spinner projeto
+    private String[] projetos = new String[]{ "projetosPessoais" };//arraytring do spinner projeto
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,8 +190,9 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         @Override
         protected Boolean doInBackground(Void... params) {
             //chama o webservice
-            final String[] respostas = WebService.gravacomentario(
-                    AtvLogin.usuario.getId(),
+            WebService webService = new WebService();
+            webService.setIdUsuario(AtvLogin.usuario.getId());
+            final String[] respostas = webService.gravacomentario(
                     AtvTarefa.this.tarefa.getId(),
                     this.textoComentario
             );
@@ -212,7 +214,8 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        EdtDialogo.setText(EdtDialogo.getText() + respostas[1]+"\n");
+                        Spanned comentario = Html.fromHtml(EdtDialogo.getText()+respostas[1]+"\n");
+                        EdtDialogo.setText(comentario);
                     }
                 });
                 return true;
