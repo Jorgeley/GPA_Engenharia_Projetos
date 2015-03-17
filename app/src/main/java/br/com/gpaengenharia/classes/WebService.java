@@ -1,17 +1,11 @@
 package br.com.gpaengenharia.classes;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
 import org.ksoap2.SoapEnvelope;
-import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.util.Vector;
 import br.com.gpaengenharia.beans.Usuario;
 
@@ -32,14 +26,11 @@ public class WebService{
     //SOAP Action URI again Namespace + Web method name
     //private static String SOAP_ACTION = "http://"+SERVIDOR+"/GPA/public/webservice/soap#";
     private static String SOAP_ACTION = "http://"+SERVIDOR+"/webservice/soap#";
-    //chamada do webservice no servidor em segundo plano
-    public WebserviceAsyncTask webserviceTask;
     //id do usuario para todas as operaçoes no webservice
-    public int idUsuario;
-    //xml resultante do AsyncTask
-    public static String xml = null;
+    private int idUsuario;
+
     //flag enviada ao servidor do webservice indicando p/ retornar os projetos, mesmo estando atualizados
-    public static boolean login = false;
+    private boolean forcarAtualizacao = false;
 
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = idUsuario;
@@ -49,8 +40,16 @@ public class WebService{
         return idUsuario;
     }
 
+    public boolean isForcarAtualizacao() {
+        return this.forcarAtualizacao;
+    }
+
+    public void setForcarAtualizacao(boolean forcarAtualizacao) {
+        this.forcarAtualizacao = forcarAtualizacao;
+    }
+
     /**
-     * faz o login via webservice no servidor e retorna o objeto Usuario
+     * faz o forcarAtualizacao via webservice no servidor e retorna o objeto Usuario
      * @param login
      * @param senha
      * @return Usuario
@@ -89,7 +88,6 @@ public class WebService{
             usuario = null;
             e.printStackTrace();
         }
-
         return usuario;
     }
 
@@ -103,29 +101,30 @@ public class WebService{
         SoapObject requisicao = new SoapObject(NAMESPACE, "projetosPessoais");
         //setando parametros do método do webservice 'projetosPessoais'
         requisicao.addProperty(getUsuario());
-        PropertyInfo loginWebservice = new PropertyInfo();
+        PropertyInfo forcarAtualizacao = new PropertyInfo();
         /**
          * no servidor do webservice o atributo 'novasTarefas' da classe 'AclUsuario' indica se ha
-         * novas tarefas p/ serem enviadas, entao no login pode ser que nao carregue as tarefas
-         * devido a esse atributo, portanto a flag abaixo 'login' indica que deve retornar as
+         * novas tarefas p/ serem enviadas, entao no forcarAtualizacao pode ser que nao carregue as tarefas
+         * devido a esse atributo, portanto a flag abaixo 'forcarAtualizacao' indica que deve retornar as
          * tarefas independentemente do atributo 'novasTarefas' (miaaaaaaaaaauuuuuuuuuuu)
          */
-        loginWebservice.setName("login");
-        loginWebservice.setValue(login);
-        loginWebservice.setType(Boolean.class);
-        requisicao.addProperty(loginWebservice);
+        forcarAtualizacao.setName("forcarAtualizacao");
+        forcarAtualizacao.setValue(this.forcarAtualizacao);
+        forcarAtualizacao.setType(Boolean.class);
+        requisicao.addProperty(forcarAtualizacao);
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);
-        webserviceTask = new WebserviceAsyncTask(envelope, "projetosPessoais") {
-            @Override
-            public void onGetSoapEnvelope(Object resposta) {
-                //pegando a resposta
-               Log.i("resposta", (String) resposta);
-               xml = (String) resposta;
-            }
-        };
-        webserviceTask.execute();
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String xml = null;
+        try {//faz a chamada do método 'gravacomentario' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "projetosPessoais", envelope);
+            //pegando a resposta
+            xml = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return xml;
     }
 
@@ -142,17 +141,17 @@ public class WebService{
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);
-        final String[] xml = {null};
-        webserviceTask = new WebserviceAsyncTask(envelope, "projetosEquipes") {
-            @Override
-            public void onGetSoapEnvelope(Object resposta) {
-                //pegando a resposta
-                xml[0] = (String) resposta;
-            }
-        };
-        webserviceTask.execute();
-        Log.i("xml", xml[0]);
-        return xml[0];
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String xml = null;
+        try {//faz a chamada do método 'gravacomentario' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "projetosEquipes", envelope);
+            //pegando a resposta
+            xml = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return xml;
     }
 
     /**
@@ -208,42 +207,6 @@ public class WebService{
         idUsuarioWebservice.setValue(this.getIdUsuario());
         idUsuarioWebservice.setType(Integer.class);
         return idUsuarioWebservice;
-    }
-
-    /**
-     * Faz a chamada dos metodos do webservice no servidor www.grupo-gpa.com
-     */
-    private abstract class WebserviceAsyncTask extends AsyncTask<Void, Void, Object> implements WebServiceAsyncTaskResposta{
-        private HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
-        private SoapSerializationEnvelope envelope;
-        private String metodoSOAP;
-
-        private WebserviceAsyncTask(SoapSerializationEnvelope envelope, String metodoSOAP) {
-            this.envelope = envelope;
-            this.metodoSOAP = metodoSOAP;
-        }
-
-        @Override
-        protected Object doInBackground(Void... params) {
-            try {
-                androidHttpTransport.call(SOAP_ACTION + metodoSOAP, this.envelope);
-                return this.envelope.getResponse();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (XmlPullParserException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Object resposta) {
-            this.onGetSoapEnvelope(resposta);
-        }
-
-        //repassa para a classe que instanciou a resposta do webservice
-        @Override
-        public abstract void onGetSoapEnvelope(Object resposta);
     }
 
 }

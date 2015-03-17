@@ -14,7 +14,7 @@ import java.util.Calendar;
  * das tarefas via webservice de 10 em 10 minutos
  */
 public class AgendaServico extends BroadcastReceiver {
-    private final static int intervaloSincronismo = 600000; //milisegundos
+    private final static int intervaloSincronismo = 600000; //milisegundos: 10min
 
     @Override
     public void onReceive(Context context, Intent intent) {

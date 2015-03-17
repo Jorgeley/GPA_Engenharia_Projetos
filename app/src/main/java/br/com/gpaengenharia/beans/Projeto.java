@@ -39,9 +39,12 @@ public class Projeto implements Comparable, Parcelable {
 
     @Override
     public int compareTo(Object o) {
-        if (this.id == ((Projeto)o).getId())
-            return 0;
-        else return 1;
+        if (this.id < ((Projeto)o).getId())
+            return -1;
+        else if (this.id == ((Projeto)o).getId())
+                return 0;
+            else
+                return 1;
     }
 
     public Projeto(Parcel in) {

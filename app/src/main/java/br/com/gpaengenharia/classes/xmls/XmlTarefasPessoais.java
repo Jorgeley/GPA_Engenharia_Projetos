@@ -5,8 +5,7 @@ import android.util.Log;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import br.com.gpaengenharia.activities.AtvLogin;
-import br.com.gpaengenharia.classes.ServicoTarefas;
+
 import br.com.gpaengenharia.classes.WebService;
 
 /**
@@ -41,18 +40,21 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
     /**
      * Faz download do XML via webservice e salva localmente
      * @param usuarioId
+     * @param forcarAtualizacao
      * @return true: houve atualizaçao, false: nao houve atualizaçao
      * @throws IOException
      */
-    public static boolean criaXmlProjetosPessoaisWebservice(int usuarioId) throws IOException {
+    public static boolean criaXmlProjetosPessoaisWebservice(int usuarioId, boolean forcarAtualizacao) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
-        Log.i("intanceof", String.valueOf(contexto));
-        if (!(contexto instanceof ServicoTarefas))
-            WebService.login = true;
         WebService webService = new WebService();
+        //Log.i("intanceof", String.valueOf(contexto));
         webService.setIdUsuario(usuarioId);
+        if (forcarAtualizacao)
+            webService.setForcarAtualizacao(true);
+        else
+            webService.setForcarAtualizacao(false);
         String xml = webService.projetosPessoais();
         if (xml != null) {
             escreveXML(xml);
@@ -72,8 +74,9 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
     }
 
     /**
-    Cria XML exemplo e grava no dir do projeto
+     * Cria XML exemplo e grava no dir do projeto
      */
+    @Deprecated
     public void criaXmlProjetosPessoaisTeste() {
         try {
             this.arquivoXML = super.contexto.openFileOutput(super.nomeArquivoXML, 0);

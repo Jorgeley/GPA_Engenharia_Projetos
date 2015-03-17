@@ -4,6 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
+import java.io.File;
 import java.io.IOException;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.activities.AtvAdministrador;
@@ -32,17 +34,17 @@ public class ServicoTarefas extends Service implements Runnable{
 
     @Override
     public void run() {
-        XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this);
-        boolean atualiacao = false;
         //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente caso houve alteraçoes
+        boolean xml = false;
         try {
-            atualiacao = xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId());
+            XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this);
+            xml = xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), false);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (atualiacao) {//se tiver atualizaçao notifica o usuario
+        if (xml) {
             Intent intent;
-            if (AtvLogin.usuario.getPerfil() == "adm")
+            if (AtvLogin.usuario.getPerfil().equals("adm"))
                 intent = new Intent(this, AtvAdministrador.class);
             else
                 intent = new Intent(this, AtvColaborador.class);
