@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ProgressBar;
 import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
@@ -54,19 +55,21 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate
      */;
     private ExpandableListView lvProjetos;//listView expansível dos projetosPessoais
+    private ProgressBar PrgTarefas;
     protected void setViews(){
-        Log.i("onCreate", String.valueOf(atualizaListView));
+        //Log.i("onCreate", String.valueOf(atualizaListView));
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
         this.lvProjetos.setOnGroupClickListener(this);
         this.lvProjetos.setOnChildClickListener(this);
+        this.PrgTarefas = (ProgressBar) findViewById(R.id.prgTarefas);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.projetosPessoais(false);
     }
 
     @Override
     protected void onResume() {
-        Log.i("onResume", String.valueOf(atualizaListView));
+        //Log.i("onResume", String.valueOf(atualizaListView));
         super.onResume();
         if (AtvLogin.usuario == null)
             startActivity(new Intent(this, AtvLogin.class));
@@ -83,7 +86,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     public static boolean atualizaListView;
     @Override
     public void onUserInteraction() {
-        Log.i("onUserInteraction", String.valueOf(atualizaListView));
+        //Log.i("onUserInteraction", String.valueOf(atualizaListView));
         this.atualizaListView();
     }
 
@@ -95,9 +98,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     private static ProvedorDados provedorDados;
     private void atualizaListView(){
         if (atualizaListView){
-            this.provedorDados = new ProvedorDadosTarefasPessoais(this, false);
-            this.zeraObjetos();
-            agrupaTarefas();
+            this.provedorDados = null;
+            this.projetosPessoais(false);
             Notificacao.cancell(this,1);
             atualizaListView = false;
         }
@@ -231,6 +233,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
+                protected void onPreExecute() {
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
+                }
+                @Override
                 protected Void doInBackground(Void... voids) {
                     AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, forcarAtualizacao));//polimorfismo
                     return null;
@@ -238,6 +244,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     agrupaTarefas();
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
                 }
             }.execute();
         }
@@ -254,6 +261,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
+                protected void onPreExecute() {
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
+                }
+                @Override
                 protected Void doInBackground(Void... voids) {
                     AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, forcarAtualizacao));
                     return null;
@@ -261,6 +272,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     agrupaTarefas();
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
                 }
             }.execute();
         }
@@ -277,6 +289,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
+                protected void onPreExecute() {
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
+                }
+                @Override
                 protected Void doInBackground(Void... voids) {
                     AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, forcarAtualizacao));
                     return null;
@@ -284,6 +300,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     agrupaTarefas();
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
                 }
             }.execute();
         }
@@ -300,6 +317,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
+                protected void onPreExecute() {
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
+                }
+                @Override
                 protected Void doInBackground(Void... voids) {
                     AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, forcarAtualizacao));
                     return null;
@@ -307,6 +328,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     agrupaTarefas();
+                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
                 }
             }.execute();
         }
@@ -380,10 +402,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     private void atualizaTarefaTreeMap(int idTarefa){
         //se a tarefa clicada conferir com a atualizada pela activity AtvTarefa...
         if (idTarefa == atualizarTarefaId) { //...entao reconstroi o TreeMap
-            this.provedorDados = new ProvedorDadosTarefasPessoais(this, false);
-            this.tarefasTreeMap.clear();
-            this.adaptadorTarefas = null;
-            agrupaTarefas();
+            this.provedorDados = null;
+            this.projetosPessoais(false);
             atualizarTarefaId = 0; //sinaliza que ja atualizou o TreeMap
         }
     }

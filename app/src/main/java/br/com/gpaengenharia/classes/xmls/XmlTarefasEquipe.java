@@ -63,7 +63,7 @@ public class XmlTarefasEquipe extends Xml implements XmlInterface {
      * @param xml
      * @throws IOException
      */
-    public static void criaXmlProjetosEquipesWebservice(String xml) throws IOException {
+    public void criaXmlProjetosEquipesWebservice(String xml) throws IOException {
         escreveXML(xml);
     }
 

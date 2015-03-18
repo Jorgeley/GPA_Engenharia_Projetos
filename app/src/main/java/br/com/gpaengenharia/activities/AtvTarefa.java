@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +31,10 @@ import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
 import br.com.gpaengenharia.classes.WebService;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasSemana;
 
 /**
  * Activity de gerenciamento de tarefas
@@ -148,17 +150,26 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         switch (item.getItemId()){
             case R.id.actionbar_comenta:
             case R.id.menu_comenta:
-                LayoutInflater factory = LayoutInflater.from(this);
-                layoutComentario = factory.inflate(R.layout.comentario, null);
-                final AlertDialog.Builder comentario = new AlertDialog.Builder(this)
-                        .setIconAttribute(android.R.attr.alertDialogIcon)
-                        .setTitle(R.string.actionbar_comenta)
-                        .setView(layoutComentario)
-                        .setPositiveButton(R.string.actionbar_grava, this);
-                comentario.show();
+                this.novoComentario();
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //utilizado pelo UIdget comentarios
+    public void novoComentario(View v){
+        this.novoComentario();
+    }
+
+    private void novoComentario(){
+        LayoutInflater factory = LayoutInflater.from(this);
+        layoutComentario = factory.inflate(R.layout.comentario, null);
+        final AlertDialog.Builder comentario = new AlertDialog.Builder(this)
+                .setIconAttribute(android.R.attr.alertDialogIcon)
+                .setTitle(R.string.actionbar_comenta)
+                .setView(layoutComentario)
+                .setPositiveButton(R.string.actionbar_grava, this);
+        comentario.show();
     }
 
     /**adiciona comentario via webservice em segundo plano
@@ -188,7 +199,7 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params){
             //chama o webservice
             WebService webService = new WebService();
             webService.setIdUsuario(AtvLogin.usuario.getId());
@@ -204,9 +215,15 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
                  * caso reabrir a tarefa que confere com o Id abaixo, pois houve atualizaçao dos
                  * comentarios da mesma pela Activity AtvTarefa (esta)  */
                 AtvBase.atualizarTarefaId = AtvTarefa.this.tarefa.getId();
-                XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
                 try { //grava localmente o Xml atualizado resultante do webservice
+                    XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
                     xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(respostas[0]);
+                    XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
+                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(respostas[1]);
+                    XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
+                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(respostas[2]);
+                    XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
+                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(respostas[3]);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -214,7 +231,7 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Spanned comentario = Html.fromHtml(EdtDialogo.getText()+respostas[1]+"\n");
+                        Spanned comentario = Html.fromHtml(EdtDialogo.getText()+respostas[4]+"\n");
                         EdtDialogo.setText(comentario);
                     }
                 });

@@ -109,7 +109,8 @@
             android:inputType="none"
             android:editable="false"
             android:nestedScrollingEnabled="false"
-            android:gravity="bottom" />
+            android:gravity="bottom"
+            android:onClick="novoComentario" />
     </TableRow>
 
     <TableRow

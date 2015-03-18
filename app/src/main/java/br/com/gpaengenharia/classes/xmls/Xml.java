@@ -129,7 +129,7 @@ public abstract class Xml{
                                     }
                                     break;
                                 case "vencimento" :
-                                    SimpleDateFormat formatoData = new SimpleDateFormat("MM/dd/yyyy", new Locale("pt", "BR"));
+                                    SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yy", new Locale("pt", "BR"));
                                     Date data = null;
                                     try {
                                         data = formatoData.parse(parser.nextText());

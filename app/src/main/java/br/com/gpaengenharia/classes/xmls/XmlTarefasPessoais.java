@@ -66,7 +66,7 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
      * @param xml
      * @throws IOException
      */
-    public static void criaXmlProjetosPessoaisWebservice(String xml) throws IOException {
+    public void criaXmlProjetosPessoaisWebservice(String xml) throws IOException {
         escreveXML(xml);
     }
 

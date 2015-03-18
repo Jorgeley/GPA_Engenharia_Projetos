@@ -222,18 +222,24 @@ public class WebService{
         envelope.setOutputSoapObject(requisicao);
         //requisição HTTP
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
-        String xml = null;
+        String xmlTarefasPessoais = null;
+        String xmlTarefasEquipes = null;
+        String xmlTarefasHoje = null;
+        String xmlTarefasSemana = null;
         String comentario = null;
         try {//faz a chamada do método 'gravacomentario' do webservice
             androidHttpTransport.call(SOAP_ACTION + "gravacomentario", envelope);
             //pegando a resposta
             Vector<String> resposta = (Vector<String>) envelope.getResponse();
-            xml = resposta.get(0);
-            comentario = resposta.get(1);
+            xmlTarefasPessoais = resposta.get(0);
+            xmlTarefasEquipes = resposta.get(1);
+            xmlTarefasHoje = resposta.get(2);
+            xmlTarefasSemana = resposta.get(3);
+            comentario = resposta.get(4);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String[] respostas = {xml, comentario};
+        String[] respostas = {xmlTarefasPessoais, xmlTarefasEquipes, xmlTarefasHoje, xmlTarefasSemana, comentario};
         return respostas;
     }
 

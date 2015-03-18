@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:contexto="br.com.gpaengenharia.activities.AtvBase">
+
     <ViewFlipper
         android:id="@+id/view_flipper"
         android:layout_width="fill_parent"
@@ -11,6 +12,7 @@
         android:layout_gravity="center">
 
         <!-- 2º layout: dashboard (menu) -->
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
@@ -27,7 +29,16 @@
                 android:layout_alignParentStart="false"
                 android:layout_alignParentBottom="true"
                 android:touchscreenBlocksFocus="false" />
+
         </LinearLayout>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/prgTarefas"
+            android:visibility="visible"
+            android:textAlignment="center"
+            style="@android:style/Widget.ProgressBar.Large" />
 
         <LinearLayout
             android:id="@+id/LayoutDashboard"

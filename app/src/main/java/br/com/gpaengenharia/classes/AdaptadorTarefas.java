@@ -3,6 +3,7 @@ package br.com.gpaengenharia.classes;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,7 +96,7 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
                 convertView = inflater.inflate(R.layout.parent_layout, parent, false);
             }
             TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
-            SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
+            SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yy", new Locale("pt", "BR"));
             String data = formatoData.format(tarefa.getVencimento());//seta data
             Spanned projetoString = Html.fromHtml(tarefa.getNome() + "<br><small><font color='gray'>" + projeto.getNome() + " [" + data + "]</font></small>");
             parentTextView.setText(projetoString);
