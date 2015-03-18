@@ -1,8 +1,14 @@
 package br.com.gpaengenharia.classes.provedorDados;
 
 import android.content.Context;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.TreeMap;
+
+import br.com.gpaengenharia.activities.AtvLogin;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasSemana;
 
 /**
@@ -12,8 +18,16 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasSemana;
 public class ProvedorDadosTarefasSemana extends ProvedorDados implements ProvedorDadosInterface{
     private Context contexto;
 
-    public ProvedorDadosTarefasSemana(Context contexto) {
+    public ProvedorDadosTarefasSemana(Context contexto, boolean forcarAtualizacao) {
         this.contexto = contexto;
+        File arquivo = new File(contexto.getFilesDir()+"/"+ XmlTarefasSemana.getNomeArquivoXML());
+        if (!arquivo.exists() || forcarAtualizacao)
+            try {
+                XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(this.contexto);
+                xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         setProjetosTreeMapBean();
     }
 
@@ -26,10 +40,7 @@ public class ProvedorDadosTarefasSemana extends ProvedorDados implements Provedo
     /** {@inheritDoc} */
     @Override
     public void setProjetosTreeMapBean() {
-        if (super.projetosTreeMapBean.isEmpty()) {
-            XmlTarefasSemana xml = new XmlTarefasSemana(this.contexto);
-            xml.criaXmlProjetosSemanaTeste();
-            super.projetosTreeMapBean = xml.leXml();
-        }
+        XmlTarefasSemana xml = new XmlTarefasSemana(this.contexto);
+        super.projetosTreeMapBean = xml.leXml();
     }
 }

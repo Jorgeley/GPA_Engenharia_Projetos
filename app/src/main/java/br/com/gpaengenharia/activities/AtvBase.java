@@ -200,7 +200,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 this.projetosHoje(false);
                 break;
             case R.id.projetos_semana:
-                this.projetosSemana();
+                this.projetosSemana(false);
                 break;
             case R.id.agrupamento_tarefa:
             case R.id.actionbar_tarefa:
@@ -291,17 +291,17 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
 
     public void projetosSemana(View v){
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
-        this.projetosSemana();
+        this.projetosSemana(false);
     }
 
-    public void projetosSemana(){
+    public void projetosSemana(final boolean forcarAtualizacao){
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
             this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this));
+                    AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, forcarAtualizacao));
                     return null;
                 }
                 @Override

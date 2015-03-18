@@ -144,7 +144,7 @@ public class WebService{
 
     /**
      * pega o XML de projetos da data de hoje com tarefas do idUsuario
-     * @return XML de projetosEquipes com as tarefas
+     * @return XML de projetos com as tarefas de hoje
      */
     public String projetosHoje() {
         //requisição SOAP
@@ -160,6 +160,32 @@ public class WebService{
         String xml = null;
         try {//faz a chamada do método 'projetosHoje' do webservice
             androidHttpTransport.call(SOAP_ACTION + "projetosHoje", envelope);
+            //pegando a resposta
+            xml = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return xml;
+    }
+
+    /**
+     * pega o XML de projetos com tarefas da semana atual
+     * @return XML de projetos com as tarefas da semana
+     */
+    public String projetosSemana() {
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "projetosSemana");
+        //setando parametros do método do webservice 'projetosSemana'
+        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getForcarAtualizacao());
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String xml = null;
+        try {//faz a chamada do método 'projetosSemana' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "projetosSemana", envelope);
             //pegando a resposta
             xml = (String) envelope.getResponse();
         } catch (Exception e) {
