@@ -54,8 +54,6 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate
      */;
     private ExpandableListView lvProjetos;//listView expansível dos projetosPessoais
-    //instância polimórfica que provê os dados dos projetosPessoais pessoais, equipe, hoje e semana
-    private static ProvedorDados provedorDados;
     protected void setViews(){
         Log.i("onCreate", String.valueOf(atualizaListView));
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
@@ -63,7 +61,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.lvProjetos.setOnGroupClickListener(this);
         this.lvProjetos.setOnChildClickListener(this);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
-        this.projetosPessoais(true);
+        this.projetosPessoais(false);
     }
 
     @Override
@@ -76,16 +74,11 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             atualizaListView = true;
             this.atualizaListView();
         }
-
     }
 
     /**
      * atualiza tarefas caso a classe ServicoTarefas tenha setado a flag atualizaListView
      */
-    // <Projeto, List<Tarefa>> árvore de projetosPessoais com sublista de tarefas em cada projeto
-    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
-    // <Tarefa, List<Projeto>> inversao do projetosTreeMap
-    private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap;
     //flag setada pela classe ServicoTarefas indicando que houve atualizaçao das tarefas
     public static boolean atualizaListView;
     @Override
@@ -94,17 +87,27 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.atualizaListView();
     }
 
+    // <Projeto, List<Tarefa>> árvore de projetosPessoais com sublista de tarefas em cada projeto
+    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
+    // <Tarefa, List<Projeto>> inversao do projetosTreeMap
+    private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap;
+    //instância polimórfica que provê os dados dos projetosPessoais pessoais, equipe, hoje e semana
+    private static ProvedorDados provedorDados;
     private void atualizaListView(){
         if (atualizaListView){
             this.provedorDados = new ProvedorDadosTarefasPessoais(this, false);
-            this.projetosTreeMap = null;
-            this.tarefasTreeMap = null;
-            this.adaptadorTarefas = null;
-            this.adaptadorProjetos = null;
+            this.zeraObjetos();
             agrupaTarefas();
             Notificacao.cancell(this,1);
             atualizaListView = false;
         }
+    }
+
+    private void zeraObjetos(){
+        this.projetosTreeMap = null;
+        this.tarefasTreeMap = null;
+        this.adaptadorTarefas = null;
+        this.adaptadorProjetos = null;
     }
 
     /**
@@ -191,10 +194,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 this.projetosPessoais(false);
                 break;
             case R.id.projetos_equipe:
-                this.projetosEquipes();
+                this.projetosEquipes(false);
                 break;
             case R.id.projetos_hoje:
-                this.projetosHoje();
+                this.projetosHoje(false);
                 break;
             case R.id.projetos_semana:
                 this.projetosSemana();
@@ -222,13 +225,14 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.projetosPessoais(false);
     }
 
-    public void projetosPessoais(final boolean primeiraExecucao){
+    public void projetosPessoais(final boolean forcarAtualizacao){
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasPessoais)) {
+            this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, primeiraExecucao));//polimorfismo
+                    AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, forcarAtualizacao));//polimorfismo
                     return null;
                 }
                 @Override
@@ -241,16 +245,17 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
 
     public void projetosEquipes(View v){
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
-        this.projetosEquipes();
+        this.projetosEquipes(false);
     }
 
-    public void projetosEquipes(){
+    public void projetosEquipes(final boolean forcarAtualizacao){
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasEquipe)) {
+            this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this));
+                    AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, forcarAtualizacao));
                     return null;
                 }
                 @Override
@@ -263,16 +268,17 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
 
     public void projetosHoje(View v){
         Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
-        this.projetosHoje();
+        this.projetosHoje(false);
     }
 
-    public void projetosHoje(){
+    public void projetosHoje(final boolean forcarAtualizacao){
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasHoje)) {
+            this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this));
+                    AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, forcarAtualizacao));
                     return null;
                 }
                 @Override
@@ -291,6 +297,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     public void projetosSemana(){
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
+            this.zeraObjetos();
             new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... voids) {

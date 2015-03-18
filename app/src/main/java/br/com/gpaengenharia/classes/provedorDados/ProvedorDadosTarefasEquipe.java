@@ -17,15 +17,16 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 public class ProvedorDadosTarefasEquipe extends ProvedorDados implements ProvedorDadosInterface {
     private Context contexto;
 
-    public ProvedorDadosTarefasEquipe(Context contexto) {
+    public ProvedorDadosTarefasEquipe(Context contexto, boolean forcarAtualizacao) {
+        this.contexto = contexto;
         File arquivo = new File(contexto.getFilesDir()+"/"+ XmlTarefasEquipe.getNomeArquivoXML());
-        if (!arquivo.exists())
+        if (!arquivo.exists() || forcarAtualizacao)
             try {
-                XmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId());
+                XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(this.contexto);
+                xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        this.contexto = contexto;
         setProjetosTreeMapBean();
     }
 

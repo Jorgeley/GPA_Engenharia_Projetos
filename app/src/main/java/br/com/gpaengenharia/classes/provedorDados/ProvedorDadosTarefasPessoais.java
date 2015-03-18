@@ -21,14 +21,13 @@ public class ProvedorDadosTarefasPessoais extends ProvedorDados implements Prove
     public ProvedorDadosTarefasPessoais(Context contexto, boolean forcarAtualizacao) {
         this.contexto = contexto;
         File arquivo = new File(contexto.getFilesDir()+"/"+XmlTarefasPessoais.getNomeArquivoXML());
-        if (!arquivo.exists()) {
+        if (!arquivo.exists() || forcarAtualizacao)
             try {
                 XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this.contexto);
-                xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), forcarAtualizacao);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
+                xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         setProjetosTreeMapBean();
     }
 

@@ -8,10 +8,15 @@ import java.io.IOException;
 import br.com.gpaengenharia.classes.WebService;
 
 /**
- * Cria arquivo xml com as tarefas pessoais do usuario
- * herda Xml e implementa XmlInterface
+ * Chama o metodo do Webservice que retorna o XML das tarefas das equipes do usuario
  */
 public class XmlTarefasEquipe extends Xml implements XmlInterface {
+
+    public XmlTarefasEquipe(Context contexto) {
+        super(contexto);
+        setNomeArquivoXML();
+    }
+
     //nome do arquivo para gravar o xml
     private final static String nomeArquivoXML = "tarefasEquipe.xml";
 
@@ -23,11 +28,6 @@ public class XmlTarefasEquipe extends Xml implements XmlInterface {
     @Override
     public void setNomeArquivoXML() {
         super.nomeArquivoXML = this.nomeArquivoXML;
-    }
-
-    public XmlTarefasEquipe(Context contexto) {
-        super(contexto);
-        setNomeArquivoXML();
     }
 
     /** {@inheritDoc} */
@@ -42,12 +42,13 @@ public class XmlTarefasEquipe extends Xml implements XmlInterface {
      * @return true: houve atualizaçao, false: nao houve atualizaçao
      * @throws java.io.IOException
      */
-    public static boolean criaXmlProjetosEquipesWebservice(int usuarioId) throws IOException {
+    public static boolean criaXmlProjetosEquipesWebservice(int usuarioId, boolean forcarAtualizacao) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
         WebService webService = new WebService();
         webService.setIdUsuario(usuarioId);
+        webService.setForcarAtualizacao(forcarAtualizacao);
         String xml = webService.projetosEquipes();
         if (xml != null) {
             escreveXML(xml);

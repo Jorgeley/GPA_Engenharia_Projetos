@@ -9,10 +9,15 @@ import java.io.IOException;
 import br.com.gpaengenharia.classes.WebService;
 
 /**
- * Cria arquivo xml com as tarefas pessoais do usuario
- * herda Xml e implementa XmlInterface
+ * Chama o metodo do Webservice que retorna o XML das tarefas pessoais do usuario
  */
 public class XmlTarefasPessoais extends Xml implements XmlInterface{
+
+    public XmlTarefasPessoais(Context contexto) {
+        super(contexto);
+        setNomeArquivoXML();
+    }
+
     //nome do arquivo para gravar o xml
     private final static String nomeArquivoXML = "tarefasPessoais.xml";
 
@@ -24,11 +29,6 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
     @Override
     public void setNomeArquivoXML() {
         super.nomeArquivoXML = this.nomeArquivoXML;
-    }
-
-    public XmlTarefasPessoais(Context contexto) {
-        super(contexto);
-        setNomeArquivoXML();
     }
 
     /** {@inheritDoc} */
@@ -51,10 +51,7 @@ public class XmlTarefasPessoais extends Xml implements XmlInterface{
         WebService webService = new WebService();
         //Log.i("intanceof", String.valueOf(contexto));
         webService.setIdUsuario(usuarioId);
-        if (forcarAtualizacao)
-            webService.setForcarAtualizacao(true);
-        else
-            webService.setForcarAtualizacao(false);
+        webService.setForcarAtualizacao(forcarAtualizacao);
         String xml = webService.projetosPessoais();
         if (xml != null) {
             escreveXML(xml);

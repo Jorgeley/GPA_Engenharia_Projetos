@@ -28,7 +28,6 @@ public class WebService{
     private static String SOAP_ACTION = "http://"+SERVIDOR+"/webservice/soap#";
     //id do usuario para todas as operaçoes no webservice
     private int idUsuario;
-
     //flag enviada ao servidor do webservice indicando p/ retornar os projetos, mesmo estando atualizados
     private boolean forcarAtualizacao = false;
 
@@ -49,7 +48,7 @@ public class WebService{
     }
 
     /**
-     * faz o forcarAtualizacao via webservice no servidor e retorna o objeto Usuario
+     * faz o login via webservice no servidor e retorna o objeto Usuario
      * @param login
      * @param senha
      * @return Usuario
@@ -96,29 +95,18 @@ public class WebService{
      * @return XML de projetosPessoais com as tarefas
      */
     public String projetosPessoais() {
-        //Log.i("idUsuario", String.valueOf(idUsuario));
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "projetosPessoais");
         //setando parametros do método do webservice 'projetosPessoais'
-        requisicao.addProperty(getUsuario());
-        PropertyInfo forcarAtualizacao = new PropertyInfo();
-        /**
-         * no servidor do webservice o atributo 'novasTarefas' da classe 'AclUsuario' indica se ha
-         * novas tarefas p/ serem enviadas, entao no forcarAtualizacao pode ser que nao carregue as tarefas
-         * devido a esse atributo, portanto a flag abaixo 'forcarAtualizacao' indica que deve retornar as
-         * tarefas independentemente do atributo 'novasTarefas' (miaaaaaaaaaauuuuuuuuuuu)
-         */
-        forcarAtualizacao.setName("forcarAtualizacao");
-        forcarAtualizacao.setValue(this.forcarAtualizacao);
-        forcarAtualizacao.setType(Boolean.class);
-        requisicao.addProperty(forcarAtualizacao);
+        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getForcarAtualizacao());
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);
         //requisição HTTP
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
         String xml = null;
-        try {//faz a chamada do método 'gravacomentario' do webservice
+        try {//faz a chamada do método 'projetosPessoais' do webservice
             androidHttpTransport.call(SOAP_ACTION + "projetosPessoais", envelope);
             //pegando a resposta
             xml = (String) envelope.getResponse();
@@ -133,19 +121,45 @@ public class WebService{
      * @return XML de projetosEquipes com as tarefas
      */
     public String projetosEquipes() {
-        //Log.i("idUsuario", String.valueOf(idUsuario));
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "projetosEquipes");
         //setando parametros do método do webservice 'projetosEquipes'
         requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getForcarAtualizacao());
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);
         //requisição HTTP
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
         String xml = null;
-        try {//faz a chamada do método 'gravacomentario' do webservice
+        try {//faz a chamada do método 'projetosEquipes' do webservice
             androidHttpTransport.call(SOAP_ACTION + "projetosEquipes", envelope);
+            //pegando a resposta
+            xml = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return xml;
+    }
+
+    /**
+     * pega o XML de projetos da data de hoje com tarefas do idUsuario
+     * @return XML de projetosEquipes com as tarefas
+     */
+    public String projetosHoje() {
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "projetosHoje");
+        //setando parametros do método do webservice 'projetosHoje'
+        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getForcarAtualizacao());
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String xml = null;
+        try {//faz a chamada do método 'projetosHoje' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "projetosHoje", envelope);
             //pegando a resposta
             xml = (String) envelope.getResponse();
         } catch (Exception e) {
@@ -207,6 +221,24 @@ public class WebService{
         idUsuarioWebservice.setValue(this.getIdUsuario());
         idUsuarioWebservice.setType(Integer.class);
         return idUsuarioWebservice;
+    }
+
+    /**
+     * retorna o parametro 'forcarAtualizacao' para setar na requisicao do webservice
+     * @return PropertyInfo forcarAtualizacao
+     */
+    private PropertyInfo getForcarAtualizacao(){
+        PropertyInfo forcarAtualizacao = new PropertyInfo();
+        /**
+         * no servidor do webservice o atributo 'novasTarefas' da classe 'AclUsuario' indica se ha
+         * novas tarefas p/ serem enviadas, entao no forcarAtualizacao pode ser que nao carregue as tarefas
+         * devido a esse atributo, portanto a flag abaixo 'forcarAtualizacao' indica que deve retornar as
+         * tarefas independentemente do atributo 'novasTarefas' (miaaaaaaaaaauuuuuuuuuuu)
+         */
+        forcarAtualizacao.setName("forcarAtualizacao");
+        forcarAtualizacao.setValue(this.isForcarAtualizacao());
+        forcarAtualizacao.setType(Boolean.class);
+        return forcarAtualizacao;
     }
 
 }

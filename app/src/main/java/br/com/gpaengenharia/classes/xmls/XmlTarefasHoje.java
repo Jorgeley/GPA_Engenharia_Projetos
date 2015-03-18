@@ -5,20 +5,31 @@ import android.util.Log;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+
+import br.com.gpaengenharia.classes.WebService;
 
 /**
-Cria arquivo xml de exemplo para teste
-herda Xml e implementa XmlInterface
+ * Chama o metodo do Webservice que retorna o XML das tarefas de hoje
  */
 public class XmlTarefasHoje extends Xml implements XmlInterface{
-    //nome do arquivo para gravar o xml
-    private final static String nomeArquivoXML = "tarefasHoje.xml";
-    //arquivo para gravar o xml
-    private FileOutputStream arquivoXML;
 
     public XmlTarefasHoje(Context contexto) {
         super(contexto);
         setNomeArquivoXML();
+    }
+
+    //nome do arquivo para gravar o xml
+    private final static String nomeArquivoXML = "tarefasHoje.xml";
+
+    public static String getNomeArquivoXML() {
+        return nomeArquivoXML;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setNomeArquivoXML() {
+        super.nomeArquivoXML = this.nomeArquivoXML;
     }
 
     /** {@inheritDoc} */
@@ -27,10 +38,35 @@ public class XmlTarefasHoje extends Xml implements XmlInterface{
         criaXmlProjetosHojeTeste();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void setNomeArquivoXML() {
-        super.nomeArquivoXML = this.nomeArquivoXML;
+    /**
+     * Faz download do XML via webservice e salva localmente
+     * @param usuarioId
+     * @return true: houve atualizaçao, false: nao houve atualizaçao
+     * @throws java.io.IOException
+     */
+    public static boolean criaXmlProjetosHojeWebservice(int usuarioId, boolean forcarAtualizacao) throws IOException {
+        /**
+         * TODO nao deixar o webservice ser chamado sem restricao
+         */
+        WebService webService = new WebService();
+        webService.setIdUsuario(usuarioId);
+        webService.setForcarAtualizacao(forcarAtualizacao);
+        String xml = webService.projetosHoje();
+        if (xml != null) {
+            escreveXML(xml);
+            return true;
+        }else
+            return false;
+    }
+
+    /**
+     * Reescreve o arquivo XML passado como parametro, esse metodo e usado pelo Dialog
+     * 'gravar comentario' na 'AtvTarefa'
+     * @param xml
+     * @throws IOException
+     */
+    public static void criaXmlProjetosHojeWebservice(String xml) throws IOException {
+        escreveXML(xml);
     }
 
     /**
