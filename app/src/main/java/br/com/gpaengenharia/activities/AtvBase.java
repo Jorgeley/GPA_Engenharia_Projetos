@@ -1,6 +1,7 @@
 package br.com.gpaengenharia.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,7 +16,6 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ProgressBar;
 import android.widget.ViewFlipper;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,18 +55,19 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate
      */;
     private ExpandableListView lvProjetos;//listView expansível dos projetosPessoais
-    private ProgressBar PrgTarefas;
     protected void setViews(){
         //Log.i("onCreate", String.valueOf(atualizaListView));
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
         this.lvProjetos.setOnGroupClickListener(this);
         this.lvProjetos.setOnChildClickListener(this);
-        this.PrgTarefas = (ProgressBar) findViewById(R.id.prgTarefas);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.projetosPessoais(false);
     }
 
+    /**
+     * caso usuario nao esteja logado volta a tela de login
+     */
     @Override
     protected void onResume() {
         //Log.i("onResume", String.valueOf(atualizaListView));
@@ -74,28 +75,30 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         if (AtvLogin.usuario == null)
             startActivity(new Intent(this, AtvLogin.class));
         else {
-            atualizaListView = true;
+            //atualizaListView = true;
             this.atualizaListView();
         }
     }
 
     /**
-     * atualiza tarefas caso a classe ServicoTarefas tenha setado a flag atualizaListView
+     * caso a activity esteja em primeiro plano (executando) verifica se tem que atualizar
+     * as tarefas caso a classe ServicoTarefas tenha setada a flag 'atualizaListView'
      */
-    //flag setada pela classe ServicoTarefas indicando que houve atualizaçao das tarefas
-    public static boolean atualizaListView;
     @Override
     public void onUserInteraction() {
         //Log.i("onUserInteraction", String.valueOf(atualizaListView));
         this.atualizaListView();
     }
 
-    // <Projeto, List<Tarefa>> árvore de projetosPessoais com sublista de tarefas em cada projeto
-    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
-    // <Tarefa, List<Projeto>> inversao do projetosTreeMap
-    private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap;
+    /**
+     * atualiza tarefas caso a classe ServicoTarefas, que verifica se as tarefas foram atualizadas
+     * no servidor de 10 em 10min, tenha setado a flag 'atualizaListView'
+     */
     //instância polimórfica que provê os dados dos projetosPessoais pessoais, equipe, hoje e semana
     private static ProvedorDados provedorDados;
+    //flag setada pela classe ServicoTarefas indicando que houve atualizaçao das tarefas
+    public static boolean atualizaListView;
+    //---------------------------------------------------------------------------------------------
     private void atualizaListView(){
         if (atualizaListView){
             this.provedorDados = null;
@@ -103,13 +106,6 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             Notificacao.cancell(this,1);
             atualizaListView = false;
         }
-    }
-
-    private void zeraObjetos(){
-        this.projetosTreeMap = null;
-        this.tarefasTreeMap = null;
-        this.adaptadorTarefas = null;
-        this.adaptadorProjetos = null;
     }
 
     /**
@@ -127,9 +123,15 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
     /**
-     * retorna a árvore de projetosPessoais invertida, lista de tarefas contendo sublista de projetosPessoais
+     * retorna a árvore de projetosPessoais invertida,
+     * lista de tarefas contendo sublista de projetosPessoais
      */
+    // <Projeto, List<Tarefa>> árvore de projetosPessoais com sublista de tarefas em cada projeto
+    private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
+    // <Tarefa, List<Projeto>> inversao do projetosTreeMap
+    private TreeMap<Tarefa, List<Projeto>> tarefasTreeMap;
     private char agrupamento = 't';//t=agrupamento tarefas, p=agrupamento projetosPessoais
+    //---------------------------------------------------------------------------------------------
     private void agrupaTarefas(){
         if (this.projetosTreeMap == null || this.projetosTreeMap.isEmpty())
             this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
@@ -150,7 +152,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
     /**
-     * retorna a árvore de projetosPessoais padrão: lista de projetosPessoais contendo sublista de tarefas
+     * retorna a árvore de projetosPessoais padrão:
+     * lista de projetosPessoais contendo sublista de tarefas
      */
     private void agrupaProjetos(){
         if (this.projetosTreeMap == null || this.projetosTreeMap.isEmpty())
@@ -167,6 +170,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      */
     private AdaptadorProjetos adaptadorProjetos; //adaptadorProjetos do listView
     private AdaptadorTarefas adaptadorTarefas; //adaptadorTarefas do listView
+    //---------------------------------------------------------------------------------------------
     private void setAdaptador(boolean inverte){
         if (inverte) {
             //singleton
@@ -217,7 +221,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
 
-    /**TODO talvez seja melhor eu ter um objeto ProvedorDados para cada um ao inves de polimorfismo
+    /**
+     * TODO talvez seja melhor eu ter um objeto ProvedorDados para cada um ao inves de polimorfismo
      * para nao ficar reinstanciando, ou seja, se clicar no menu Pessoais, depois Equipes, e de novo
      * Pessoais tera reinstanciado o ProvedorDadosTarefasPessoais duas vezes... think about it...
      */
@@ -231,22 +236,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasPessoais)) {
             this.zeraObjetos();
-            new AsyncTask<Void, Void, Void>(){
-                @Override
-                protected void onPreExecute() {
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
-                }
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, forcarAtualizacao));//polimorfismo
-                    return null;
-                }
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    agrupaTarefas();
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
-                }
-            }.execute();
+            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
+            webserviceTarefas.execute('p');
         }
     }
 
@@ -259,22 +250,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasEquipe)) {
             this.zeraObjetos();
-            new AsyncTask<Void, Void, Void>(){
-                @Override
-                protected void onPreExecute() {
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
-                }
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, forcarAtualizacao));
-                    return null;
-                }
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    agrupaTarefas();
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
-                }
-            }.execute();
+            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
+            webserviceTarefas.execute('e');
         }
     }
 
@@ -287,22 +264,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasHoje)) {
             this.zeraObjetos();
-            new AsyncTask<Void, Void, Void>(){
-                @Override
-                protected void onPreExecute() {
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
-                }
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, forcarAtualizacao));
-                    return null;
-                }
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    agrupaTarefas();
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
-                }
-            }.execute();
+            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
+            webserviceTarefas.execute('h');
         }
     }
 
@@ -315,23 +278,17 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
             this.zeraObjetos();
-            new AsyncTask<Void, Void, Void>(){
-                @Override
-                protected void onPreExecute() {
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, true);
-                }
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, forcarAtualizacao));
-                    return null;
-                }
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    agrupaTarefas();
-                    Utils.barraProgresso(AtvBase.this, PrgTarefas, false);
-                }
-            }.execute();
+            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
+            webserviceTarefas.execute('s');
         }
+    }
+
+    //usado pelos metodos acima projetosPessoais, projetosEquipes, etc
+    private void zeraObjetos(){
+        this.projetosTreeMap = null;
+        this.tarefasTreeMap = null;
+        this.adaptadorTarefas = null;
+        this.adaptadorProjetos = null;
     }
 
     /**infla o xml do menu comum ao Adm e Colaborador
@@ -408,6 +365,30 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         }
     }
 
+    /**
+     * busca as tarefas via webservice em segundo plano
+     */
+    private class WebserviceTarefas extends AsyncTask<Character, Void, Void>{
+        @Override
+        protected Void doInBackground(Character... provedorDados) {
+            switch (provedorDados[0]){
+                case 'p': AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, false)); break;
+                case 'e': AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, false)); break;
+                case 'h': AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, false)); break;
+                case 's': AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, false)); break;
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            agrupaTarefas();
+        }
+    }
+
+    /**
+     * seta o provedor de dados para cada tipo de tarefa (pessoais, equipes, etc)
+     * @param provedorDados
+     */
     public static void setProvedorDados(ProvedorDados provedorDados){
         AtvBase.provedorDados = provedorDados;
     }

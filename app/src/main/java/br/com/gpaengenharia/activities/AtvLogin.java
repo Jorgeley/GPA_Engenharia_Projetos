@@ -10,13 +10,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import java.io.File;
-import java.io.IOException;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.AgendaServico;
-import br.com.gpaengenharia.classes.ServicoTarefas;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;

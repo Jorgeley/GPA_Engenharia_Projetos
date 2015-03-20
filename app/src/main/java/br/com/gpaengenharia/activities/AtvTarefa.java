@@ -73,7 +73,8 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
             projetos[0] = this.projeto.getNome();
             responsaveis[0] = this.tarefa.getResponsavel()!=null ? this.tarefa.getResponsavel() : "responsavel";
             EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
-            EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
+            if (this.tarefa.getComentario()!=null)
+                EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
             String data = formatoData.format(this.tarefa.getVencimento());//seta data
             EdtVencimento.setText(data);
@@ -203,27 +204,28 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
             //chama o webservice
             WebService webService = new WebService();
             webService.setIdUsuario(AtvLogin.usuario.getId());
-            final String[] respostas = webService.gravacomentario(
+            final String resposta = webService.gravacomentario(
                     AtvTarefa.this.tarefa.getId(),
                     this.textoComentario
             );
             /**se deu resultado o webservice entao sinaliza para a Activity AtvBase atualizar o
-             * TreeMap e tambem ja grava localmente o Xml com as tarefas atualizadas
+             * TreeMap e tambem ja atualiza localmente os Xmls de todas as tarefas
+             * TODO melhorar essa logica, pois deveria atualizar apenas os XMLs da tarefa
              */
-            if (respostas != null) {
+            if (resposta != null) {
                 /**flag enviada p/ Activity AtvBase sinalizando que deve atualizar o TreeMap se
                  * caso reabrir a tarefa que confere com o Id abaixo, pois houve atualizaçao dos
                  * comentarios da mesma pela Activity AtvTarefa (esta)  */
                 AtvBase.atualizarTarefaId = AtvTarefa.this.tarefa.getId();
                 try { //grava localmente o Xml atualizado resultante do webservice
                     XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
-                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(respostas[0]);
+                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
                     XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
-                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(respostas[1]);
+                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
                     XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
-                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(respostas[2]);
+                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
                     XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
-                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(respostas[3]);
+                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -231,7 +233,7 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Spanned comentario = Html.fromHtml(EdtDialogo.getText()+respostas[4]+"\n");
+                        Spanned comentario = Html.fromHtml(EdtDialogo.getText()+resposta+"\n");
                         EdtDialogo.setText(comentario);
                     }
                 });

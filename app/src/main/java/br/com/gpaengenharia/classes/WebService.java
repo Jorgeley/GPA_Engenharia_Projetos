@@ -198,9 +198,9 @@ public class WebService{
      * grava comentario de uma tarefa do usuario
      * @param idTarefa
      * @param textoComentario
-     * @return XML de projetosPessoais com as tarefas
+     * @return String comentario gravado
      */
-    public String[] gravacomentario(int idTarefa, String textoComentario){
+    public String gravacomentario(int idTarefa, String textoComentario){
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "gravacomentario");
         //setando parametro 'idUsuario' do método do webservice 'gravacomentario'
@@ -222,25 +222,15 @@ public class WebService{
         envelope.setOutputSoapObject(requisicao);
         //requisição HTTP
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
-        String xmlTarefasPessoais = null;
-        String xmlTarefasEquipes = null;
-        String xmlTarefasHoje = null;
-        String xmlTarefasSemana = null;
-        String comentario = null;
+        String resposta = null;
         try {//faz a chamada do método 'gravacomentario' do webservice
             androidHttpTransport.call(SOAP_ACTION + "gravacomentario", envelope);
             //pegando a resposta
-            Vector<String> resposta = (Vector<String>) envelope.getResponse();
-            xmlTarefasPessoais = resposta.get(0);
-            xmlTarefasEquipes = resposta.get(1);
-            xmlTarefasHoje = resposta.get(2);
-            xmlTarefasSemana = resposta.get(3);
-            comentario = resposta.get(4);
+            resposta = (String) envelope.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String[] respostas = {xmlTarefasPessoais, xmlTarefasEquipes, xmlTarefasHoje, xmlTarefasSemana, comentario};
-        return respostas;
+        return resposta;
     }
 
     /**
