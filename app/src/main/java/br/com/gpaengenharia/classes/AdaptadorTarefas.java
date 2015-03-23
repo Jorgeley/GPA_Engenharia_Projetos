@@ -100,10 +100,11 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
             TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yy", new Locale("pt", "BR"));
             String data = formatoData.format(tarefa.getVencimento());//seta data
-            String tarefaNome = tarefa.getNome();
+            String tarefaHTML = "<font face='sans-serif' color='#FFFFFF'>" + tarefa.getNome() + "</font>";
             if (AtvBase.provedorDados instanceof ProvedorDadosTarefasEquipe)
-                tarefaNome += " <small>("+tarefa.getResponsavel()+")</small>";
-            Spanned projetoString = Html.fromHtml(tarefaNome + "<br><small><font color='gray'>" + projeto.getNome() + " [" + data + "]</font></small>");
+                tarefaHTML += " <small><font face='sans-serif-thin' color='#E8E8E8'><i>("+tarefa.getResponsavel()+")</i></font></small>";
+            tarefaHTML +="<br><small><font face='sans-serif-thin' color='#EEEED1'><i>" + projeto.getNome() + " [" + data + "]</i></font></small>";
+            Spanned projetoString = Html.fromHtml(tarefaHTML);
             parentTextView.setText(projetoString);
         }
         return convertView;
