@@ -17,8 +17,10 @@ import java.util.Locale;
 import java.util.TreeMap;
 
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.activities.AtvBase;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
 
 /**
 Adaptador do listView expansível
@@ -98,7 +100,10 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
             TextView parentTextView = (TextView) convertView.findViewById(R.id.textViewParent);
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yy", new Locale("pt", "BR"));
             String data = formatoData.format(tarefa.getVencimento());//seta data
-            Spanned projetoString = Html.fromHtml(tarefa.getNome() + "<br><small><font color='gray'>" + projeto.getNome() + " [" + data + "]</font></small>");
+            String tarefaNome = tarefa.getNome();
+            if (AtvBase.provedorDados instanceof ProvedorDadosTarefasEquipe)
+                tarefaNome += " <small>("+tarefa.getResponsavel()+")</small>";
+            Spanned projetoString = Html.fromHtml(tarefaNome + "<br><small><font color='gray'>" + projeto.getNome() + " [" + data + "]</font></small>");
             parentTextView.setText(projetoString);
         }
         return convertView;

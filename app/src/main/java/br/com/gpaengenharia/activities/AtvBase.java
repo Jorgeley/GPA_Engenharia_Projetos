@@ -11,10 +11,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +98,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      * no servidor de 10 em 10min, tenha setado a flag 'atualizaListView'
      */
     //instância polimórfica que provê os dados dos projetosPessoais pessoais, equipe, hoje e semana
-    private static ProvedorDados provedorDados;
+    public static ProvedorDados provedorDados;
     //flag setada pela classe ServicoTarefas indicando que houve atualizaçao das tarefas
     public static boolean atualizaListView;
     //---------------------------------------------------------------------------------------------
@@ -183,6 +186,9 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 this.adaptadorProjetos = new AdaptadorProjetos(this, this.projetosTreeMap);
             this.lvProjetos.setAdapter(this.adaptadorProjetos);
         }
+        //se o adaptador estiver vazio seta novo adaptador com String informando
+        if (this.lvProjetos.getAdapter().isEmpty())
+            Toast.makeText(this,"nenhuma tarefa",Toast.LENGTH_LONG).show();
     }
 
     /**opções comuns dos menus Adm e Colaborador
