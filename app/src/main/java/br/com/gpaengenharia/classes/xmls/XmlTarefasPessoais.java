@@ -5,6 +5,7 @@ import android.util.Log;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Vector;
 
 import br.com.gpaengenharia.classes.WebService;
 

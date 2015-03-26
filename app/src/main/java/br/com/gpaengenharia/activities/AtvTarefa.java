@@ -31,6 +31,10 @@ import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
 import br.com.gpaengenharia.classes.WebService;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
@@ -64,6 +68,19 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
         SpnResponsavel.setAdapter(Utils.setAdaptador(this, responsaveis));
         SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
         SpnProjeto.setAdapter(Utils.setAdaptador(this, projetos));
+        //caso usuário seja administrador, adiciona botões de administração no layout
+        if (AtvLogin.usuario != null) {
+            if (AtvLogin.usuario.getPerfil() == "adm")
+                addBotoes();
+            else { //desabilita Spinners
+                this.SpnProjeto.setEnabled(false);
+                this.SpnResponsavel.setEnabled(false);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume(){
         Bundle bundleTarefa = getIntent().getExtras();
         //se tiver sido enviado objetos Projeto e Tarefa, recupera-os e seta nos views
         if (bundleTarefa != null) {
@@ -79,13 +96,7 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
             String data = formatoData.format(this.tarefa.getVencimento());//seta data
             EdtVencimento.setText(data);
         }
-        //caso usuário seja administrador, adiciona botões de administração no layout
-        if (AtvLogin.usuario.getPerfil() == "adm")
-            addBotoes();
-        else{ //desabilita Spinners
-            this.SpnProjeto.setEnabled(false);
-            this.SpnResponsavel.setEnabled(false);
-        }
+        super.onResume();
     }
 
     /**retorna a data do datePicker
@@ -210,7 +221,7 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
             );
             /**se deu resultado o webservice entao sinaliza para a Activity AtvBase atualizar o
              * TreeMap e tambem ja atualiza localmente os Xmls de todas as tarefas
-             * TODO melhorar essa logica, pois deveria atualizar apenas os XMLs da tarefa
+             * TODO melhorar essa logica, pois deveria atualizar apenas os XMLs da tarefa comentada
              */
             if (resposta != null) {
                 /**flag enviada p/ Activity AtvBase sinalizando que deve atualizar o TreeMap se
@@ -218,14 +229,22 @@ public class AtvTarefa extends FragmentActivity implements DatePickerFragment.Li
                  * comentarios da mesma pela Activity AtvTarefa (esta)  */
                 AtvBase.atualizarTarefaId = AtvTarefa.this.tarefa.getId();
                 try { //grava localmente o Xml atualizado resultante do webservice
-                    XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
-                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
-                    XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
-                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
-                    XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
-                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
-                    XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
-                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
+                    if (ProvedorDadosTarefasPessoais.getIdsTarefasPessoais().contains(AtvTarefa.this.tarefa.getId())) {
+                        XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
+                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
+                    }
+                    if (ProvedorDadosTarefasEquipe.getIdsTarefasEquipes().contains(AtvTarefa.this.tarefa.getId())) {
+                        XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
+                        xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
+                    }
+                    if (ProvedorDadosTarefasHoje.getIdsTarefasHoje().contains(AtvTarefa.this.tarefa.getId())) {
+                        XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
+                        xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
+                    }
+                    if (ProvedorDadosTarefasSemana.getIdsTarefasSemana().contains(AtvTarefa.this.tarefa.getId())) {
+                        XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
+                        xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

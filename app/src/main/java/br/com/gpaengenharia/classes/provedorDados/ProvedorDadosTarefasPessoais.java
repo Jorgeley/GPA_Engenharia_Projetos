@@ -1,13 +1,13 @@
 package br.com.gpaengenharia.classes.provedorDados;
 
 import android.content.Context;
-import android.os.AsyncTask;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
-
 import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
@@ -17,6 +17,7 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
   */
 public class ProvedorDadosTarefasPessoais extends ProvedorDados implements ProvedorDadosInterface{
     private Context contexto;
+    private static Set<Integer> idsTarefasPessoais = new HashSet<Integer>(Arrays.asList(0));;
 
     public ProvedorDadosTarefasPessoais(Context contexto, boolean forcarAtualizacao) {
         this.contexto = contexto;
@@ -40,7 +41,16 @@ public class ProvedorDadosTarefasPessoais extends ProvedorDados implements Prove
     /** {@inheritDoc} */
     @Override
     public void setProjetosTreeMapBean() {
-            XmlTarefasPessoais xml = new XmlTarefasPessoais(this.contexto);
-            super.projetosTreeMapBean = xml.leXml();
+        XmlTarefasPessoais xml = new XmlTarefasPessoais(this.contexto);
+        super.projetosTreeMapBean = xml.leXml();
+        this.setIdsTarefasPessoais(xml.idsTarefas);
+    }
+
+    public static Set<Integer> getIdsTarefasPessoais(){
+        return idsTarefasPessoais;
+    }
+
+    public void setIdsTarefasPessoais(Set<Integer> idsTarefasPessoais){
+        this.idsTarefasPessoais = idsTarefasPessoais;
     }
 }

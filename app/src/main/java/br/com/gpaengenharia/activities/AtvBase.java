@@ -1,22 +1,17 @@
 package br.com.gpaengenharia.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
@@ -29,6 +24,7 @@ import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.AdaptadorProjetos;
 import br.com.gpaengenharia.classes.AdaptadorTarefas;
 import br.com.gpaengenharia.classes.Notificacao;
+import br.com.gpaengenharia.classes.ServicoTarefas;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
@@ -66,6 +62,9 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.lvProjetos.setOnChildClickListener(this);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.projetosPessoais(false);
+        this.projetosEquipes(false);
+        this.projetosHoje(false);
+        this.projetosSemana(false);
     }
 
     /**
@@ -78,6 +77,15 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         if (AtvLogin.usuario == null)
             startActivity(new Intent(this, AtvLogin.class));
         else {
+            final ServicoTarefas servicoTarefas = new ServicoTarefas();
+            servicoTarefas.setContexto(this);
+            new AsyncTask<Void, Void, Void>(){
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    servicoTarefas.run();
+                    return null;
+                }
+            };
             //atualizaListView = true;
             this.atualizaListView();
         }
@@ -322,7 +330,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.atualizaTarefaTreeMap(tarefa.getId());
             //envia o objeto Tarefa parcelable selecionado para atvTarefa
             Bundle bundleTarefa = new Bundle();
-            bundleTarefa.putParcelable("tarefa", (Tarefa) parent.getExpandableListAdapter().getGroup(groupPosition));
+            bundleTarefa.putParcelable("tarefa", tarefa);
             bundleTarefa.putParcelable("projeto", (Projeto) parent.getExpandableListAdapter().getChild(groupPosition, 0));
             Intent atvTarefa = new Intent(AtvBase.this, AtvTarefa.class);
             atvTarefa.putExtras(bundleTarefa);

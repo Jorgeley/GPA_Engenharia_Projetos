@@ -1,14 +1,14 @@
 package br.com.gpaengenharia.classes.provedorDados;
 
 import android.content.Context;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
-
 import br.com.gpaengenharia.activities.AtvLogin;
-import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
 
 /**
@@ -16,6 +16,7 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
  herda de ProvedorDados e implementa ProvedorDadosInterface
   */
 public class ProvedorDadosTarefasHoje extends ProvedorDados implements ProvedorDadosInterface{
+    private static Set<Integer> idsTarefasHoje = new HashSet<Integer>(Arrays.asList(0));;
     private Context contexto;
 
     public ProvedorDadosTarefasHoje(Context contexto, boolean forcarAtualizacao) {
@@ -42,5 +43,14 @@ public class ProvedorDadosTarefasHoje extends ProvedorDados implements ProvedorD
     public void setProjetosTreeMapBean() {
         XmlTarefasHoje xml = new XmlTarefasHoje(this.contexto);
         super.projetosTreeMapBean = xml.leXml();
+        this.setIdsTarefasHoje(xml.idsTarefas);
+    }
+
+    public static Set<Integer> getIdsTarefasHoje(){
+        return idsTarefasHoje;
+    }
+
+    public void setIdsTarefasHoje(Set<Integer> idsTarefasHoje){
+        this.idsTarefasHoje = idsTarefasHoje;
     }
 }

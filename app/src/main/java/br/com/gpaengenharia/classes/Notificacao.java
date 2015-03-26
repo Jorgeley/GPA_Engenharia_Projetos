@@ -28,7 +28,7 @@ public class Notificacao {
     @SuppressLint("NewApi")
     public static void create(Context contexto, CharSequence titulo, CharSequence mensagem, int icone, int id, Intent intent){
         //intent para abrir qdo clicar na notificaçao
-        PendingIntent pendingIntent = PendingIntent.getActivity(contexto, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(contexto, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notificacao = null;
         int api = Build.VERSION.SDK_INT; //level da API
         if (api >= 11) {
@@ -36,6 +36,7 @@ public class Notificacao {
                     .setContentTitle(titulo)
                     .setContentText(mensagem)
                     .setSmallIcon(icone)
+                    .setAutoCancel(true)
                     .setContentIntent(pendingIntent);
             if (api >= 17) //android 4.2
                 notificacao = builder.build();

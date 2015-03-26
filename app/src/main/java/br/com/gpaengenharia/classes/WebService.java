@@ -1,11 +1,12 @@
 package br.com.gpaengenharia.classes;
 
+import android.util.Log;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
-
 import java.util.Vector;
 import br.com.gpaengenharia.beans.Usuario;
 
@@ -18,13 +19,13 @@ public class WebService{
     //private static String SERVIDOR = "192.168.1.103:8888";
     private static String SERVIDOR = "www.grupo-gpa.com";
     //Namespace of the Webservice - can be found in WSDL
-    //private static String NAMESPACE = "http://"+SERVIDOR+"/GPA/public/webservice/soap/";
+    //private static String NAMESPACE = "http://"+SERVIDOR+"/WEB/GPA/public/webservice/soap/";
     private static String NAMESPACE = "http://"+SERVIDOR+"/webservice/soap/";
     //Webservice URL - WSDL File location
-    //private static String URL = "http://"+SERVIDOR+"/GPA/public/webservice/soap";//Make sure you changed IP address
+    //private static String URL = "http://"+SERVIDOR+"/WEB/GPA/public/webservice/soap";//Make sure you changed IP address
     private static String URL = "http://"+SERVIDOR+"/webservice/soap";
     //SOAP Action URI again Namespace + Web method name
-    //private static String SOAP_ACTION = "http://"+SERVIDOR+"/GPA/public/webservice/soap#";
+    //private static String SOAP_ACTION = "http://"+SERVIDOR+"/WEB/GPA/public/webservice/soap#";
     private static String SOAP_ACTION = "http://"+SERVIDOR+"/webservice/soap#";
     //id do usuario para todas as operaçoes no webservice
     private int idUsuario;
@@ -88,6 +89,46 @@ public class WebService{
             e.printStackTrace();
         }
         return usuario;
+    }
+
+    /**
+     * sincroniza as tarefas do usuario, retorna array contendo os ids das tarefas atuais e xml
+     * @return XML de projetosPessoais com as tarefas
+     * @param ultimaSincronizacao
+     */
+    public Object[] sincroniza(String ultimaSincronizacao) {
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "sincroniza");
+        //setando parametros do método do webservice 'sincroniza'
+        requisicao.addProperty(this.getUsuario());
+        PropertyInfo ultimaSincronizacaoWebservice = new PropertyInfo();
+        ultimaSincronizacaoWebservice.setName("ultimaSincronizacao");
+        ultimaSincronizacaoWebservice.setValue(ultimaSincronizacao);
+        ultimaSincronizacaoWebservice.setType(String.class);
+        requisicao.addProperty(ultimaSincronizacaoWebservice);
+        //Log.i("ultimaSincronizacao", ultimaSincronizacao);
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        Vector<Integer> idsTarefas = null;
+        String xml = null;
+        try {//faz a chamada do método 'sincroniza' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "sincroniza", envelope);
+            //pegando a resposta
+            Vector<Object> resposta = (Vector<Object>) envelope.getResponse();
+            if (resposta == null)
+                return null;
+            else {
+                idsTarefas = (Vector<Integer>) resposta.get(0);
+                xml = resposta.get(1).toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Object[] respostas = new Object[]{idsTarefas, xml};
+        return respostas;
     }
 
     /**

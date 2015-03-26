@@ -1,7 +1,5 @@
 package br.com.gpaengenharia.classes.provedorDados;
 
-import android.util.Log;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;

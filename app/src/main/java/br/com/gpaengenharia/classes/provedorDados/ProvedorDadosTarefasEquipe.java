@@ -1,12 +1,13 @@
 package br.com.gpaengenharia.classes.provedorDados;
 
 import android.content.Context;
-
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
-
 import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 
@@ -15,6 +16,7 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
  herda de ProvedorDados e implementa ProvedorDadosInterface
   */
 public class ProvedorDadosTarefasEquipe extends ProvedorDados implements ProvedorDadosInterface {
+    private static Set<Integer> idsTarefasEquipes = new HashSet<Integer>(Arrays.asList(0));;
     private Context contexto;
 
     public ProvedorDadosTarefasEquipe(Context contexto, boolean forcarAtualizacao) {
@@ -39,8 +41,17 @@ public class ProvedorDadosTarefasEquipe extends ProvedorDados implements Provedo
     /** {@inheritDoc} **/
     @Override
     public void setProjetosTreeMapBean(){
-            XmlTarefasEquipe xml = new XmlTarefasEquipe(this.contexto);
-            super.projetosTreeMapBean = xml.leXml();
+        XmlTarefasEquipe xml = new XmlTarefasEquipe(this.contexto);
+        super.projetosTreeMapBean = xml.leXml();
+        this.setIdsTarefasEquipes(xml.idsTarefas);
+    }
+
+    public static Set<Integer> getIdsTarefasEquipes(){
+        return idsTarefasEquipes;
+    }
+
+    public void setIdsTarefasEquipes(Set<Integer> idsTarefasEquipes){
+        this.idsTarefasEquipes = idsTarefasEquipes;
     }
 
 }
