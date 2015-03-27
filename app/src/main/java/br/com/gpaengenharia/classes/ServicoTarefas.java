@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,8 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasSemana;
 
 /**
  * serviço agendado pela classe AgendaServico para ser executado de 10 em 10 minutos
- * verifica via webservice se houve atualizaçoes nas tarefas do usuario
+ * verifica via webservice se houve atualizaçoes nas tarefas do usuario, se sim, baixa
+ * XML atualizado e cria notificaçao para cada tarefa atualizada
  */
 public class ServicoTarefas extends Service implements Runnable{
     private Context contexto;
@@ -53,25 +53,28 @@ public class ServicoTarefas extends Service implements Runnable{
     }
 
     @Override
-    public void run() {
-        //baixa o XML de tarefas pessoais via werbservice e cria o arquivo localmente caso houve alteraçoes
-        File arquivo = new File(this.getContexto().getFilesDir() + "/" + XmlTarefasPessoais.getNomeArquivoXML());
+    public void run(){
+        //arquivo XML contendo todas as tarefas
+        File arquivo = new File(this.getContexto().getFilesDir() + "/" + XmlTarefasPessoais.getNomeArquivoXMLTudo());
         SimpleDateFormat formatoData = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", new Locale("pt", "BR"));
         Date data = new Date();
-        data.setTime(arquivo.lastModified());
+        data.setTime(arquivo.lastModified());//pega a data de modificaçao do arquivo XML
         String ultimaSincronizacao = formatoData.format(data);
-        Vector<Integer> idsTarefas = null;
-        TreeMap<Projeto, List<Tarefa>> projetosTarefas = null;
+        Vector<Integer> idsTarefas;//ids das tarefas atualizadas para criar notificaçao
+        TreeMap<Projeto, List<Tarefa>> projetosTarefas; //treeMap de beans projetos contendo beans tarefas em cada
         try {
             XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this);
+            //chama o webservice que verifica se ha tarefas novas de acordo com a data de modificaçao do XML local
             idsTarefas = xmlTarefasPessoais.sincronizaXmlTudoWebservice(AtvLogin.usuario.getId(), ultimaSincronizacao);
             if (idsTarefas != null) {
                 //Log.i("idsTarefas", String.valueOf(idsTarefas));
                 XmlTarefasPessoais xml = new XmlTarefasPessoais(this);
+                //monta treeMap de beans projetos contendo beans tarefas em cada
                 projetosTarefas = xml.getBeanTarefasXml(idsTarefas);
                 if (!projetosTarefas.isEmpty()) {
                     //Log.i("projetosTarefas", String.valueOf(projetosTarefas));
                     for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : projetosTarefas.entrySet()) {
+                        //para cada tarefa nova cria uma notificaçao contendo a mesma
                         for (Tarefa tarefa : projetoTarefas.getValue()) {
                             Bundle bundleTarefa = new Bundle();
                             bundleTarefa.putParcelable("projeto", projetoTarefas.getKey());
@@ -85,6 +88,7 @@ public class ServicoTarefas extends Service implements Runnable{
                                     tarefa.getId(), //se for igual os extras nao atualizam
                                     atvTarefa
                             );
+                            //sinaliza para a atvBase atualizar o listView
                             AtvBase.atualizaListView = true;
                         }
                     }
@@ -93,6 +97,7 @@ public class ServicoTarefas extends Service implements Runnable{
                 XmlTarefasEquipe xmlTarefasEquipe = null;
                 XmlTarefasHoje xmlTarefasHoje = null;
                 XmlTarefasSemana xmlTarefasSemana = null;
+                //verifica se tem que atualizar os outros XML's baseando-se no id das tarefas atualizadas
                 for (Integer idTarefa : idsTarefas) {
                     if (!(xmlTarefasPessoais instanceof XmlTarefasPessoais) &&
                             ProvedorDadosTarefasPessoais.getIdsTarefasPessoais().contains(idTarefa)) {

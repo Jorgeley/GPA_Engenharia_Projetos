@@ -101,7 +101,7 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yy", new Locale("pt", "BR"));
             String data = formatoData.format(tarefa.getVencimento());//seta data
             String tarefaHTML = "<font face='sans-serif' color='#FFFFFF'>" + tarefa.getNome() + "</font>";
-            if (AtvBase.provedorDados instanceof ProvedorDadosTarefasEquipe)
+            //if (AtvBase.provedorDados instanceof ProvedorDadosTarefasEquipe)
                 tarefaHTML += " <small><font face='sans-serif-thin' color='#E8E8E8'><i>("+tarefa.getResponsavel()+")</i></font></small>";
             tarefaHTML +="<br><small><font face='sans-serif-thin' color='#EEEED1'><i>" + projeto.getNome() + " [" + data + "]</i></font></small>";
             Spanned projetoString = Html.fromHtml(tarefaHTML);

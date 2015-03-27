@@ -36,9 +36,10 @@ public abstract class Xml{
     //TreeMap de beans contendo cada projeto com sua lista de tarefas
     private TreeMap<Projeto,List<Tarefa>> projetos = new TreeMap<Projeto,List<Tarefa>>();
     protected static String nomeArquivoXML;//nome do arquivo para ler o xml
-    //arquivo para gravar o xml
+    //arquivo para gravar os XML's separados (Pessoais, Equipes, etc)
     protected static FileOutputStream arquivoXML;
     public static Set<Integer> idsTarefas = new HashSet<Integer>();
+    //nome do arquivo XML para grava todas as tarefas
     public static final String nomeArquivoXMLTudo = "tudo.xml";
 
     public Xml(Context contexto){
@@ -198,7 +199,7 @@ public abstract class Xml{
     }
 
     /**
-     * retorna os beans das tarefas que foram atualizadas via webservice
+     * retorna treeMap dos beans Projeto contendo beans Tarefa que foram atualizadas via webservice
      * @param idsTarefas
      * @return
      * @throws XmlPullParserException

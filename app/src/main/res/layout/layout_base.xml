@@ -26,7 +26,8 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="false"
                 android:layout_alignParentBottom="true"
-                android:touchscreenBlocksFocus="false" />
+                android:touchscreenBlocksFocus="false"
+                android:groupIndicator="@android:drawable/screen_background_dark_transparent" />
         </LinearLayout>
 
         <LinearLayout

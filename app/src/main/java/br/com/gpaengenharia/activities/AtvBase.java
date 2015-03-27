@@ -75,7 +75,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //Log.i("onResume", String.valueOf(atualizaListView));
         super.onResume();
         if (AtvLogin.usuario == null)
-            startActivity(new Intent(this, AtvLogin.class));
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
         else {
             final ServicoTarefas servicoTarefas = new ServicoTarefas();
             servicoTarefas.setContexto(this);
@@ -382,20 +382,32 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     /**
      * busca as tarefas via webservice em segundo plano
      */
-    private class WebserviceTarefas extends AsyncTask<Character, Void, Void>{
+    private class WebserviceTarefas extends AsyncTask<Character, Void, Boolean> {
         @Override
-        protected Void doInBackground(Character... provedorDados) {
-            switch (provedorDados[0]){
-                case 'p': AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, false)); break;
-                case 'e': AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, false)); break;
-                case 'h': AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, false)); break;
-                case 's': AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, false)); break;
-            }
-            return null;
+        protected Boolean doInBackground(Character... provedorDados) {
+            if (AtvLogin.usuario != null) {
+                switch (provedorDados[0]) {
+                    case 'p':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, false));
+                        break;
+                    case 'e':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, false));
+                        break;
+                    case 'h':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, false));
+                        break;
+                    case 's':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, false));
+                        break;
+                }
+                return true;
+            }else
+                return false;
         }
         @Override
-        protected void onPostExecute(Void aVoid) {
-            agrupaTarefas();
+        protected void onPostExecute(Boolean resultado) {
+            if (resultado)
+                agrupaTarefas();
         }
     }
 
