@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
+
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class ServicoTarefas extends Service implements Runnable{
                 //Log.i("idsTarefas", String.valueOf(idsTarefas));
                 XmlTarefasPessoais xml = new XmlTarefasPessoais(this);
                 //monta treeMap de beans projetos contendo beans tarefas em cada
-                projetosTarefas = xml.getBeanTarefasXml(idsTarefas);
+                projetosTarefas = xml.leXmlTarefas(idsTarefas);
                 if (!projetosTarefas.isEmpty()) {
                     //Log.i("projetosTarefas", String.valueOf(projetosTarefas));
                     for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : projetosTarefas.entrySet()) {

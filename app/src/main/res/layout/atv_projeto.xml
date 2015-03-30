@@ -38,7 +38,7 @@
         <Spinner
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/SPNresponsavel"
+            android:id="@+id/SPNequipe"
             android:layout_column="0"
             android:layout_weight="1"
             android:layout_span="1"
@@ -47,7 +47,7 @@
         <ImageButton
             android:layout_width="10dp"
             android:layout_height="50dp"
-            android:id="@+id/BTNnovoresponsavel"
+            android:id="@+id/BTNnovaEquipe"
             android:layout_column="1"
             android:src="@android:drawable/ic_menu_add"
             android:onClick="onClickBtnNovoResponsavel" />

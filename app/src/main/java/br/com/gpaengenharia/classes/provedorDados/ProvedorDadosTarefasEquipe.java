@@ -42,7 +42,7 @@ public class ProvedorDadosTarefasEquipe extends ProvedorDados implements Provedo
     @Override
     public void setProjetosTreeMapBean(){
         XmlTarefasEquipe xml = new XmlTarefasEquipe(this.contexto);
-        super.projetosTreeMapBean = xml.leXml();
+        super.projetosTreeMapBean = xml.leXmlProjetosTarefas();
         this.setIdsTarefasEquipes(xml.idsTarefas);
     }
 

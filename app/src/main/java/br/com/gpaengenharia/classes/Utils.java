@@ -18,7 +18,11 @@ import android.widget.ProgressBar;
 import android.widget.ViewFlipper;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.beans.Equipe;
 
 /**
  * Utilidades para o projeto

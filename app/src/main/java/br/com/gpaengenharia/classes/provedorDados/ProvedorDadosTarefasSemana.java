@@ -42,7 +42,7 @@ public class ProvedorDadosTarefasSemana extends ProvedorDados implements Provedo
     @Override
     public void setProjetosTreeMapBean() {
         XmlTarefasSemana xml = new XmlTarefasSemana(this.contexto);
-        super.projetosTreeMapBean = xml.leXml();
+        super.projetosTreeMapBean = xml.leXmlProjetosTarefas();
         this.setIdsTarefasSemana(xml.idsTarefas);
     }
 

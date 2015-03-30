@@ -1,14 +1,28 @@
 package br.com.gpaengenharia.classes;
 
+import android.os.Parcel;
+import android.util.ArrayMap;
 import android.util.Log;
 
 import org.ksoap2.SoapEnvelope;
+import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
+
+import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Usuario;
+
+import static java.util.Map.Entry;
 
 /**
  * Classe responsavel pela comunicaçao entre o app e o servidor
@@ -275,6 +289,30 @@ public class WebService{
     }
 
     /**
+     * Retorna lista de equipes, usado na atvProjeto
+     * @return
+     */
+    public static String getEquipes() {
+        List<Equipe> equipes = null;
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "getEquipes");
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String resposta = null;
+        try {//faz a chamada do método 'getEquipes' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "getEquipes", envelope);
+            //pegando a resposta
+            resposta = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resposta;
+    }
+
+        /**
      * retorna o parametro 'idUsuario' para setar na requisiçao do webservice
      * @return PropertyInfo idUsuario
      */
