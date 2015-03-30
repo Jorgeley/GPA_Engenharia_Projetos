@@ -13,24 +13,29 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.classes.Utils;
+import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.xmls.XmlEquipe;
-import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
 /**
  * Activity de gerenciamento de projetosPessoais
  */
-public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFragment.Listener, AdapterView.OnItemSelectedListener {
+public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFragment.Listener, AdapterView.OnItemSelectedListener{
     private EditText EdtVencimento;
     private Spinner SpnEquipe;
 
@@ -41,6 +46,7 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
         EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
         EdtVencimento.setInputType(0);
         SpnEquipe = (Spinner) findViewById(R.id.SPNequipe);
+        SpnEquipe.setOnItemSelectedListener(this);
         if (SpnEquipe.getAdapter() == null) {
             //busca Equipes via webservice e set no Spinner
             new AsyncTask<Void, Void, List<Equipe>>() {
@@ -105,12 +111,36 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
         return super.onOptionsItemSelected(item);
     }
 
-    private boolean grava(){
+    private void grava(){
         String nome = ((EditText) findViewById(R.id.EDTprojeto)).getText().toString();
-        //int responsavel = ((Spinner) findViewById(R.id.SPNresponsavel)).getSelectedItem();
-        Projeto projeto = new Projeto(Parcel.obtain());
-
-        return false;
+        String descricao = ((EditText) findViewById(R.id.EDTdescricao)).getText().toString();
+        String vencimentoString = ((EditText) findViewById(R.id.EDTvencimento)).getText().toString();
+        SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
+        Date vencimento = new Date();
+        try {
+            vencimento = formatoData.parse(vencimentoString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        final Projeto projeto = new Projeto(Parcel.obtain());
+        projeto.setNome(nome);
+        projeto.setDescricao(descricao);
+        projeto.setVencimento(vencimento);
+        projeto.setEquipe(this.equipe);
+        new AsyncTask<Void, Void, Boolean>(){
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                return WebService.gravaProjeto(projeto);
+            }
+            @Override
+            protected void onPostExecute(Boolean ok) {
+                if (ok) {
+                    Toast.makeText(AtvProjeto.this, "Projeto Gravado", Toast.LENGTH_SHORT).show();
+                    AtvProjeto.this.finish();
+                }else
+                    Toast.makeText(AtvProjeto.this, "Erro ao tentar gravar Projeto", Toast.LENGTH_SHORT).show();
+            }
+        }.execute();
     }
 
     /** setado diretamente na propriedade OnClick do BTNnovoResponsavel */
@@ -118,14 +148,14 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
         startActivity(new Intent(this, AtvUsuarios.class));
     }
 
+    Equipe equipe;
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        this.equipe = (Equipe) adapterView.getSelectedItem();
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
-
 }

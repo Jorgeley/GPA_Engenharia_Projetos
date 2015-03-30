@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import br.com.gpaengenharia.beans.Equipe;
+import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Usuario;
 
 import static java.util.Map.Entry;
@@ -257,7 +258,7 @@ public class WebService{
      */
     public String gravacomentario(int idTarefa, String textoComentario){
         //requisição SOAP
-        SoapObject requisicao = new SoapObject(NAMESPACE, "gravacomentario");
+        SoapObject requisicao = new SoapObject(NAMESPACE, "gravaComentario");
         //setando parametro 'idUsuario' do método do webservice 'gravacomentario'
         requisicao.addProperty(this.getUsuario());
         //setando parametro 'idTarefa' do método do webservice 'gravacomentario'
@@ -279,9 +280,53 @@ public class WebService{
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
         String resposta = null;
         try {//faz a chamada do método 'gravacomentario' do webservice
-            androidHttpTransport.call(SOAP_ACTION + "gravacomentario", envelope);
+            androidHttpTransport.call(SOAP_ACTION + "gravaComentario", envelope);
             //pegando a resposta
             resposta = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resposta;
+    }
+
+    /**
+     * Grava projeto via webservice
+     * @param projeto
+     * @return
+     */
+    public static boolean gravaProjeto(Projeto projeto){
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "gravaProjeto");
+        PropertyInfo nomeProjeto = new PropertyInfo();
+        nomeProjeto.setName("nomeProjeto");
+        nomeProjeto.setValue(projeto.getNome());
+        nomeProjeto.setType(String.class);
+        requisicao.addProperty(nomeProjeto);
+        PropertyInfo descricaoProjeto = new PropertyInfo();
+        descricaoProjeto.setName("descricaoProjeto");
+        descricaoProjeto.setValue(projeto.getDescricao());
+        descricaoProjeto.setType(String.class);
+        requisicao.addProperty(descricaoProjeto);
+        PropertyInfo vencimentoProjeto = new PropertyInfo();
+        vencimentoProjeto.setName("vencimentoProjeto");
+        vencimentoProjeto.setValue(projeto.getVencimento().toString());
+        vencimentoProjeto.setType(String.class);
+        requisicao.addProperty(vencimentoProjeto);
+        PropertyInfo equipeProjeto = new PropertyInfo();
+        equipeProjeto.setName("equipeProjeto");
+        equipeProjeto.setValue(projeto.getEquipe().getId());
+        equipeProjeto.setType(Integer.class);
+        requisicao.addProperty(equipeProjeto);
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        boolean resposta = false;
+        try {//faz a chamada do método 'gravacomentario' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "gravaProjeto", envelope);
+            //pegando a resposta
+            resposta = (boolean) envelope.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
         }

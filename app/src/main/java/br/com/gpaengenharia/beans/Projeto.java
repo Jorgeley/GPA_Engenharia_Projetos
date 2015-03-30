@@ -3,10 +3,15 @@ package br.com.gpaengenharia.beans;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 public class Projeto implements Comparable, Parcelable {
     private Integer id;
     private String nome;
+    private String descricao;
+    private Date vencimento;
     private String responsavel;
+    private Equipe equipe;
 
     public Integer getId() {
         return id;
@@ -24,12 +29,36 @@ public class Projeto implements Comparable, Parcelable {
         this.nome = nome;
     }
 
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public Date getVencimento() {
+        return vencimento;
+    }
+
+    public void setVencimento(Date vencimento) {
+        this.vencimento = vencimento;
+    }
+
     public String getResponsavel() {
         return responsavel;
     }
 
     public void setResponsavel(String responsavel) {
         this.responsavel = responsavel;
+    }
+
+    public Equipe getEquipe() {
+        return equipe;
+    }
+
+    public void setEquipe(Equipe equipe) {
+        this.equipe = equipe;
     }
 
     @Override
@@ -42,15 +71,20 @@ public class Projeto implements Comparable, Parcelable {
         if (this.id < ((Projeto)o).getId())
             return -1;
         else if (this.id == ((Projeto)o).getId())
-                return 0;
-            else
-                return 1;
+            return 0;
+        else
+            return 1;
     }
+
 
     public Projeto(Parcel in) {
         id = in.readByte() == 0x00 ? null : in.readInt();
         nome = in.readString();
+        descricao = in.readString();
+        long tmpVencimento = in.readLong();
+        vencimento = tmpVencimento != -1 ? new Date(tmpVencimento) : null;
         responsavel = in.readString();
+        equipe = (Equipe) in.readValue(Equipe.class.getClassLoader());
     }
 
     @Override
@@ -67,7 +101,10 @@ public class Projeto implements Comparable, Parcelable {
             dest.writeInt(id);
         }
         dest.writeString(nome);
+        dest.writeString(descricao);
+        dest.writeLong(vencimento != null ? vencimento.getTime() : -1L);
         dest.writeString(responsavel);
+        dest.writeValue(equipe);
     }
 
     @SuppressWarnings("unused")
