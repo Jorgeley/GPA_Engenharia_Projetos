@@ -1,7 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/actionbar_novoprojeto" android:title="@string/actionbar_novoprojeto" android:icon="@drawable/novoprojeto" android:showAsAction="always" android:orderInCategory="0"/>
-    <item android:id="@+id/menu_novoprojeto" android:title="@string/actionbar_novoprojeto" android:icon="@drawable/novoprojeto" android:orderInCategory="0"/>
     <item android:title="@string/menu_gerenciar" android:id="@+id/gerenciar" android:icon="@android:drawable/ic_menu_manage">
         <menu>
             <item android:id="@+id/gerenciar_usuarios" android:icon="@drawable/equipe" android:title="@string/gerenciar_usuarios" android:orderInCategory="0" />

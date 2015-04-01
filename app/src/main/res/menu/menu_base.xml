@@ -2,6 +2,8 @@
 
     <item android:id="@+id/actionbar_tarefa" android:icon="@drawable/tarefa" android:title="@string/submenu_tarefa" android:orderInCategory="1" android:showAsAction="always" />
     <item android:id="@+id/actionbar_projeto" android:icon="@drawable/projeto" android:title="@string/submenu_projeto" android:orderInCategory="1" android:showAsAction="always" />
+    <item android:id="@+id/actionbar_novoprojeto" android:title="@string/actionbar_novoprojeto" android:icon="@drawable/novoprojeto" android:showAsAction="always" android:orderInCategory="0"/>
+    <item android:id="@+id/menu_novoprojeto" android:title="@string/actionbar_novoprojeto" android:icon="@drawable/novoprojeto" android:orderInCategory="0"/>
     <item android:title="@string/menu_novatarefa" android:id="@+id/novatarefa" android:icon="@drawable/novatarefa" android:showAsAction="always"/>
     <item android:title="@string/menu_novatarefa" android:id="@+id/menu_novatarefa" />
     <item android:title="@string/menu_projetos" android:id="@+id/projetos" android:icon="@android:drawable/ic_media_play">

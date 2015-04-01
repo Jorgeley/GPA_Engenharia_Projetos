@@ -29,10 +29,6 @@ public class AtvAdministrador extends AtvBase{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.actionbar_novoprojeto:
-            case R.id.menu_novoprojeto:
-                startActivity(new Intent(AtvAdministrador.this, AtvProjeto.class));
-                break;
             case R.id.gerenciar_equipes:
             case R.id.gerenciar_usuarios:
                 startActivity(new Intent(AtvAdministrador.this, AtvUsuarios.class));

@@ -85,36 +85,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
         //caso usuário seja administrador, adiciona botões de administração no layout
         if (AtvLogin.usuario != null) {
-            if (AtvLogin.usuario.getPerfil().equals("adm") )
-                addBotoes();
-            else{ //desabilita Spinners
-                this.SpnProjeto.setEnabled(false);
-                this.SpnResponsavel.setEnabled(false);
-            }
-        }
-    }
-
-    @Override
-    protected void onResume(){
-        Bundle bundleTarefa = getIntent().getExtras();
-        //se tiver sido enviado objetos Projeto e Tarefa, recupera-os e seta nos views
-        if (bundleTarefa != null) {
-            this.projeto = bundleTarefa.getParcelable("projeto");
-            this.tarefa = bundleTarefa.getParcelable("tarefa");
-            EdtTarefa.setText(this.tarefa.getNome());
-            this.projetos[0] = this.projeto.getNome();
-            SpnProjeto.setAdapter(Utils.setAdaptador(this, this.projetos));
-            this.responsaveis[0] = this.tarefa.getResponsavel()!=null ? this.tarefa.getResponsavel().getNome() : "responsavel";
-            SpnResponsavel.setAdapter(Utils.setAdaptador(this, this.responsaveis));
-            EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
-            if (this.tarefa.getComentario()!=null)
-                EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
-            SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
-            String data = formatoData.format(this.tarefa.getVencimento());//seta data
-            EdtVencimento.setText(data);
-        }else{
-            TableRow TrDialogo = (TableRow) findViewById(R.id.TRdialogo);
-            TrDialogo.setVisibility(View.GONE);
             SpnProjeto.setOnItemSelectedListener(this);
             if (SpnProjeto.getAdapter() == null){
                 /**
@@ -149,36 +119,65 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                     }
                 }.execute();
             }
-            SpnResponsavel.setOnItemSelectedListener(this);
-            if (SpnResponsavel.getAdapter() == null){
-                new AsyncTask<Void, Void, List<Usuario>>(){
-                    @Override
-                    protected List<Usuario> doInBackground(Void... voids) {
-                        List<Usuario> usuarios = null;
-                        try {
-                            File arquivo = new File(AtvTarefa.this.getFilesDir() + "/" + XmlUsuario.getNomeArquivoXML());
-                            XmlUsuario xmlUsuario = new XmlUsuario(AtvTarefa.this);
-                            if (!arquivo.exists())
-                                xmlUsuario.criaXmlUsuariosWebservice(false);
-                            usuarios = xmlUsuario.leXmlUsuarios();
-                        } catch (XmlPullParserException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return usuarios;
-                    }
-                    @Override
-                    protected void onPostExecute(final List<Usuario> usuarios) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                SpnResponsavel.setAdapter(new ArrayAdapter<>(AtvTarefa.this, android.R.layout.simple_spinner_item, usuarios));
+            if (AtvLogin.usuario.getPerfil().equals("adm") ) {
+                addBotoes();
+                SpnResponsavel.setOnItemSelectedListener(this);
+                if (SpnResponsavel.getAdapter() == null) {
+                    new AsyncTask<Void, Void, List<Usuario>>() {
+                        @Override
+                        protected List<Usuario> doInBackground(Void... voids) {
+                            List<Usuario> usuarios = null;
+                            try {
+                                File arquivo = new File(AtvTarefa.this.getFilesDir() + "/" + XmlUsuario.getNomeArquivoXML());
+                                XmlUsuario xmlUsuario = new XmlUsuario(AtvTarefa.this);
+                                if (!arquivo.exists())
+                                    xmlUsuario.criaXmlUsuariosWebservice(false);
+                                usuarios = xmlUsuario.leXmlUsuarios();
+                            } catch (XmlPullParserException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        });
-                    }
-                }.execute();
-            }
+                            return usuarios;
+                        }
+
+                        @Override
+                        protected void onPostExecute(final List<Usuario> usuarios) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    SpnResponsavel.setAdapter(new ArrayAdapter<>(AtvTarefa.this, android.R.layout.simple_spinner_item, usuarios));
+                                }
+                            });
+                        }
+                    }.execute();
+                }
+            }else
+                SpnResponsavel.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onResume(){
+        Bundle bundleTarefa = getIntent().getExtras();
+        //se tiver sido enviado objetos Projeto e Tarefa, recupera-os e seta nos views
+        if (bundleTarefa != null) {
+            this.projeto = bundleTarefa.getParcelable("projeto");
+            this.tarefa = bundleTarefa.getParcelable("tarefa");
+            EdtTarefa.setText(this.tarefa.getNome());
+            this.projetos[0] = this.projeto.getNome();
+            SpnProjeto.setAdapter(Utils.setAdaptador(this, this.projetos));
+            this.responsaveis[0] = this.tarefa.getResponsavel()!=null ? this.tarefa.getResponsavel().getNome() : "responsavel";
+            SpnResponsavel.setAdapter(Utils.setAdaptador(this, this.responsaveis));
+            EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
+            if (this.tarefa.getComentario()!=null)
+                EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
+            SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
+            String data = formatoData.format(this.tarefa.getVencimento());//seta data
+            EdtVencimento.setText(data);
+        }else{
+            TableRow TrDialogo = (TableRow) findViewById(R.id.TRdialogo);
+            TrDialogo.setVisibility(View.GONE);
         }
         super.onResume();
     }
@@ -274,7 +273,10 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         tarefa.setNome(nome);
         tarefa.setDescricao(descricao);
         tarefa.setVencimento(vencimento);
-        tarefa.setResponsavel(this.usuario);
+        if (this.usuario != null)
+            tarefa.setResponsavel(this.usuario);
+        else
+            tarefa.setResponsavel(AtvLogin.usuario);
         tarefa.setProjeto(this.projeto);
         new AsyncTask<Void, Void, Boolean>(){
             @Override

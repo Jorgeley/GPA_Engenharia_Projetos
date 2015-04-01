@@ -76,11 +76,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         super.onResume();
         if (AtvLogin.usuario == null)
             startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
-        else {
-            Log.i("onResume", String.valueOf(atualizaListView));
-            //atualizaListView = true;
+        else
             this.atualizaListView();
-        }
     }
 
     /**
@@ -198,6 +195,10 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
+            case R.id.actionbar_novoprojeto:
+            case R.id.menu_novoprojeto:
+                startActivity(new Intent(AtvBase.this, AtvProjeto.class));
+                break;
             case R.id.novatarefa:
             case R.id.menu_novatarefa:
                 startActivity(new Intent(AtvBase.this, AtvTarefa.class));

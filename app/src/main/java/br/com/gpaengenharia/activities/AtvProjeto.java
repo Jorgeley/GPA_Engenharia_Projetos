@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TableRow;
 import android.widget.Toast;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
@@ -23,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import android.widget.AdapterView.OnItemSelectedListener;
+
+import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment.Listener;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Equipe;
@@ -45,40 +48,46 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
         Utils.contexto = this;
         EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
         EdtVencimento.setInputType(0);
-        SpnEquipe = (Spinner) findViewById(R.id.SPNequipe);
-        SpnEquipe.setOnItemSelectedListener(this);
-        if (SpnEquipe.getAdapter() == null) {
-            /**
-             * busca Equipes via webservice e set no Spinner
-             * TODO atualizar essa lista quando houver novas equipes
-             */
-            new AsyncTask<Void, Void, List<Equipe>>() {
-                @Override
-                protected List<Equipe> doInBackground(Void... voids) {
-                    List<Equipe> equipes = null;
-                    try {
-                        File arquivo = new File(AtvProjeto.this.getFilesDir() + "/" + XmlEquipe.getNomeArquivoXML());
-                        XmlEquipe xmlEquipe = new XmlEquipe(AtvProjeto.this);
-                        if (!arquivo.exists())
-                            xmlEquipe.criaXmlEquipesWebservice(false);
-                        equipes = xmlEquipe.leXmlEquipes();
-                    } catch (XmlPullParserException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return equipes;
-                }
-                @Override
-                protected void onPostExecute(final List<Equipe> equipes) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            SpnEquipe.setAdapter(new ArrayAdapter<>(AtvProjeto.this, android.R.layout.simple_spinner_item, equipes));
+        if (AtvLogin.usuario.getPerfil().equals("adm")) {
+            SpnEquipe = (Spinner) findViewById(R.id.SPNequipe);
+            SpnEquipe.setOnItemSelectedListener(this);
+            if (SpnEquipe.getAdapter() == null) {
+                /**
+                 * busca Equipes via webservice e set no Spinner
+                 * TODO atualizar essa lista quando houver novas equipes
+                 */
+                new AsyncTask<Void, Void, List<Equipe>>() {
+                    @Override
+                    protected List<Equipe> doInBackground(Void... voids) {
+                        List<Equipe> equipes = null;
+                        try {
+                            File arquivo = new File(AtvProjeto.this.getFilesDir() + "/" + XmlEquipe.getNomeArquivoXML());
+                            XmlEquipe xmlEquipe = new XmlEquipe(AtvProjeto.this);
+                            if (!arquivo.exists())
+                                xmlEquipe.criaXmlEquipesWebservice(false);
+                            equipes = xmlEquipe.leXmlEquipes();
+                        } catch (XmlPullParserException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    });
-                }
-            }.execute();
+                        return equipes;
+                    }
+
+                    @Override
+                    protected void onPostExecute(final List<Equipe> equipes) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                SpnEquipe.setAdapter(new ArrayAdapter<>(AtvProjeto.this, android.R.layout.simple_spinner_item, equipes));
+                            }
+                        });
+                    }
+                }.execute();
+            }
+        }else{ //tira Spinner de equipes para usuarios comuns
+            TableRow TrEquipes = (TableRow) findViewById(R.id.TRequipes);
+            TrEquipes.setVisibility(View.GONE);
         }
     }
 
@@ -132,7 +141,10 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
         projeto.setNome(nome);
         projeto.setDescricao(descricao);
         projeto.setVencimento(vencimento);
-        projeto.setEquipe(this.equipe);
+        if (this.equipe != null)
+            projeto.setEquipe(this.equipe);
+        else
+            projeto.setUsuario(AtvLogin.usuario);
         new AsyncTask<Void, Void, Boolean>(){
             @Override
             protected Boolean doInBackground(Void... voids) {

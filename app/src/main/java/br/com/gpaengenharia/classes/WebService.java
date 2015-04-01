@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
@@ -321,9 +322,16 @@ public class WebService{
         requisicao.addProperty(vencimentoProjeto);
         PropertyInfo equipeProjeto = new PropertyInfo();
         equipeProjeto.setName("equipeProjeto");
-        equipeProjeto.setValue(projeto.getEquipe().getId());
+        if (projeto.getEquipe() != null)
+            equipeProjeto.setValue(projeto.getEquipe().getId());
         equipeProjeto.setType(Integer.class);
         requisicao.addProperty(equipeProjeto);
+        PropertyInfo usuarioProjeto = new PropertyInfo();
+        usuarioProjeto.setName("idUsuario");
+        if (projeto.getUsuario() != null)
+            usuarioProjeto.setValue(projeto.getUsuario().getId());
+        usuarioProjeto.setType(Integer.class);
+        requisicao.addProperty(usuarioProjeto);
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);
@@ -421,6 +429,11 @@ public class WebService{
         List<Projeto> projetos = null;
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "getProjetos");
+        PropertyInfo usuarioProjetos = new PropertyInfo();
+        usuarioProjetos.setName("idUsuario");
+        usuarioProjetos.setValue(AtvLogin.usuario.getId());
+        usuarioProjetos.setType(Integer.class);
+        requisicao.addProperty(usuarioProjetos);
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);

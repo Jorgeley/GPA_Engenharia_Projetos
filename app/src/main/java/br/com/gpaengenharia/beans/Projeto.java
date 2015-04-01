@@ -12,6 +12,7 @@ public class Projeto implements Comparable, Parcelable {
     private Date vencimento;
     private String responsavel;
     private Equipe equipe;
+    private Usuario usuario;
 
     public Integer getId() {
         return id;
@@ -61,6 +62,14 @@ public class Projeto implements Comparable, Parcelable {
         this.equipe = equipe;
     }
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
     @Override
     public boolean equals(Object another) {
         return (this.id == ((Projeto)another).getId());
@@ -89,6 +98,7 @@ public class Projeto implements Comparable, Parcelable {
         vencimento = tmpVencimento != -1 ? new Date(tmpVencimento) : null;
         responsavel = in.readString();
         equipe = (Equipe) in.readValue(Equipe.class.getClassLoader());
+        usuario = (Usuario) in.readValue(Usuario.class.getClassLoader());
     }
 
     @Override
@@ -109,6 +119,7 @@ public class Projeto implements Comparable, Parcelable {
         dest.writeLong(vencimento != null ? vencimento.getTime() : -1L);
         dest.writeString(responsavel);
         dest.writeValue(equipe);
+        dest.writeValue(usuario);
     }
 
     @SuppressWarnings("unused")
