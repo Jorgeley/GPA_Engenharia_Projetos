@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
@@ -23,10 +24,7 @@ import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.activities.AtvTarefa;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
+import br.com.gpaengenharia.classes.xmls.Xml;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
@@ -54,23 +52,21 @@ public class ServicoTarefas extends Service implements Runnable{
 
     @Override
     public void run(){
-        //arquivo XML contendo todas as tarefas
-        File arquivo = new File(this.getContexto().getFilesDir() + "/" + XmlTarefasPessoais.getNomeArquivoXMLTudo());
+        //arquivo XML contendo as tarefas atualizadas
+        File arquivo = new File(this.getContexto().getFilesDir() + "/" + XmlTarefasPessoais.getNomeArquivoXMLatualizadas());
         SimpleDateFormat formatoData = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", new Locale("pt", "BR"));
         Date data = new Date();
         data.setTime(arquivo.lastModified());//pega a data de modificaçao do arquivo XML
         String ultimaSincronizacao = formatoData.format(data);
-        Vector<Integer> idsTarefas;//ids das tarefas atualizadas para criar notificaçao
+        Vector<Vector<Object>> respostasSincroniza;//ids das tarefas atualizadas para criar notificaçao
         TreeMap<Projeto, List<Tarefa>> projetosTarefas; //treeMap de beans projetos contendo beans tarefas em cada
         try {
-            XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this);
+            Xml xml = new Xml(this.getContexto());
             //chama o webservice que verifica se ha tarefas novas de acordo com a data de modificaçao do XML local
-            idsTarefas = xmlTarefasPessoais.sincronizaXmlTudoWebservice(AtvLogin.usuario.getId(), ultimaSincronizacao);
-            if (idsTarefas != null) {
-                //Log.i("idsTarefas", String.valueOf(idsTarefas));
-                XmlTarefasPessoais xml = new XmlTarefasPessoais(this);
+            respostasSincroniza = xml.sincronizaXmlTudoWebservice(AtvLogin.usuario.getId(), ultimaSincronizacao);
+            if (respostasSincroniza != null) {
                 //monta treeMap de beans projetos contendo beans tarefas em cada
-                projetosTarefas = xml.leXmlTarefas(idsTarefas);
+                projetosTarefas = xml.leXmlTarefas(respostasSincroniza.get(0)); //indice 0 contem ids das tarefas atualizadas
                 if (!projetosTarefas.isEmpty()) {
                     //Log.i("projetosTarefas", String.valueOf(projetosTarefas));
                     for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : projetosTarefas.entrySet()) {
@@ -79,9 +75,9 @@ public class ServicoTarefas extends Service implements Runnable{
                             Bundle bundleTarefa = new Bundle();
                             bundleTarefa.putParcelable("projeto", projetoTarefas.getKey());
                             bundleTarefa.putParcelable("tarefa", tarefa);
-                            Intent atvTarefa = new Intent(this, AtvTarefa.class);
+                            Intent atvTarefa = new Intent(this.getContexto(), AtvTarefa.class);
                             atvTarefa.putExtras(bundleTarefa);
-                            Notificacao.create(this,
+                            Notificacao.create(this.getContexto(),
                                     "GPA",
                                     tarefa.getNome() + " atualizada",
                                     R.drawable.logo_notificacao,
@@ -93,34 +89,37 @@ public class ServicoTarefas extends Service implements Runnable{
                         }
                     }
                 }
-                xmlTarefasPessoais = null;
+                //faz a atualizaçao dos XML's baseando-se nas flags enviadas pelo webservice
+                XmlTarefasPessoais xmlTarefasPessoais = null;
                 XmlTarefasEquipe xmlTarefasEquipe = null;
                 XmlTarefasHoje xmlTarefasHoje = null;
                 XmlTarefasSemana xmlTarefasSemana = null;
-                //verifica se tem que atualizar os outros XML's baseando-se no id das tarefas atualizadas
-                for (Integer idTarefa : idsTarefas) {
-                    if (!(xmlTarefasPessoais instanceof XmlTarefasPessoais) &&
-                            ProvedorDadosTarefasPessoais.getIdsTarefasPessoais().contains(idTarefa)) {
-                        xmlTarefasPessoais = new XmlTarefasPessoais(this);
+                //indice [1][0] contem flags para sincronizar XML tarefas pessoais
+                Boolean sincronizaPessoais = (Boolean) respostasSincroniza.get(1).get(0);
+                //indice [1][1] contem flags para sincronizar XML tarefas equipes
+                Boolean sincronizaEquipes = (Boolean) respostasSincroniza.get(1).get(1);
+                //indice [1][2] contem flags para sincronizar XML tarefas hoje
+                Boolean sincronizaHoje = (Boolean) respostasSincroniza.get(1).get(2);
+                //indice [1][3] contem flags para sincronizar XML tarefas semana
+                Boolean sincronizaSemana = (Boolean) respostasSincroniza.get(1).get(3);
+                    if (!(xmlTarefasPessoais instanceof XmlTarefasPessoais) && sincronizaPessoais) {
+                        xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
                         xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
                     }
-                    if (!(xmlTarefasEquipe instanceof XmlTarefasEquipe) &&
-                            ProvedorDadosTarefasEquipe.getIdsTarefasEquipes().contains(idTarefa)) {
-                        xmlTarefasEquipe = new XmlTarefasEquipe(this);
+                    if (!(xmlTarefasEquipe instanceof XmlTarefasEquipe) && sincronizaEquipes) {
+                        xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
                         xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
                     }
-                    if ( !(xmlTarefasHoje instanceof XmlTarefasHoje) &&
-                            ProvedorDadosTarefasHoje.getIdsTarefasHoje().contains(idTarefa)) {
-                        xmlTarefasHoje = new XmlTarefasHoje(this);
+                    if ( !(xmlTarefasHoje instanceof XmlTarefasHoje) && sincronizaHoje) {
+                        xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
                         xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
                     }
-                    if ( !(xmlTarefasSemana instanceof XmlTarefasSemana) &&
-                            ProvedorDadosTarefasSemana.getIdsTarefasSemana().contains(idTarefa)) {
-                        xmlTarefasSemana = new XmlTarefasSemana(this);
+                    if ( !(xmlTarefasSemana instanceof XmlTarefasSemana) && sincronizaSemana) {
+                        xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
                         xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
                     }
 
-                }
+
             }
         } catch (ConnectException e) {
             e.printStackTrace();

@@ -16,7 +16,6 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
  herda de ProvedorDados e implementa ProvedorDadosInterface
   */
 public class ProvedorDadosTarefasEquipe extends ProvedorDados implements ProvedorDadosInterface {
-    private static Set<Integer> idsTarefasEquipes = new HashSet<Integer>(Arrays.asList(0));;
     private Context contexto;
 
     public ProvedorDadosTarefasEquipe(Context contexto, boolean forcarAtualizacao) {
@@ -43,15 +42,6 @@ public class ProvedorDadosTarefasEquipe extends ProvedorDados implements Provedo
     public void setProjetosTreeMapBean(){
         XmlTarefasEquipe xml = new XmlTarefasEquipe(this.contexto);
         super.projetosTreeMapBean = xml.leXmlProjetosTarefas();
-        this.setIdsTarefasEquipes(xml.idsTarefas);
-    }
-
-    public static Set<Integer> getIdsTarefasEquipes(){
-        return idsTarefasEquipes;
-    }
-
-    public void setIdsTarefasEquipes(Set<Integer> idsTarefasEquipes){
-        this.idsTarefasEquipes = idsTarefasEquipes;
     }
 
 }

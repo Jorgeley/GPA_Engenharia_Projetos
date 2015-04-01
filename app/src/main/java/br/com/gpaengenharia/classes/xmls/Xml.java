@@ -26,29 +26,30 @@ import java.util.Vector;
 import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
+import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.WebService;
 
 /**
  * Lê xml 'nomeArquivoXML' e grava em TreeMap <Projeto, List<Tarefa>> contendo
  * cada projeto com sua lista de tarefas
  */
-public abstract class Xml{
+public class Xml{
     protected static Context contexto;
     //TreeMap de beans contendo cada projeto com sua lista de tarefas
     private TreeMap<Projeto,List<Tarefa>> projetos = new TreeMap<Projeto,List<Tarefa>>();
     protected static String nomeArquivoXML;//nome do arquivo para ler o xml
     //arquivo para gravar os XML's separados (Pessoais, Equipes, etc)
     protected static FileOutputStream arquivoXML;
-    public static Set<Integer> idsTarefas = new HashSet<Integer>();
+    private static Set<Integer> idsTarefas = new HashSet<Integer>();
     //nome do arquivo XML para grava todas as tarefas
-    public static final String nomeArquivoXMLTudo = "tudo.xml";
+    private static final String nomeArquivoXMLatualizadas = "tarefasAtualizadas.xml";
 
     public Xml(Context contexto){
         this.contexto = contexto;
     }
 
-    public static String getNomeArquivoXMLTudo() {
-        return nomeArquivoXMLTudo;
+    public static String getNomeArquivoXMLatualizadas() {
+        return nomeArquivoXMLatualizadas;
     }
 
     /**
@@ -58,7 +59,7 @@ public abstract class Xml{
      * @return
      * @throws IOException
      */
-    public static Vector<Integer> sincronizaXmlTudoWebservice(int usuarioId, String ultimaSincronizacao) throws IOException {
+    public static Vector<Vector<Object>> sincronizaXmlTudoWebservice(int usuarioId, String ultimaSincronizacao) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
@@ -68,14 +69,17 @@ public abstract class Xml{
         if (respostas != null) {
             try {
                 if (respostas[1] != null) {
-                    arquivoXML = contexto.openFileOutput(nomeArquivoXMLTudo, 0);
+                    arquivoXML = contexto.openFileOutput(nomeArquivoXMLatualizadas, 0);
                     arquivoXML.write(respostas[1].toString().getBytes());
                     arquivoXML.close();
                 }
             } catch (FileNotFoundException e) {
                 Log.e("erro IO", e.getMessage());
             }
-            return (Vector<Integer>) respostas[0];
+            Vector<Vector<Object>> vetorRespostas = new Vector<>();
+            vetorRespostas.add( (Vector<Object>) respostas[0] );
+            vetorRespostas.add( (Vector<Object>) respostas[2] );
+            return vetorRespostas;
         }else
             return null;
     }
@@ -155,7 +159,11 @@ public abstract class Xml{
                         while (tagsTarefa.contains(nomeNode)) {
                             switch (nomeNode){
                                 case "nome" : tarefaAtual.setNome(parser.nextText()); break;
-                                case "responsavel" : tarefaAtual.setResponsavel(parser.nextText()); break;
+                                case "responsavel" :
+                                    Usuario responsavel = new Usuario(Parcel.obtain());
+                                    responsavel.setNome(parser.nextText());
+                                    tarefaAtual.setResponsavel(responsavel);
+                                    break;
                                 case "descricao" : tarefaAtual.setDescricao(parser.nextText()); break;
                                 case "comentarios" :
                                     parser.nextTag();
@@ -208,14 +216,14 @@ public abstract class Xml{
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public TreeMap<Projeto, List<Tarefa>> leXmlTarefas(Vector<Integer> idsTarefas) throws XmlPullParserException,IOException {
+    public TreeMap<Projeto, List<Tarefa>> leXmlTarefas(Vector<Object> idsTarefas) throws XmlPullParserException,IOException {
         XmlPullParserFactory pullParserFactory;
         List<Tarefa> tarefas = null;
         try {
             pullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser parser = pullParserFactory.newPullParser();
             //InputStream in_s = contexto.getAssets().open(nomeArquivoXML);
-            InputStream in_s = this.contexto.openFileInput(this.getNomeArquivoXMLTudo());
+            InputStream in_s = this.contexto.openFileInput(this.getNomeArquivoXMLatualizadas());
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in_s, null);
             //lista de beans Tarefa node de cada projeto no TreeMap
@@ -258,7 +266,9 @@ public abstract class Xml{
                                         tarefaAtual.setNome(parser.nextText());
                                         break;
                                     case "responsavel":
-                                        tarefaAtual.setResponsavel(parser.nextText());
+                                        Usuario responsavel = new Usuario(Parcel.obtain());
+                                        responsavel.setNome(parser.nextText());
+                                        tarefaAtual.setResponsavel(responsavel);
                                         break;
                                     case "descricao":
                                         tarefaAtual.setDescricao(parser.nextText());
@@ -312,6 +322,12 @@ public abstract class Xml{
         //this.log();
     }
 
+    /**
+     * Retorna List de beans Equipe
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     public List<Equipe> leXmlEquipes() throws XmlPullParserException,IOException {
         XmlPullParserFactory pullParserFactory;
         List<Equipe> equipes = new ArrayList<>();
@@ -328,7 +344,7 @@ public abstract class Xml{
                 String nomeNode = parser.getName();
                 switch (tipoEvento) {
                     case XmlPullParser.START_TAG: //se é inicio de nova tag no xml...
-                        if (nomeNode.equals("equipe")) {//...se tag é projeto...
+                        if (nomeNode.equals("equipe")) {//...se tag é equipe...
                             Equipe equipe = new Equipe(Parcel.obtain());
                             equipe.setId(Integer.valueOf(parser.getAttributeValue(0)));
                             parser.nextTag();
@@ -345,6 +361,90 @@ public abstract class Xml{
             e.printStackTrace();
         }
         return equipes;
+        //this.log();
+    }
+
+    /**
+     * Retorna List de beans Projeto
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    public List<Projeto> leXmlProjetos() throws XmlPullParserException,IOException {
+        XmlPullParserFactory pullParserFactory;
+        List<Projeto> projetos = new ArrayList<>();
+        try {
+            pullParserFactory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = pullParserFactory.newPullParser();
+            //InputStream in_s = contexto.getAssets().open(nomeArquivoXML);
+            InputStream in_s = contexto.openFileInput(this.nomeArquivoXML);
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(in_s, null);
+            int tipoEvento = parser.getEventType();
+            //enquanto não chega no fim do documento xml...
+            while (tipoEvento != XmlPullParser.END_DOCUMENT) {
+                String nomeNode = parser.getName();
+                switch (tipoEvento) {
+                    case XmlPullParser.START_TAG: //se é inicio de nova tag no xml...
+                        if (nomeNode.equals("projeto")) {//...se tag é projeto...
+                            Projeto projeto = new Projeto(Parcel.obtain());
+                            projeto.setId(Integer.valueOf(parser.getAttributeValue(0)));
+                            parser.nextTag();
+                            projeto.setNome(parser.nextText());
+                            projetos.add(projeto);
+                        }
+                        break;
+                }
+                tipoEvento = parser.next();
+            }
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return projetos;
+        //this.log();
+    }
+
+    /**
+     * Retorna List de beans Usuario
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    public List<Usuario> leXmlUsuarios() throws XmlPullParserException,IOException {
+        XmlPullParserFactory pullParserFactory;
+        List<Usuario> usuarios = new ArrayList<>();
+        try {
+            pullParserFactory = XmlPullParserFactory.newInstance();
+            XmlPullParser parser = pullParserFactory.newPullParser();
+            //InputStream in_s = contexto.getAssets().open(nomeArquivoXML);
+            InputStream in_s = contexto.openFileInput(this.nomeArquivoXML);
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(in_s, null);
+            int tipoEvento = parser.getEventType();
+            //enquanto não chega no fim do documento xml...
+            while (tipoEvento != XmlPullParser.END_DOCUMENT) {
+                String nomeNode = parser.getName();
+                switch (tipoEvento) {
+                    case XmlPullParser.START_TAG: //se é inicio de nova tag no xml...
+                        if (nomeNode.equals("usuario")) {//...se tag é projeto...
+                            Usuario usuario = new Usuario(Parcel.obtain());
+                            usuario.setId(Integer.valueOf(parser.getAttributeValue(0)));
+                            parser.nextTag();
+                            usuario.setNome(parser.nextText());
+                            usuarios.add(usuario);
+                        }
+                        break;
+                }
+                tipoEvento = parser.next();
+            }
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return usuarios;
         //this.log();
     }
 

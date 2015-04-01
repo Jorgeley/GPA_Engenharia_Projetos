@@ -17,7 +17,6 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
   */
 public class ProvedorDadosTarefasPessoais extends ProvedorDados implements ProvedorDadosInterface{
     private Context contexto;
-    private static Set<Integer> idsTarefasPessoais = new HashSet<Integer>(Arrays.asList(0));;
 
     public ProvedorDadosTarefasPessoais(Context contexto, boolean forcarAtualizacao) {
         this.contexto = contexto;
@@ -43,14 +42,6 @@ public class ProvedorDadosTarefasPessoais extends ProvedorDados implements Prove
     public void setProjetosTreeMapBean() {
         XmlTarefasPessoais xml = new XmlTarefasPessoais(this.contexto);
         super.projetosTreeMapBean = xml.leXmlProjetosTarefas();
-        this.setIdsTarefasPessoais(xml.idsTarefas);
     }
 
-    public static Set<Integer> getIdsTarefasPessoais(){
-        return idsTarefasPessoais;
-    }
-
-    public void setIdsTarefasPessoais(Set<Integer> idsTarefasPessoais){
-        this.idsTarefasPessoais = idsTarefasPessoais;
-    }
 }

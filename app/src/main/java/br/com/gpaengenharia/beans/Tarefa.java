@@ -7,10 +7,11 @@ import java.util.Date;
 public class Tarefa implements Comparable, Parcelable {
     private Integer id;
     private String nome;
-    private String responsavel;
     private String descricao;
     private String comentario;
     private Date vencimento;
+    private Usuario responsavel;
+    private Projeto projeto;
 
     public Integer getId() {
         return id;
@@ -26,14 +27,6 @@ public class Tarefa implements Comparable, Parcelable {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public String getResponsavel() {
-        return responsavel;
-    }
-
-    public void setResponsavel(String responsavel) {
-        this.responsavel = responsavel;
     }
 
     public String getDescricao() {
@@ -60,6 +53,22 @@ public class Tarefa implements Comparable, Parcelable {
         this.vencimento = vencimento;
     }
 
+    public Usuario getResponsavel() {
+        return responsavel;
+    }
+
+    public void setResponsavel(Usuario responsavel) {
+        this.responsavel = responsavel;
+    }
+
+    public Projeto getProjeto() {
+        return projeto;
+    }
+
+    public void setProjeto(Projeto projeto) {
+        this.projeto = projeto;
+    }
+
     @Override
     public boolean equals(Object another) {
         return (this.id == ((Tarefa)another).getId());
@@ -70,19 +79,20 @@ public class Tarefa implements Comparable, Parcelable {
         if (this.id < ((Tarefa)o).getId())
             return -1;
         else if (this.id == ((Tarefa)o).getId())
-                return 0;
-            else
-                return 1;
+            return 0;
+        else
+            return 1;
     }
 
     public Tarefa(Parcel in) {
         id = in.readByte() == 0x00 ? null : in.readInt();
         nome = in.readString();
-        responsavel = in.readString();
         descricao = in.readString();
         comentario = in.readString();
         long tmpVencimento = in.readLong();
         vencimento = tmpVencimento != -1 ? new Date(tmpVencimento) : null;
+        responsavel = (Usuario) in.readValue(Usuario.class.getClassLoader());
+        projeto = (Projeto) in.readValue(Projeto.class.getClassLoader());
     }
 
     @Override
@@ -99,10 +109,11 @@ public class Tarefa implements Comparable, Parcelable {
             dest.writeInt(id);
         }
         dest.writeString(nome);
-        dest.writeString(responsavel);
         dest.writeString(descricao);
         dest.writeString(comentario);
         dest.writeLong(vencimento != null ? vencimento.getTime() : -1L);
+        dest.writeValue(responsavel);
+        dest.writeValue(projeto);
     }
 
     @SuppressWarnings("unused")

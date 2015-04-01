@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -72,20 +73,11 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      */
     @Override
     protected void onResume() {
-        //Log.i("onResume", String.valueOf(atualizaListView));
         super.onResume();
         if (AtvLogin.usuario == null)
             startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
         else {
-            final ServicoTarefas servicoTarefas = new ServicoTarefas();
-            servicoTarefas.setContexto(this);
-            new AsyncTask<Void, Void, Void>(){
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    servicoTarefas.run();
-                    return null;
-                }
-            };
+            Log.i("onResume", String.valueOf(atualizaListView));
             //atualizaListView = true;
             this.atualizaListView();
         }

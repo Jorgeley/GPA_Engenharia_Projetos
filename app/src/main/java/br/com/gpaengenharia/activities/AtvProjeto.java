@@ -14,9 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -24,18 +22,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
+import android.widget.AdapterView.OnItemSelectedListener;
+import br.com.gpaengenharia.classes.Utils.DatePickerFragment.Listener;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.xmls.XmlEquipe;
+import br.com.gpaengenharia.classes.xmls.XmlProjeto;
 
 /**
  * Activity de gerenciamento de projetosPessoais
  */
-public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFragment.Listener, AdapterView.OnItemSelectedListener{
+public class AtvProjeto extends FragmentActivity implements Listener, OnItemSelectedListener{
     private EditText EdtVencimento;
     private Spinner SpnEquipe;
 
@@ -48,7 +48,10 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
         SpnEquipe = (Spinner) findViewById(R.id.SPNequipe);
         SpnEquipe.setOnItemSelectedListener(this);
         if (SpnEquipe.getAdapter() == null) {
-            //busca Equipes via webservice e set no Spinner
+            /**
+             * busca Equipes via webservice e set no Spinner
+             * TODO atualizar essa lista quando houver novas equipes
+             */
             new AsyncTask<Void, Void, List<Equipe>>() {
                 @Override
                 protected List<Equipe> doInBackground(Void... voids) {
@@ -66,7 +69,6 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
                     }
                     return equipes;
                 }
-
                 @Override
                 protected void onPostExecute(final List<Equipe> equipes) {
                     runOnUiThread(new Runnable() {
@@ -105,12 +107,16 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.actionbar_grava:
+            case R.id.menu_grava:
                 this.grava();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * grava projeto via webservice
+     */
     private void grava(){
         String nome = ((EditText) findViewById(R.id.EDTprojeto)).getText().toString();
         String descricao = ((EditText) findViewById(R.id.EDTdescricao)).getText().toString();
@@ -130,7 +136,16 @@ public class AtvProjeto extends FragmentActivity implements Utils.DatePickerFrag
         new AsyncTask<Void, Void, Boolean>(){
             @Override
             protected Boolean doInBackground(Void... voids) {
-                return WebService.gravaProjeto(projeto);
+                boolean ok = WebService.gravaProjeto(projeto);
+                if (ok) {
+                    try {
+                        XmlProjeto xmlProjeto = new XmlProjeto(AtvProjeto.this);
+                        xmlProjeto.criaXmlProjetosWebservice(true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return ok;
             }
             @Override
             protected void onPostExecute(Boolean ok) {

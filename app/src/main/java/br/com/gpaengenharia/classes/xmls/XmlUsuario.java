@@ -1,21 +1,23 @@
 package br.com.gpaengenharia.classes.xmls;
 
 import android.content.Context;
+
 import java.io.IOException;
+
 import br.com.gpaengenharia.classes.WebService;
 
 /**
- * Chama o metodo do Webservice que retorna o XML das das equipes
+ * Chama o metodo do Webservice que retorna o XML dos usuarios
  */
-public class XmlEquipe extends Xml implements XmlInterface {
+public class XmlUsuario extends Xml implements XmlInterface {
 
-    public XmlEquipe(Context contexto) {
+    public XmlUsuario(Context contexto) {
         super(contexto);
         setNomeArquivoXML();
     }
 
     //nome do arquivo para gravar o xml
-    private final static String nomeArquivoXML = "equipes.xml";
+    private final static String nomeArquivoXML = "usuarios.xml";
 
     public static String getNomeArquivoXML() {
         return nomeArquivoXML;
@@ -37,13 +39,13 @@ public class XmlEquipe extends Xml implements XmlInterface {
      * @return true: houve atualizaçao, false: nao houve atualizaçao
      * @throws java.io.IOException
      */
-    public static boolean criaXmlEquipesWebservice(boolean forcarAtualizacao) throws IOException {
+    public static boolean criaXmlUsuariosWebservice(boolean forcarAtualizacao) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
         WebService webService = new WebService();
         webService.setForcarAtualizacao(forcarAtualizacao);
-        String xml = webService.getEquipes();
+        String xml = webService.getUsuarios();
         if (xml != null) {
             escreveXML(xml);
             return true;
@@ -56,7 +58,7 @@ public class XmlEquipe extends Xml implements XmlInterface {
      * @param xml
      * @throws java.io.IOException
      */
-    public void criaXmlEquipesWebservice(String xml) throws IOException {
+    public void criaXmlUsuariosWebservice(String xml) throws IOException {
         escreveXML(xml);
     }
 

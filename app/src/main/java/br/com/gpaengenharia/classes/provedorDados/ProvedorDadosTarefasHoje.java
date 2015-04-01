@@ -16,7 +16,6 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
  herda de ProvedorDados e implementa ProvedorDadosInterface
   */
 public class ProvedorDadosTarefasHoje extends ProvedorDados implements ProvedorDadosInterface{
-    private static Set<Integer> idsTarefasHoje = new HashSet<Integer>(Arrays.asList(0));;
     private Context contexto;
 
     public ProvedorDadosTarefasHoje(Context contexto, boolean forcarAtualizacao) {
@@ -43,14 +42,5 @@ public class ProvedorDadosTarefasHoje extends ProvedorDados implements ProvedorD
     public void setProjetosTreeMapBean() {
         XmlTarefasHoje xml = new XmlTarefasHoje(this.contexto);
         super.projetosTreeMapBean = xml.leXmlProjetosTarefas();
-        this.setIdsTarefasHoje(xml.idsTarefas);
-    }
-
-    public static Set<Integer> getIdsTarefasHoje(){
-        return idsTarefasHoje;
-    }
-
-    public void setIdsTarefasHoje(Set<Integer> idsTarefasHoje){
-        this.idsTarefasHoje = idsTarefasHoje;
     }
 }

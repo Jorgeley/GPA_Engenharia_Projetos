@@ -13,6 +13,7 @@ import android.widget.Toast;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.AgendaServico;
+import br.com.gpaengenharia.classes.ServicoTarefas;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
@@ -93,6 +94,15 @@ public class AtvLogin extends Activity{
             if (successo) {
                 /* OUT OF MEMORY!!!
                 WebService.tarefas(usuario.getId());*/
+                final ServicoTarefas servicoTarefas = new ServicoTarefas();
+                servicoTarefas.setContexto(AtvLogin.this);
+                new AsyncTask<Void, Void, Void>(){
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        servicoTarefas.run();
+                        return null;
+                    }
+                };
                 Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf("["+usuario.getPerfil()+"]"+usuario.getNome()), Toast.LENGTH_LONG).show();
                 if (usuario.getPerfil().equals("adm"))
                     startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));

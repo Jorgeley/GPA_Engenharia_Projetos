@@ -16,7 +16,6 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasSemana;
  herda de ProvedorDados e implementa ProvedorDadosInterface
   */
 public class ProvedorDadosTarefasSemana extends ProvedorDados implements ProvedorDadosInterface{
-    private static Set<Integer> idsTarefasSemana = new HashSet<Integer>(Arrays.asList(0));
     private Context contexto;
 
     public ProvedorDadosTarefasSemana(Context contexto, boolean forcarAtualizacao) {
@@ -43,14 +42,6 @@ public class ProvedorDadosTarefasSemana extends ProvedorDados implements Provedo
     public void setProjetosTreeMapBean() {
         XmlTarefasSemana xml = new XmlTarefasSemana(this.contexto);
         super.projetosTreeMapBean = xml.leXmlProjetosTarefas();
-        this.setIdsTarefasSemana(xml.idsTarefas);
     }
 
-    public static Set<Integer> getIdsTarefasSemana(){
-        return idsTarefasSemana;
-    }
-
-    public void setIdsTarefasSemana(Set<Integer> idsTarefasSemana){
-        this.idsTarefasSemana = idsTarefasSemana;
-    }
 }
