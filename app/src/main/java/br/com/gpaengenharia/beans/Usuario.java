@@ -47,6 +47,11 @@ public class Usuario implements Parcelable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        return (this.id == ((Usuario)o).getId());
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }

@@ -2,21 +2,33 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    tools:contexto="br.com.gpaengenharia.activities.AtvBase">
+    tools:contexto="br.com.gpaengenharia.activities.AtvBase"
+    android:orientation="horizontal">
     <ViewFlipper
         android:id="@+id/view_flipper"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_margin="6dip"
-        android:layout_gravity="center">
+        android:layout_gravity="center_horizontal">
 
         <!-- 2º layout: dashboard (menu) -->
+
+        <!-- 1º layout: lista de tarefas/projetosPessoais -->
+
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:id="@+id/LayoutTarefas"
-            android:gravity="center_horizontal">
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/LayoutTarefas">
+
+            <ProgressBar
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/PRGtarefas"
+                android:visibility="gone"
+                android:textAlignment="center"
+                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large" />
 
             <ExpandableListView
                 android:layout_width="fill_parent"
@@ -28,6 +40,7 @@
                 android:layout_alignParentBottom="true"
                 android:touchscreenBlocksFocus="false"
                 android:groupIndicator="@android:drawable/screen_background_dark_transparent" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -208,9 +221,6 @@
             </TableLayout>
 
         </LinearLayout>
-
-        <!-- 1º layout: lista de tarefas/projetosPessoais -->
-
     </ViewFlipper>
 
 </LinearLayout>

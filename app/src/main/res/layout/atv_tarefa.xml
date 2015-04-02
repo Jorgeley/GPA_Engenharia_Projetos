@@ -13,6 +13,12 @@
     android:measureWithLargestChild="false"
     android:id="@+id/TLtarefa">
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/PRGtarefa"
+        android:visibility="gone" />
+
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="0dp"

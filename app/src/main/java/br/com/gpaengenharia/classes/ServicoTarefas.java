@@ -4,8 +4,11 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
@@ -53,7 +56,7 @@ public class ServicoTarefas extends Service implements Runnable{
     @Override
     public void run(){
         //arquivo XML contendo as tarefas atualizadas
-        File arquivo = new File(this.getContexto().getFilesDir() + "/" + XmlTarefasPessoais.getNomeArquivoXMLatualizadas());
+        File arquivo = new File(this.getContexto().getFilesDir() + "/" + Xml.getNomeArquivoXMLatualizadas());
         SimpleDateFormat formatoData = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", new Locale("pt", "BR"));
         Date data = new Date();
         data.setTime(arquivo.lastModified());//pega a data de modificaçao do arquivo XML
@@ -128,6 +131,12 @@ public class ServicoTarefas extends Service implements Runnable{
         } catch (XmlPullParserException e) {
             e.printStackTrace();
         }
+        Handler refresh = new Handler(Looper.getMainLooper());
+        refresh.post(new Runnable() {
+            public void run(){
+                AtvBase.prgTarefas.setVisibility(View.GONE);
+            }
+        });
     }
 
     public void setContexto(Context contexto){

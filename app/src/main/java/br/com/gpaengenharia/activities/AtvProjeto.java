@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TableRow;
 import android.widget.Toast;
@@ -41,6 +42,7 @@ import br.com.gpaengenharia.classes.xmls.XmlProjeto;
 public class AtvProjeto extends FragmentActivity implements Listener, OnItemSelectedListener{
     private EditText EdtVencimento;
     private Spinner SpnEquipe;
+    private ProgressBar PrgProjeto;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +50,7 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
         Utils.contexto = this;
         EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
         EdtVencimento.setInputType(0);
+        PrgProjeto = (ProgressBar) findViewById(R.id.PRGprojeto);
         if (AtvLogin.usuario.getPerfil().equals("adm")) {
             SpnEquipe = (Spinner) findViewById(R.id.SPNequipe);
             SpnEquipe.setOnItemSelectedListener(this);
@@ -57,6 +60,7 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
                  * TODO atualizar essa lista quando houver novas equipes
                  */
                 new AsyncTask<Void, Void, List<Equipe>>() {
+
                     @Override
                     protected List<Equipe> doInBackground(Void... voids) {
                         List<Equipe> equipes = null;
@@ -147,6 +151,10 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
             projeto.setUsuario(AtvLogin.usuario);
         new AsyncTask<Void, Void, Boolean>(){
             @Override
+            protected void onPreExecute() {
+                Utils.barraProgresso(AtvProjeto.this, PrgProjeto, true);
+            }
+            @Override
             protected Boolean doInBackground(Void... voids) {
                 boolean ok = WebService.gravaProjeto(projeto);
                 if (ok) {
@@ -166,6 +174,7 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
                     AtvProjeto.this.finish();
                 }else
                     Toast.makeText(AtvProjeto.this, "Erro ao tentar gravar Projeto", Toast.LENGTH_SHORT).show();
+                Utils.barraProgresso(AtvProjeto.this, PrgProjeto, false);
             }
         }.execute();
     }

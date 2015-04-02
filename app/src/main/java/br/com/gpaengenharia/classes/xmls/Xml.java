@@ -161,6 +161,7 @@ public class Xml{
                                 case "nome" : tarefaAtual.setNome(parser.nextText()); break;
                                 case "responsavel" :
                                     Usuario responsavel = new Usuario(Parcel.obtain());
+                                    responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
                                     responsavel.setNome(parser.nextText());
                                     tarefaAtual.setResponsavel(responsavel);
                                     break;
@@ -248,6 +249,7 @@ public class Xml{
                                         projetoAtual.setNome(parser.nextText());
                                         break;
                                     case "responsavel":
+                                        //responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
                                         projetoAtual.setResponsavel(parser.nextText());
                                         break;
                                 }
@@ -255,7 +257,7 @@ public class Xml{
                                 nomeNode = parser.getName();
                             }
                         }
-                        if (nomeNode.equals("tarefa") && idsTarefas.contains(Integer.valueOf(parser.getAttributeValue(0)))) {//...se tag é tarefa...
+                        if (nomeNode.equals("tarefa") && idsTarefas!=null && idsTarefas.contains(Integer.valueOf(parser.getAttributeValue(0)))) {//...se tag é tarefa...
                             Tarefa tarefaAtual = new Tarefa(Parcel.obtain());
                             tarefaAtual.setId(Integer.valueOf(parser.getAttributeValue(0)));
                             parser.nextTag();
@@ -267,6 +269,7 @@ public class Xml{
                                         break;
                                     case "responsavel":
                                         Usuario responsavel = new Usuario(Parcel.obtain());
+                                        responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
                                         responsavel.setNome(parser.nextText());
                                         tarefaAtual.setResponsavel(responsavel);
                                         break;

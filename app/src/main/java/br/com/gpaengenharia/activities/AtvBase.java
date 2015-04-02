@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
         this.lvProjetos.setOnGroupClickListener(this);
         this.lvProjetos.setOnChildClickListener(this);
+        this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefas);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.projetosPessoais(false);
         this.projetosEquipes(false);
@@ -375,7 +377,13 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     /**
      * busca as tarefas via webservice em segundo plano
      */
+    public static ProgressBar prgTarefas;
     private class WebserviceTarefas extends AsyncTask<Character, Void, Boolean> {
+        @Override
+        protected void onPreExecute() {
+            Utils.barraProgresso(AtvBase.this, prgTarefas, true);
+        }
+
         @Override
         protected Boolean doInBackground(Character... provedorDados) {
             if (AtvLogin.usuario != null) {
@@ -399,6 +407,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         }
         @Override
         protected void onPostExecute(Boolean resultado) {
+            Utils.barraProgresso(AtvBase.this, prgTarefas, false);
             if (resultado)
                 agrupaTarefas();
         }

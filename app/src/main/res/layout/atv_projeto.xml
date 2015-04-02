@@ -12,6 +12,12 @@
     android:shrinkColumns="0,1"
     android:measureWithLargestChild="false">
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/PRGprojeto"
+        android:visibility="gone" />
+
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="0dp"

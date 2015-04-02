@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
-
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
@@ -45,10 +44,6 @@ import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment.Listener;
 import br.com.gpaengenharia.classes.WebService;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
 import br.com.gpaengenharia.classes.xmls.XmlProjeto;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
@@ -68,8 +63,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     private EditText EdtVencimento;
     private Spinner SpnResponsavel;
     private Spinner SpnProjeto;
-    private String[] responsaveis = new String[]{ "responsável" };//arrayString do spinner responsaveis
-    private String[] projetos = new String[]{ "projetosPessoais" };//arraytring do spinner projeto
+    private ProgressBar PrgTarefa;
     private Usuario usuario;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +77,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
         SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
         SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
+        PrgTarefa = (ProgressBar) findViewById(R.id.PRGtarefa);
         //caso usuário seja administrador, adiciona botões de administração no layout
         if (AtvLogin.usuario != null) {
             SpnProjeto.setOnItemSelectedListener(this);
@@ -114,11 +109,14 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                             @Override
                             public void run() {
                                 SpnProjeto.setAdapter(new ArrayAdapter<>(AtvTarefa.this, android.R.layout.simple_spinner_item, projetos));
+                                if (AtvTarefa.this.getProjeto() != null)
+                                    SpnProjeto.setSelection(((ArrayAdapter) SpnProjeto.getAdapter()).getPosition(AtvTarefa.this.getProjeto()));
                             }
                         });
                     }
                 }.execute();
-            }
+            }else
+                SpnProjeto.setSelection(((ArrayAdapter) SpnProjeto.getAdapter()).getPosition(AtvTarefa.this.getProjeto()));
             if (AtvLogin.usuario.getPerfil().equals("adm") ) {
                 addBotoes();
                 SpnResponsavel.setOnItemSelectedListener(this);
@@ -147,11 +145,16 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                                 @Override
                                 public void run() {
                                     SpnResponsavel.setAdapter(new ArrayAdapter<>(AtvTarefa.this, android.R.layout.simple_spinner_item, usuarios));
+                                    if (AtvTarefa.this.getTarefa() != null) {
+                                        Log.i("getTaref>getResponsavel", String.valueOf(AtvTarefa.this.getTarefa().getResponsavel().getId()));
+                                        SpnResponsavel.setSelection(((ArrayAdapter) SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getResponsavel()));
+                                    }
                                 }
                             });
                         }
                     }.execute();
-                }
+                }else
+                    SpnResponsavel.setSelection(((ArrayAdapter) SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getResponsavel()));
             }else
                 SpnResponsavel.setVisibility(View.GONE);
         }
@@ -162,13 +165,10 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         Bundle bundleTarefa = getIntent().getExtras();
         //se tiver sido enviado objetos Projeto e Tarefa, recupera-os e seta nos views
         if (bundleTarefa != null) {
-            this.projeto = bundleTarefa.getParcelable("projeto");
-            this.tarefa = bundleTarefa.getParcelable("tarefa");
+            this.setProjeto((Projeto) bundleTarefa.getParcelable("projeto"));
+            this.setTarefa((Tarefa) bundleTarefa.getParcelable("tarefa"));
             EdtTarefa.setText(this.tarefa.getNome());
-            this.projetos[0] = this.projeto.getNome();
-            SpnProjeto.setAdapter(Utils.setAdaptador(this, this.projetos));
-            this.responsaveis[0] = this.tarefa.getResponsavel()!=null ? this.tarefa.getResponsavel().getNome() : "responsavel";
-            SpnResponsavel.setAdapter(Utils.setAdaptador(this, this.responsaveis));
+            //SpnResponsavel.setAdapter(Utils.setAdaptador(this, this.responsaveis));
             EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
             if (this.tarefa.getComentario()!=null)
                 EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
@@ -180,6 +180,22 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             TrDialogo.setVisibility(View.GONE);
         }
         super.onResume();
+    }
+
+    public Projeto getProjeto() {
+        return projeto;
+    }
+
+    public void setProjeto(Projeto projeto) {
+        this.projeto = projeto;
+    }
+
+    public Tarefa getTarefa() {
+        return tarefa;
+    }
+
+    public void setTarefa(Tarefa tarefa) {
+        this.tarefa = tarefa;
     }
 
     /**retorna a data do datePicker
@@ -280,6 +296,11 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         tarefa.setProjeto(this.projeto);
         new AsyncTask<Void, Void, Boolean>(){
             @Override
+            protected void onPreExecute() {
+                Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
+            }
+
+            @Override
             protected Boolean doInBackground(Void... voids) {
                 boolean ok = WebService.gravaTarefa(tarefa);
                 if (ok) {
@@ -296,6 +317,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                     AtvTarefa.this.finish();
                 }else
                     Toast.makeText(AtvTarefa.this, "Erro ao tentar gravar Tarefa", Toast.LENGTH_SHORT).show();
+                Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
             }
         }.execute();
     }
