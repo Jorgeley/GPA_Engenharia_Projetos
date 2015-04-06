@@ -41,7 +41,7 @@ public class Xml{
     //arquivo para gravar os XML's separados (Pessoais, Equipes, etc)
     protected static FileOutputStream arquivoXML;
     private static Set<Integer> idsTarefas = new HashSet<Integer>();
-    //nome do arquivo XML para grava todas as tarefas
+    //nome do arquivo XML para gravar as tarefas atualizadas pela sincronizaçao via webservice
     private static final String nomeArquivoXMLatualizadas = "tarefasAtualizadas.xml";
 
     public Xml(Context contexto){
@@ -56,7 +56,7 @@ public class Xml{
      * grava XML localmente caso haja tarefas novas e retorna os ID's das mesmas
      * @param usuarioId
      * @param ultimaSincronizacao
-     * @return
+     * @return matriz de objetos com id's das tarefas atualizadas e flags de quais XML's atualizar
      * @throws IOException
      */
     public static Vector<Vector<Object>> sincronizaXmlTudoWebservice(int usuarioId, String ultimaSincronizacao) throws IOException {
@@ -217,7 +217,7 @@ public class Xml{
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public TreeMap<Projeto, List<Tarefa>> leXmlTarefas(Vector<Object> idsTarefas) throws XmlPullParserException,IOException {
+    public TreeMap<Projeto, List<Tarefa>> leXmlProjetosTarefas(Vector<Object> idsTarefas) throws XmlPullParserException,IOException {
         XmlPullParserFactory pullParserFactory;
         List<Tarefa> tarefas = null;
         try {

@@ -19,7 +19,7 @@ public class AgendaServico extends BroadcastReceiver {
         //define o momento para disparar o sincronismo
         Calendar calendario = Calendar.getInstance();
         calendario.setTimeInMillis(System.currentTimeMillis()); //pega o tempo atual
-        calendario.add(Calendar.SECOND, 1); //1 segundo depois do tempo atual
+        calendario.add(Calendar.MINUTE, 10); //10 minutos depois do tempo atual
         //alarme que disparara o sincronismo
         AlarmManager alarme = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         long tempo = calendario.getTimeInMillis();
@@ -28,7 +28,7 @@ public class AgendaServico extends BroadcastReceiver {
         PendingIntent intentPendente = PendingIntent.getBroadcast(context, 0, intentAlarme, 0);
         //agenda o sincronismo para daqui 1 minuto a partir de agora, repetindo de 10 em 10 minutos
         alarme.setRepeating(AlarmManager.RTC_WAKEUP,
-                            tempo, //executar alarme apos 1 segundo a partir de agora
+                            tempo, //executar alarme apos 10 minutos a partir de agora
                             intervaloSincronismo , //repetir de 10 em 10 minutos
                             intentPendente //intent que recebera o alarme
         );

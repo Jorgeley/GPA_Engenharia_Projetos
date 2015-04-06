@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -61,7 +60,7 @@ public class ServicoTarefas extends Service implements Runnable{
         Date data = new Date();
         data.setTime(arquivo.lastModified());//pega a data de modificaçao do arquivo XML
         String ultimaSincronizacao = formatoData.format(data);
-        Vector<Vector<Object>> respostasSincroniza;//ids das tarefas atualizadas para criar notificaçao
+        Vector<Vector<Object>> respostasSincroniza;//ids das tarefas atualizadas e flags de quais XML's atualizar
         TreeMap<Projeto, List<Tarefa>> projetosTarefas; //treeMap de beans projetos contendo beans tarefas em cada
         try {
             Xml xml = new Xml(this.getContexto());
@@ -69,7 +68,7 @@ public class ServicoTarefas extends Service implements Runnable{
             respostasSincroniza = xml.sincronizaXmlTudoWebservice(AtvLogin.usuario.getId(), ultimaSincronizacao);
             if (respostasSincroniza != null) {
                 //monta treeMap de beans projetos contendo beans tarefas em cada
-                projetosTarefas = xml.leXmlTarefas(respostasSincroniza.get(0)); //indice 0 contem ids das tarefas atualizadas
+                projetosTarefas = xml.leXmlProjetosTarefas(respostasSincroniza.get(0)); //indice 0 contem ids das tarefas atualizadas
                 if (!projetosTarefas.isEmpty()) {
                     //Log.i("projetosTarefas", String.valueOf(projetosTarefas));
                     for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : projetosTarefas.entrySet()) {
@@ -97,32 +96,30 @@ public class ServicoTarefas extends Service implements Runnable{
                 XmlTarefasEquipe xmlTarefasEquipe = null;
                 XmlTarefasHoje xmlTarefasHoje = null;
                 XmlTarefasSemana xmlTarefasSemana = null;
-                //indice [1][0] contem flags para sincronizar XML tarefas pessoais
+                //indice [1][0] contem flag para sincronizar XML tarefas pessoais
                 Boolean sincronizaPessoais = (Boolean) respostasSincroniza.get(1).get(0);
-                //indice [1][1] contem flags para sincronizar XML tarefas equipes
+                //indice [1][1] contem flag para sincronizar XML tarefas equipes
                 Boolean sincronizaEquipes = (Boolean) respostasSincroniza.get(1).get(1);
-                //indice [1][2] contem flags para sincronizar XML tarefas hoje
+                //indice [1][2] contem flag para sincronizar XML tarefas hoje
                 Boolean sincronizaHoje = (Boolean) respostasSincroniza.get(1).get(2);
-                //indice [1][3] contem flags para sincronizar XML tarefas semana
+                //indice [1][3] contem flag para sincronizar XML tarefas semana
                 Boolean sincronizaSemana = (Boolean) respostasSincroniza.get(1).get(3);
-                    if (!(xmlTarefasPessoais instanceof XmlTarefasPessoais) && sincronizaPessoais) {
-                        xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
-                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
-                    }
-                    if (!(xmlTarefasEquipe instanceof XmlTarefasEquipe) && sincronizaEquipes) {
-                        xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
-                        xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
-                    }
-                    if ( !(xmlTarefasHoje instanceof XmlTarefasHoje) && sincronizaHoje) {
-                        xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
-                        xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
-                    }
-                    if ( !(xmlTarefasSemana instanceof XmlTarefasSemana) && sincronizaSemana) {
-                        xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
-                        xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
-                    }
-
-
+                if (sincronizaPessoais) {
+                    xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
+                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
+                }
+                if (sincronizaEquipes) {
+                    xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
+                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
+                }
+                if (sincronizaHoje) {
+                    xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
+                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
+                }
+                if (sincronizaSemana) {
+                    xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
+                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
+                }
             }
         } catch (ConnectException e) {
             e.printStackTrace();
@@ -131,6 +128,7 @@ public class ServicoTarefas extends Service implements Runnable{
         } catch (XmlPullParserException e) {
             e.printStackTrace();
         }
+        //porque Deus quis assim...
         Handler refresh = new Handler(Looper.getMainLooper());
         refresh.post(new Runnable() {
             public void run(){

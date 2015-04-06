@@ -70,21 +70,21 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_tarefa);
         Utils.contexto = this;
-        EdtTarefa = (EditText) findViewById(R.id.EDTtarefa);
-        EdtDescricao = (EditText) findViewById(R.id.EDTdescricao);
-        EdtDialogo = (EditText) findViewById(R.id.EDTdialogo);
-        EdtDialogo.setMovementMethod(new ScrollingMovementMethod());
-        EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
-        SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
-        SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
-        PrgTarefa = (ProgressBar) findViewById(R.id.PRGtarefa);
+        this.EdtTarefa = (EditText) findViewById(R.id.EDTtarefa);
+        this.EdtDescricao = (EditText) findViewById(R.id.EDTdescricao);
+        this.EdtDialogo = (EditText) findViewById(R.id.EDTdialogo);
+        this.EdtDialogo.setMovementMethod(new ScrollingMovementMethod());
+        this.EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
+        this.SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
+        this.SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
+        this.PrgTarefa = (ProgressBar) findViewById(R.id.PRGtarefa);
         //caso usuário seja administrador, adiciona botões de administração no layout
         if (AtvLogin.usuario != null) {
-            SpnProjeto.setOnItemSelectedListener(this);
-            if (SpnProjeto.getAdapter() == null){
+            this.SpnProjeto.setOnItemSelectedListener(this);
+            if (this.SpnProjeto.getAdapter() == null){
                 /**
-                 * busca lista de projetos e usuarios
-                 * TODO atualizar essas listas quando houver novos projetos ou usuarios
+                 * busca lista de projetos
+                 * TODO atualizar essa lista quando houver novos projetos
                  */
                 new AsyncTask<Void, Void, List<Projeto>>(){
                     @Override
@@ -116,11 +116,15 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                     }
                 }.execute();
             }else
-                SpnProjeto.setSelection(((ArrayAdapter) SpnProjeto.getAdapter()).getPosition(AtvTarefa.this.getProjeto()));
+                this.SpnProjeto.setSelection(((ArrayAdapter) this.SpnProjeto.getAdapter()).getPosition(AtvTarefa.this.getProjeto()));
             if (AtvLogin.usuario.getPerfil().equals("adm") ) {
                 addBotoes();
-                SpnResponsavel.setOnItemSelectedListener(this);
-                if (SpnResponsavel.getAdapter() == null) {
+                this.SpnResponsavel.setOnItemSelectedListener(this);
+                if (this.SpnResponsavel.getAdapter() == null) {
+                    /**
+                     * busca lista de usuarios
+                     * TODO atualizar essa lista quando houver novos usuarios
+                     */
                     new AsyncTask<Void, Void, List<Usuario>>() {
                         @Override
                         protected List<Usuario> doInBackground(Void... voids) {
@@ -138,7 +142,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                             }
                             return usuarios;
                         }
-
                         @Override
                         protected void onPostExecute(final List<Usuario> usuarios) {
                             runOnUiThread(new Runnable() {
@@ -154,9 +157,9 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                         }
                     }.execute();
                 }else
-                    SpnResponsavel.setSelection(((ArrayAdapter) SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getResponsavel()));
+                    this.SpnResponsavel.setSelection(((ArrayAdapter) this.SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getResponsavel()));
             }else
-                SpnResponsavel.setVisibility(View.GONE);
+                this.SpnResponsavel.setVisibility(View.GONE);
         }
     }
 
@@ -167,15 +170,15 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         if (bundleTarefa != null) {
             this.setProjeto((Projeto) bundleTarefa.getParcelable("projeto"));
             this.setTarefa((Tarefa) bundleTarefa.getParcelable("tarefa"));
-            EdtTarefa.setText(this.tarefa.getNome());
+            this.EdtTarefa.setText(this.tarefa.getNome());
             //SpnResponsavel.setAdapter(Utils.setAdaptador(this, this.responsaveis));
-            EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
+            this.EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
             if (this.tarefa.getComentario()!=null)
-                EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
+                this.EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
             String data = formatoData.format(this.tarefa.getVencimento());//seta data
-            EdtVencimento.setText(data);
-        }else{
+            this.EdtVencimento.setText(data);
+        }else{//se nao tiver bundleTarefa entao e nova tarefa e tira o dialogo
             TableRow TrDialogo = (TableRow) findViewById(R.id.TRdialogo);
             TrDialogo.setVisibility(View.GONE);
         }
@@ -183,7 +186,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     }
 
     public Projeto getProjeto() {
-        return projeto;
+        return this.projeto;
     }
 
     public void setProjeto(Projeto projeto) {
@@ -191,7 +194,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     }
 
     public Tarefa getTarefa() {
-        return tarefa;
+        return this.tarefa;
     }
 
     public void setTarefa(Tarefa tarefa) {
@@ -203,7 +206,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
      */
     @Override
     public void getData(String data) {
-        EdtVencimento.setText(data);
+        this.EdtVencimento.setText(data);
     }
 
     /** setado diretamente na propriedade OnClick do EDTvencimento */
@@ -241,12 +244,12 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         //adapta os outros views para mesclar as células do TableLayout
         TableRow.LayoutParams params4 = new TableRow.LayoutParams();
         params4.span = 4;
-        EdtTarefa.setLayoutParams(params4);
-        EdtDescricao.setLayoutParams(params4);
-        EdtDialogo.setLayoutParams(params4);
+        this.EdtTarefa.setLayoutParams(params4);
+        this.EdtDescricao.setLayoutParams(params4);
+        this.EdtDialogo.setLayoutParams(params4);
         TableRow.LayoutParams params2 = new TableRow.LayoutParams();
         params2.span = 2;
-        EdtVencimento.setLayoutParams(params2);
+        this.EdtVencimento.setLayoutParams(params2);
     }
 
     @Override
@@ -294,16 +297,18 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         else
             tarefa.setResponsavel(AtvLogin.usuario);
         tarefa.setProjeto(this.projeto);
+        /**
+         * grava a tarefa em segundo plano via webservice
+         */
         new AsyncTask<Void, Void, Boolean>(){
             @Override
             protected void onPreExecute() {
                 Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
             }
-
             @Override
             protected Boolean doInBackground(Void... voids) {
                 boolean ok = WebService.gravaTarefa(tarefa);
-                if (ok) {
+                if (ok) {//gravada a tarefa, executa atualizaçao
                     ServicoTarefas servicoTarefas = new ServicoTarefas();
                     servicoTarefas.setContexto(AtvTarefa.this);
                     servicoTarefas.run();
@@ -329,16 +334,16 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
 
     private void novoComentario(){
         LayoutInflater factory = LayoutInflater.from(this);
-        layoutComentario = factory.inflate(R.layout.comentario, null);
+        this.layoutComentario = factory.inflate(R.layout.comentario, null);
         final AlertDialog.Builder comentario = new AlertDialog.Builder(this)
                 .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setTitle(R.string.actionbar_comenta)
-                .setView(layoutComentario)
+                .setView(this.layoutComentario)
                 .setPositiveButton(R.string.actionbar_grava, this);
         comentario.show();
     }
 
-    /**adiciona comentario via webservice em segundo plano
+    /**adiciona comentario a tarefa via webservice em segundo plano
      * @param dialogInterface
      * @param i
      */
@@ -346,12 +351,12 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     private ProgressBar prgComentario;
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
-        prgComentario = (ProgressBar) findViewById(R.id.prgComentario);
+        this.prgComentario = (ProgressBar) findViewById(R.id.prgComentario);
         Utils.barraProgresso(this, this.prgComentario, true);
-        EditText EdtComentario = (EditText) layoutComentario.findViewById(R.id.EDTcomentario);
+        EditText EdtComentario = (EditText) this.layoutComentario.findViewById(R.id.EDTcomentario);
         String comentario = EdtComentario.getText().toString();
-        aTaskComentario = new ComentarioTask(comentario);
-        aTaskComentario.execute((Void)null);
+        this.aTaskComentario = new ComentarioTask(comentario);
+        this.aTaskComentario.execute((Void)null);
     }
 
     /**
@@ -437,8 +442,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
+    public void onNothingSelected(AdapterView<?> parent) { }
 
 }

@@ -66,16 +66,19 @@ public class Utils{
     public static void barraProgresso(Context contexto, final ProgressBar barraProgresso, final boolean mostra) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int animacaoCurta = contexto.getResources().getInteger(android.R.integer.config_shortAnimTime);
-            barraProgresso.setVisibility(mostra ? View.VISIBLE : View.GONE);
-            barraProgresso.animate().setDuration(animacaoCurta).alpha(
-                    mostra ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    barraProgresso.setVisibility(mostra ? View.VISIBLE : View.GONE);
-                }
-            });
+            if (barraProgresso != null) {
+                barraProgresso.setVisibility(mostra ? View.VISIBLE : View.GONE);
+                barraProgresso.animate().setDuration(animacaoCurta).alpha(
+                        mostra ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        barraProgresso.setVisibility(mostra ? View.VISIBLE : View.GONE);
+                    }
+                });
+            }
         } else {
-            barraProgresso.setVisibility(mostra ? View.VISIBLE : View.GONE);
+            if (barraProgresso != null)
+                barraProgresso.setVisibility(mostra ? View.VISIBLE : View.GONE);
         }
     }
 

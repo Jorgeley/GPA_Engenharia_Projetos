@@ -69,22 +69,14 @@ public class AtvLogin extends Activity{
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            if (login=="adm"){
-                Log.i("login", "logando localmente como Adm sem webservice");
-                XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvLogin.this);
-                //grava um arquivo XML estatico para teste
-                xmlTarefasPessoais.criaXmlProjetosPessoaisTeste();
+            //TODO nao enviar senhas sem segurança
+            usuario = WebService.login(login, senha);//login via webservice
+            if (usuario != null) {
+                AgendaServico agendaServico = new AgendaServico();
+                agendaServico.onReceive(AtvLogin.this, new Intent());
                 return true;
-            }else {
-                //TODO nao enviar senhas sem segurança
-                usuario = WebService.login(login, senha);//login via webservice
-                if (usuario != null) {
-                    AgendaServico agendaServico = new AgendaServico();
-                    agendaServico.onReceive(AtvLogin.this, new Intent());
-                    return true;
-                } else
-                    return false;
-            }
+            } else
+                return false;
         }
 
         @Override
@@ -102,7 +94,7 @@ public class AtvLogin extends Activity{
                         servicoTarefas.run();
                         return null;
                     }
-                };
+                }.execute();
                 Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf("["+usuario.getPerfil()+"]"+usuario.getNome()), Toast.LENGTH_LONG).show();
                 if (usuario.getPerfil().equals("adm"))
                     startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));

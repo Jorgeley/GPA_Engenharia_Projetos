@@ -1,31 +1,18 @@
 package br.com.gpaengenharia.classes;
 
 import android.os.Parcel;
-import android.util.ArrayMap;
-import android.util.Log;
-
 import org.ksoap2.SoapEnvelope;
-import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
-
 import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.beans.Usuario;
-
-import static java.util.Map.Entry;
 
 /**
  * Classe responsavel pela comunicaçao entre o app e o servidor
@@ -109,9 +96,9 @@ public class WebService{
     }
 
     /**
-     * sincroniza as tarefas do usuario, retorna array contendo os ids das tarefas atuais e xml
-     * @return XML de projetosPessoais com as tarefas
+     * sincroniza as tarefas do usuario
      * @param ultimaSincronizacao
+     * @return array ids tarefas atualizadas, XML tarefas atualizadas e flags de quais XML's atualizar
      */
     public Object[] sincroniza(String ultimaSincronizacao) {
         //requisição SOAP
@@ -139,9 +126,9 @@ public class WebService{
             if (resposta == null)
                 return null;
             else {
-                idsTarefas = (Vector<Integer>) resposta.get(0);
-                flagsSincroniza = (Vector<Boolean>) resposta.get(2);
-                xml = resposta.get(1).toString();
+                idsTarefas = (Vector<Integer>) resposta.get(0); //id's das tarefas atualizadas
+                flagsSincroniza = (Vector<Boolean>) resposta.get(2); //flags de quais XML's atualizar
+                xml = resposta.get(1).toString(); //XML contendo todas as tarefas atualizads
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -258,7 +245,7 @@ public class WebService{
      * grava comentario de uma tarefa do usuario
      * @param idTarefa
      * @param textoComentario
-     * @return String comentario gravado
+     * @return String comentario gravado e flags de quais XML's atualizar
      */
     public Object[] gravacomentario(int idTarefa, String textoComentario) {
         //requisição SOAP
@@ -300,7 +287,7 @@ public class WebService{
     /**
      * Grava projeto via webservice
      * @param projeto
-     * @return
+     * @return boolean resposta
      */
     public static boolean gravaProjeto(Projeto projeto){
         //requisição SOAP
@@ -351,7 +338,7 @@ public class WebService{
     /**
      * Grava tarefa via webservice
      * @param tarefa
-     * @return
+     * @return boolean resposta
      */
     public static boolean gravaTarefa(Tarefa tarefa){
         //requisição SOAP
@@ -399,7 +386,7 @@ public class WebService{
 
     /**
      * Retorna lista de equipes, usado na atvProjeto
-     * @return
+     * @return XML das equipes
      */
     public static String getEquipes() {
         List<Equipe> equipes = null;
@@ -423,7 +410,7 @@ public class WebService{
 
     /**
      * Retorna lista de projetos, usado na atvTarefa
-     * @return
+     * @return XML dos projetos
      */
     public static String getProjetos() {
         List<Projeto> projetos = null;
@@ -452,7 +439,7 @@ public class WebService{
 
     /**
      * Retorna lista de usuarios, usado na atvTarefa
-     * @return
+     * @return XML dos usuarios
      */
     public static String getUsuarios() {
         List<Usuario> usuarios = null;

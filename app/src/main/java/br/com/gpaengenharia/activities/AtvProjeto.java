@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import android.widget.AdapterView.OnItemSelectedListener;
-
-import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment.Listener;
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Equipe;
@@ -48,19 +46,18 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
         super.onCreate(savedInstanceState);
         setContentView(R.layout.atv_projeto);
         Utils.contexto = this;
-        EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
-        EdtVencimento.setInputType(0);
-        PrgProjeto = (ProgressBar) findViewById(R.id.PRGprojeto);
+        this.EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
+        this.EdtVencimento.setInputType(0);
+        this.PrgProjeto = (ProgressBar) findViewById(R.id.PRGprojeto);
         if (AtvLogin.usuario.getPerfil().equals("adm")) {
-            SpnEquipe = (Spinner) findViewById(R.id.SPNequipe);
-            SpnEquipe.setOnItemSelectedListener(this);
-            if (SpnEquipe.getAdapter() == null) {
+            this.SpnEquipe = (Spinner) findViewById(R.id.SPNequipe);
+            this.SpnEquipe.setOnItemSelectedListener(this);
+            if (this.SpnEquipe.getAdapter() == null) {
                 /**
                  * busca Equipes via webservice e set no Spinner
                  * TODO atualizar essa lista quando houver novas equipes
                  */
                 new AsyncTask<Void, Void, List<Equipe>>() {
-
                     @Override
                     protected List<Equipe> doInBackground(Void... voids) {
                         List<Equipe> equipes = null;
@@ -77,7 +74,6 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
                         }
                         return equipes;
                     }
-
                     @Override
                     protected void onPostExecute(final List<Equipe> equipes) {
                         runOnUiThread(new Runnable() {
@@ -101,7 +97,7 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
      */
     @Override
     public void getData(String data) {
-        EdtVencimento.setText(data);
+        this.EdtVencimento.setText(data);
     }
 
     /** setado diretamente na propriedade OnClick do EDTvencimento */
@@ -146,9 +142,9 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
         projeto.setDescricao(descricao);
         projeto.setVencimento(vencimento);
         if (this.equipe != null)
-            projeto.setEquipe(this.equipe);
+            projeto.setEquipe(this.equipe); //tarefa delegada
         else
-            projeto.setUsuario(AtvLogin.usuario);
+            projeto.setUsuario(AtvLogin.usuario); //tarefa pessoal
         new AsyncTask<Void, Void, Boolean>(){
             @Override
             protected void onPreExecute() {
@@ -156,9 +152,9 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
             }
             @Override
             protected Boolean doInBackground(Void... voids) {
-                boolean ok = WebService.gravaProjeto(projeto);
+                boolean ok = WebService.gravaProjeto(projeto); //grava projeto
                 if (ok) {
-                    try {
+                    try { //atualiza XML de projetos com o novo projeto gravado
                         XmlProjeto xmlProjeto = new XmlProjeto(AtvProjeto.this);
                         xmlProjeto.criaXmlProjetosWebservice(true);
                     } catch (IOException e) {
@@ -191,7 +187,6 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
+    public void onNothingSelected(AdapterView<?> adapterView) { }
 
-    }
 }

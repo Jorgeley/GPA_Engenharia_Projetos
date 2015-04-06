@@ -53,7 +53,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
     /**
-     * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate
+     * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate dos mesmos
      */;
     private ExpandableListView lvProjetos;//listView expansível dos projetosPessoais
     protected void setViews(){
@@ -65,9 +65,6 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefas);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.projetosPessoais(false);
-        this.projetosEquipes(false);
-        this.projetosHoje(false);
-        this.projetosSemana(false);
     }
 
     /**
@@ -147,7 +144,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                     this.tarefasTreeMap.put(tarefa, projetos);
             }
         }
-        setAdaptador(true);
+        this.setAdaptador(true);
         //diminui a distancia entre cada grupo do ExpandableListView (miauuuuu)
         this.lvProjetos.setDividerHeight(-20);
         this.agrupamento = 't';
@@ -160,7 +157,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     private void agrupaProjetos(){
         if (this.projetosTreeMap == null || this.projetosTreeMap.isEmpty())
             this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
-        setAdaptador(false);
+        this.setAdaptador(false);
         this.lvProjetos.setDividerHeight(0);
         this.agrupamento = 'p';
     }
@@ -383,7 +380,6 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         protected void onPreExecute() {
             Utils.barraProgresso(AtvBase.this, prgTarefas, true);
         }
-
         @Override
         protected Boolean doInBackground(Character... provedorDados) {
             if (AtvLogin.usuario != null) {
