@@ -148,10 +148,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                                 @Override
                                 public void run() {
                                     SpnResponsavel.setAdapter(new ArrayAdapter<>(AtvTarefa.this, android.R.layout.simple_spinner_item, usuarios));
-                                    if (AtvTarefa.this.getTarefa() != null) {
-                                        Log.i("getTaref>getResponsavel", String.valueOf(AtvTarefa.this.getTarefa().getResponsavel().getId()));
+                                    if (AtvTarefa.this.getTarefa() != null)
                                         SpnResponsavel.setSelection(((ArrayAdapter) SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getResponsavel()));
-                                    }
                                 }
                             });
                         }
