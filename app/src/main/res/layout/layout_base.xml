@@ -26,8 +26,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/LVprojetos"
-                android:touchscreenBlocksFocus="false"
-                android:groupIndicator="@android:drawable/screen_background_dark_transparent" />
+                android:touchscreenBlocksFocus="false" />
 
         </LinearLayout>
 

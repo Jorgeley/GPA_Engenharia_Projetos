@@ -289,7 +289,11 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        final Tarefa tarefa = new Tarefa(Parcel.obtain());
+        Tarefa tarefa;
+        if (getIntent().hasExtra("tarefa"))
+            tarefa = this.tarefa;//altera tarefa
+        else
+            tarefa = new Tarefa(Parcel.obtain());//nova tarefa
         tarefa.setNome(nome);
         tarefa.setDescricao(descricao);
         tarefa.setVencimento(vencimento);
@@ -298,34 +302,38 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         else
             tarefa.setResponsavel(AtvLogin.usuario);
         tarefa.setProjeto(this.projeto);
-        /**
-         * grava a tarefa em segundo plano via webservice
-         */
-        new AsyncTask<Void, Void, Boolean>(){
-            @Override
-            protected void onPreExecute() {
-                Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
+        gravaTarefaWebservice gravaTarefaWebservice = new gravaTarefaWebservice();
+        gravaTarefaWebservice.execute(tarefa);
+    }
+
+
+    /**
+     * grava a tarefa em segundo plano via webservice
+     */
+    private class gravaTarefaWebservice extends AsyncTask<Tarefa, Void, Boolean>{
+        @Override
+        protected void onPreExecute() {
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
+        }
+        @Override
+        protected Boolean doInBackground(Tarefa... tarefa) {
+            boolean ok = WebService.gravaTarefa(tarefa[0]);
+            if (ok) {//gravada a tarefa, executa atualizaçao
+                ServicoTarefas servicoTarefas = new ServicoTarefas();
+                servicoTarefas.setContexto(AtvTarefa.this);
+                servicoTarefas.run();
             }
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                boolean ok = WebService.gravaTarefa(tarefa);
-                if (ok) {//gravada a tarefa, executa atualizaçao
-                    ServicoTarefas servicoTarefas = new ServicoTarefas();
-                    servicoTarefas.setContexto(AtvTarefa.this);
-                    servicoTarefas.run();
-                }
-                return ok;
-            }
-            @Override
-            protected void onPostExecute(Boolean ok) {
-                if (ok) {
-                    Toast.makeText(AtvTarefa.this, "Tarefa Gravada", Toast.LENGTH_SHORT).show();
-                    AtvTarefa.this.finish();
-                }else
-                    Toast.makeText(AtvTarefa.this, "Erro ao tentar gravar Tarefa", Toast.LENGTH_SHORT).show();
-                Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
-            }
-        }.execute();
+            return ok;
+        }
+        @Override
+        protected void onPostExecute(Boolean ok) {
+            if (ok) {
+                Toast.makeText(AtvTarefa.this, "Tarefa Gravada", Toast.LENGTH_SHORT).show();
+                AtvTarefa.this.finish();
+            }else
+                Toast.makeText(AtvTarefa.this, "Erro ao tentar gravar Tarefa", Toast.LENGTH_SHORT).show();
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
+        }
     }
 
     /**

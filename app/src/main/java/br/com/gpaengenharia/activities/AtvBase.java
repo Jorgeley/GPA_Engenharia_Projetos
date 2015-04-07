@@ -60,6 +60,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //Log.i("onCreate", String.valueOf(atualizaListView));
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
+        this.lvProjetos.setGroupIndicator(null);
         this.lvProjetos.setOnGroupClickListener(this);
         this.lvProjetos.setOnChildClickListener(this);
         if (AtvLogin.usuario.getPerfil().equals("adm"))
