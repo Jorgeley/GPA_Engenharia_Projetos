@@ -271,6 +271,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             case R.id.actionbar_conclui:
             case R.id.menu_conclui:
                 this.conclui();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -341,7 +342,32 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
      * conclui a tarefa (administrador)
      */
     private void conclui() {
+        concluiTarefaWebservice concluiTarefaWebservice = new concluiTarefaWebservice();
+        concluiTarefaWebservice.execute(this.tarefa);
+    }
 
+    private class concluiTarefaWebservice extends AsyncTask<Tarefa, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
+        }
+        @Override
+        protected String doInBackground(Tarefa... tarefa) {
+            WebService webService = new WebService();
+            webService.setUsuario(AtvLogin.usuario);
+            return webService.concluiTarefa(tarefa[0]);
+        }
+        @Override
+        protected void onPostExecute(String resposta) {
+            if (resposta.equals("concluida"))
+                Toast.makeText(AtvTarefa.this, "Tarefa concluida!", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(AtvTarefa.this, "Foi solicitada a conclusao da tarefa." +
+                        "                       \nAguarde confirmaçao do administrador.", Toast.LENGTH_SHORT)
+                                        .show();
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
+            AtvTarefa.this.finish();
+        }
     }
 
     //utilizado pelo UIdget comentarios
@@ -390,7 +416,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         protected Boolean doInBackground(Void... params){
             //chama o webservice
             WebService webService = new WebService();
-            webService.setIdUsuario(AtvLogin.usuario.getId());
+            webService.setUsuario(AtvLogin.usuario);
             final Object[] resposta = webService.gravacomentario(
                     AtvTarefa.this.tarefa.getId(),
                     this.textoComentario
@@ -408,19 +434,19 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 try { //grava localmente o Xml atualizado resultante do webservice
                     if (flagsSincroniza.get(0)) {
                         XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
-                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
+                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
                     }
                     if (flagsSincroniza.get(1)) {
                         XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
-                        xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
+                        xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
                     }
                     if (flagsSincroniza.get(2)) {
                         XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
-                        xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
+                        xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
                     }
                     if (flagsSincroniza.get(3)) {
                         XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
-                        xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
+                        xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -1,6 +1,8 @@
 package br.com.gpaengenharia.classes;
 
 import android.os.Parcel;
+import android.util.Log;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
@@ -31,17 +33,17 @@ public class WebService{
     //SOAP Action URI again Namespace + Web method name
     //private static String SOAP_ACTION = "http://"+SERVIDOR+"/WEB/GPA/public/webservice/soap#";
     private static String SOAP_ACTION = "http://"+SERVIDOR+"/webservice/soap#";
-    //id do usuario para todas as operaçoes no webservice
-    private int idUsuario;
+    //usuario para todas as operaçoes no webservice
+    private Usuario usuario;
     //flag enviada ao servidor do webservice indicando p/ retornar os projetos, mesmo estando atualizados
     private boolean forcarAtualizacao = false;
 
-    public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
-    public int getIdUsuario() {
-        return idUsuario;
+    public Usuario getUsuario() {
+        return this.usuario;
     }
 
     public boolean isForcarAtualizacao() {
@@ -104,7 +106,7 @@ public class WebService{
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "sincroniza");
         //setando parametros do método do webservice 'sincroniza'
-        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getPropertyInfoUsuario());
         PropertyInfo ultimaSincronizacaoWebservice = new PropertyInfo();
         ultimaSincronizacaoWebservice.setName("ultimaSincronizacao");
         ultimaSincronizacaoWebservice.setValue(ultimaSincronizacao);
@@ -138,14 +140,46 @@ public class WebService{
     }
 
     /**
-     * pega o XML de projetosPessoais com tarefas do idUsuario
+     * Conclui (administrador) ou solicita conclusao (colaborador) da tarefa
+     * @param tarefa
+     * @return 'concluida' ou 'concluir'
+     */
+    public String concluiTarefa(Tarefa tarefa) {
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "concluiTarefa");
+        //setando parametros do método do webservice 'projetosPessoais'
+        requisicao.addProperty(this.getPropertyInfoUsuario());
+        //setando parametro 'idTarefa' do método do webservice 'gravacomentario'
+        PropertyInfo idTarefaWebservice = new PropertyInfo();
+        idTarefaWebservice.setName("idTarefa");
+        idTarefaWebservice.setValue(tarefa.getId());
+        idTarefaWebservice.setType(Integer.class);
+        requisicao.addProperty(idTarefaWebservice);
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String resposta = null;
+        try {//faz a chamada do método 'projetosPessoais' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "concluiTarefa", envelope);
+            //pegando a resposta
+            resposta = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resposta;
+    }
+
+    /**
+     * pega o XML de projetosPessoais com tarefas do usuario
      * @return XML de projetosPessoais com as tarefas
      */
     public String projetosPessoais() {
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "projetosPessoais");
         //setando parametros do método do webservice 'projetosPessoais'
-        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getPropertyInfoUsuario());
         requisicao.addProperty(this.getForcarAtualizacao());
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
@@ -164,14 +198,14 @@ public class WebService{
     }
 
     /**
-     * pega o XML de projetosEquipes com tarefas do idUsuario
+     * pega o XML de projetosEquipes com tarefas do usuario
      * @return XML de projetosEquipes com as tarefas
      */
     public String projetosEquipes() {
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "projetosEquipes");
         //setando parametros do método do webservice 'projetosEquipes'
-        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getPropertyInfoUsuario());
         requisicao.addProperty(this.getForcarAtualizacao());
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
@@ -190,14 +224,14 @@ public class WebService{
     }
 
     /**
-     * pega o XML de projetos da data de hoje com tarefas do idUsuario
+     * pega o XML de projetos da data de hoje com tarefas do usuario
      * @return XML de projetos com as tarefas de hoje
      */
     public String projetosHoje() {
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "projetosHoje");
         //setando parametros do método do webservice 'projetosHoje'
-        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getPropertyInfoUsuario());
         requisicao.addProperty(this.getForcarAtualizacao());
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
@@ -223,7 +257,7 @@ public class WebService{
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "projetosSemana");
         //setando parametros do método do webservice 'projetosSemana'
-        requisicao.addProperty(this.getUsuario());
+        requisicao.addProperty(this.getPropertyInfoUsuario());
         requisicao.addProperty(this.getForcarAtualizacao());
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
@@ -250,8 +284,8 @@ public class WebService{
     public Object[] gravacomentario(int idTarefa, String textoComentario) {
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "gravaComentario");
-        //setando parametro 'idUsuario' do método do webservice 'gravacomentario'
-        requisicao.addProperty(this.getUsuario());
+        //setando parametro 'usuario' do método do webservice 'gravacomentario'
+        requisicao.addProperty(this.getPropertyInfoUsuario());
         //setando parametro 'idTarefa' do método do webservice 'gravacomentario'
         PropertyInfo idTarefaWebservice = new PropertyInfo();
         idTarefaWebservice.setName("idTarefa");
@@ -314,7 +348,7 @@ public class WebService{
         equipeProjeto.setType(Integer.class);
         requisicao.addProperty(equipeProjeto);
         PropertyInfo usuarioProjeto = new PropertyInfo();
-        usuarioProjeto.setName("idUsuario");
+        usuarioProjeto.setName("usuario");
         if (projeto.getUsuario() != null)
             usuarioProjeto.setValue(projeto.getUsuario().getId());
         usuarioProjeto.setType(Integer.class);
@@ -418,11 +452,10 @@ public class WebService{
      * @return XML dos projetos
      */
     public static String getProjetos() {
-        List<Projeto> projetos = null;
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "getProjetos");
         PropertyInfo usuarioProjetos = new PropertyInfo();
-        usuarioProjetos.setName("idUsuario");
+        usuarioProjetos.setName("usuario");
         usuarioProjetos.setValue(AtvLogin.usuario.getId());
         usuarioProjetos.setType(Integer.class);
         requisicao.addProperty(usuarioProjetos);
@@ -467,13 +500,13 @@ public class WebService{
     }
 
         /**
-     * retorna o parametro 'idUsuario' para setar na requisiçao do webservice
-     * @return PropertyInfo idUsuario
+     * retorna o parametro 'usuario' para setar na requisiçao do webservice
+     * @return PropertyInfo usuario
      */
-    private PropertyInfo getUsuario(){
+    private PropertyInfo getPropertyInfoUsuario(){
         PropertyInfo idUsuarioWebservice = new PropertyInfo();
-        idUsuarioWebservice.setName("idUsuario");
-        idUsuarioWebservice.setValue(this.getIdUsuario());
+        idUsuarioWebservice.setName("usuario");
+        idUsuarioWebservice.setValue(this.getUsuario().getId());
         idUsuarioWebservice.setType(Integer.class);
         return idUsuarioWebservice;
     }

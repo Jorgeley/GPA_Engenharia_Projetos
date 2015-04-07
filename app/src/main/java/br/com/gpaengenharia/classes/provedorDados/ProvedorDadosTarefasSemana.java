@@ -37,7 +37,7 @@ public class ProvedorDadosTarefasSemana extends ProvedorDados implements Provedo
             Log.i("atualizando", "tarefas semana");
             try {
                 XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(this.contexto);
-                xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
+                xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }

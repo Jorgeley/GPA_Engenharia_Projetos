@@ -24,7 +24,7 @@ public class ProvedorDadosTarefasPessoais extends ProvedorDados implements Prove
         if (!arquivo.exists() || forcarAtualizacao)
             try {
                 XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this.contexto);
-                xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
+                xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }

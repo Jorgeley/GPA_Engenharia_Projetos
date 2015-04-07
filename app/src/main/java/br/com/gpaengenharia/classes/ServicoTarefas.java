@@ -65,7 +65,7 @@ public class ServicoTarefas extends Service implements Runnable{
         try {
             Xml xml = new Xml(this.getContexto());
             //chama o webservice que verifica se ha tarefas novas de acordo com a data de modificaçao do XML local
-            respostasSincroniza = xml.sincronizaXmlTudoWebservice(AtvLogin.usuario.getId(), ultimaSincronizacao);
+            respostasSincroniza = xml.sincronizaXmlTudoWebservice(AtvLogin.usuario, ultimaSincronizacao);
             if (respostasSincroniza != null) {
                 //monta treeMap de beans projetos contendo beans tarefas em cada
                 projetosTarefas = xml.leXmlProjetosTarefas(respostasSincroniza.get(0)); //indice 0 contem ids das tarefas atualizadas
@@ -106,19 +106,19 @@ public class ServicoTarefas extends Service implements Runnable{
                 Boolean sincronizaSemana = (Boolean) respostasSincroniza.get(1).get(3);
                 if (sincronizaPessoais) {
                     xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
-                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario.getId(), true);
+                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
                 }
                 if (sincronizaEquipes) {
                     xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
-                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
+                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
                 }
                 if (sincronizaHoje) {
                     xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
-                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
+                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
                 }
                 if (sincronizaSemana) {
                     xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
-                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario.getId(), true);
+                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
                 }
             }
         } catch (ConnectException e) {

@@ -35,7 +35,7 @@ public class ProvedorDadosTarefasHoje extends ProvedorDados implements ProvedorD
             Log.i("atualizando", "tarefas hoje");
             try {
                 XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(this.contexto);
-                xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario.getId(), true);
+                xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }

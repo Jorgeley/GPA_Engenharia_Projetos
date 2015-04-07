@@ -24,7 +24,7 @@ public class ProvedorDadosTarefasEquipe extends ProvedorDados implements Provedo
         if (!arquivo.exists() || forcarAtualizacao)
             try {
                 XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(this.contexto);
-                xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario.getId(), true);
+                xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }

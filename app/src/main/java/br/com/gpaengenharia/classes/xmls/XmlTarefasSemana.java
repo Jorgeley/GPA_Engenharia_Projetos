@@ -5,6 +5,8 @@ import android.util.Log;
 import org.xmlpull.v1.XmlSerializer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.WebService;
 
 /**
@@ -38,16 +40,16 @@ public class XmlTarefasSemana extends Xml implements XmlInterface{
 
     /**
      * Faz download do XML via webservice e salva localmente
-     * @param usuarioId
+     * @param usuario
      * @return true: houve atualizaçao, false: nao houve atualizaçao
      * @throws java.io.IOException
      */
-    public static boolean criaXmlProjetosSemanaWebservice(int usuarioId, boolean forcarAtualizacao) throws IOException {
+    public static boolean criaXmlProjetosSemanaWebservice(Usuario usuario, boolean forcarAtualizacao) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
         WebService webService = new WebService();
-        webService.setIdUsuario(usuarioId);
+        webService.setUsuario(usuario);
         webService.setForcarAtualizacao(forcarAtualizacao);
         String xml = webService.projetosSemana();
         if (xml != null) {

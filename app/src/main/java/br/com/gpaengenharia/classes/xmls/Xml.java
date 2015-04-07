@@ -54,17 +54,17 @@ public class Xml{
 
     /**
      * grava XML localmente caso haja tarefas novas e retorna os ID's das mesmas
-     * @param usuarioId
+     * @param usuario
      * @param ultimaSincronizacao
      * @return matriz de objetos com id's das tarefas atualizadas e flags de quais XML's atualizar
      * @throws IOException
      */
-    public static Vector<Vector<Object>> sincronizaXmlTudoWebservice(int usuarioId, String ultimaSincronizacao) throws IOException {
+    public static Vector<Vector<Object>> sincronizaXmlTudoWebservice(Usuario usuario, String ultimaSincronizacao) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
         WebService webService = new WebService();
-        webService.setIdUsuario(usuarioId);
+        webService.setUsuario(usuario);
         Object[] respostas = webService.sincroniza(ultimaSincronizacao);
         if (respostas != null) {
             try {
