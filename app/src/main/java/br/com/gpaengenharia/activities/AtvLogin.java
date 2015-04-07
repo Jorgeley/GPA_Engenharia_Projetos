@@ -25,7 +25,6 @@ public class AtvLogin extends Activity{
     public static Usuario usuario; //objeto global
     private AutoCompleteTextView TxtEmail;
     private EditText EdtSenha;
-    private ProgressBar PrgLogin;
     private LoginTask AtaskLogin = null;
 
     @Override
@@ -35,7 +34,7 @@ public class AtvLogin extends Activity{
         Utils.contexto = this;
         this.TxtEmail = (AutoCompleteTextView) findViewById(R.id.email);
         this.EdtSenha = (EditText) findViewById(R.id.password);
-        this.PrgLogin = (ProgressBar) findViewById(R.id.login_progress);
+        this.PrgLogin = (ProgressBar) findViewById(R.id.PRGlogin);
     }
 
     /**
@@ -52,6 +51,7 @@ public class AtvLogin extends Activity{
     /**
      * Faz o login em segundo plano
      */
+    private ProgressBar PrgLogin;
     public class LoginTask extends AsyncTask<Void, Void, Boolean> {
         private final String login;
 
@@ -86,6 +86,11 @@ public class AtvLogin extends Activity{
             if (successo) {
                 /* OUT OF MEMORY!!!
                 WebService.tarefas(usuario.getId());*/
+                Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf("["+usuario.getPerfil()+"]"+usuario.getNome()), Toast.LENGTH_LONG).show();
+                if (usuario.getPerfil().equals("adm"))
+                    startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));
+                else
+                    startActivity(new Intent(AtvLogin.this, AtvColaborador.class));
                 final ServicoTarefas servicoTarefas = new ServicoTarefas();
                 servicoTarefas.setContexto(AtvLogin.this);
                 new AsyncTask<Void, Void, Void>(){
@@ -95,11 +100,6 @@ public class AtvLogin extends Activity{
                         return null;
                     }
                 }.execute();
-                Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf("["+usuario.getPerfil()+"]"+usuario.getNome()), Toast.LENGTH_LONG).show();
-                if (usuario.getPerfil().equals("adm"))
-                    startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));
-                else
-                    startActivity(new Intent(AtvLogin.this, AtvColaborador.class));
             } else {
                 Toast.makeText(AtvLogin.this, "Usuário ou senha inválidos", Toast.LENGTH_LONG).show();
             }

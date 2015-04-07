@@ -22,7 +22,7 @@
         android:text="@string/versao"
         android:id="@+id/textView" />
 
-    <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
+    <ProgressBar android:id="@+id/PRGlogin" style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginBottom="8dp" android:visibility="gone" />
 

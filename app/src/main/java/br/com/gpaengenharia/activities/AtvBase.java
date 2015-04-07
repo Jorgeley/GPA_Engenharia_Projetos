@@ -26,7 +26,6 @@ import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.AdaptadorProjetos;
 import br.com.gpaengenharia.classes.AdaptadorTarefas;
 import br.com.gpaengenharia.classes.Notificacao;
-import br.com.gpaengenharia.classes.ServicoTarefas;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
@@ -56,13 +55,17 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate dos mesmos
      */;
     private ExpandableListView lvProjetos;//listView expansível dos projetosPessoais
+    public static ProgressBar prgTarefas;
     protected void setViews(){
         //Log.i("onCreate", String.valueOf(atualizaListView));
         this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
         this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
         this.lvProjetos.setOnGroupClickListener(this);
         this.lvProjetos.setOnChildClickListener(this);
-        this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefas);
+        if (AtvLogin.usuario.getPerfil().equals("adm"))
+            this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefasAdm);
+        else
+            this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefasColaborador);
         //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
         this.projetosPessoais(false);
     }
@@ -72,6 +75,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      */
     @Override
     protected void onResume() {
+        this.prgTarefas.setVisibility(View.VISIBLE);
         super.onResume();
         if (AtvLogin.usuario == null)
             startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
@@ -244,7 +248,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
             webserviceTarefas.execute('p');
-        }
+        }else
+            this.agrupaTarefas();
     }
 
     public void projetosEquipes(View v){
@@ -258,7 +263,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
             webserviceTarefas.execute('e');
-        }
+        }else
+            this.agrupaTarefas();
     }
 
     public void projetosHoje(View v){
@@ -272,7 +278,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
             webserviceTarefas.execute('h');
-        }
+        }else
+            this.agrupaTarefas();
     }
 
     public void projetosSemana(View v){
@@ -286,7 +293,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.zeraObjetos();
             WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
             webserviceTarefas.execute('s');
-        }
+        }else
+            this.agrupaTarefas();
     }
 
     //usado pelos metodos acima projetosPessoais, projetosEquipes, etc
@@ -374,8 +382,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     /**
      * busca as tarefas via webservice em segundo plano
      */
-    public static ProgressBar prgTarefas;
-    private class WebserviceTarefas extends AsyncTask<Character, Void, Boolean> {
+    public class WebserviceTarefas extends AsyncTask<Character, Void, Boolean> {
         @Override
         protected void onPreExecute() {
             Utils.barraProgresso(AtvBase.this, prgTarefas, true);

@@ -268,6 +268,9 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             case R.id.menu_grava:
                 this.grava();
                 break;
+            case R.id.actionbar_conclui:
+            case R.id.menu_conclui:
+                this.conclui();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -323,6 +326,14 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
             }
         }.execute();
+    }
+
+    /**
+     * solicita conclusao (colaborador) da tarefa
+     * conclui a tarefa (administrador)
+     */
+    private void conclui() {
+
     }
 
     //utilizado pelo UIdget comentarios

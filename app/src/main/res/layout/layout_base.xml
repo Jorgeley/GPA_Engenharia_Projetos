@@ -17,27 +17,15 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:layout_gravity="center_horizontal"
             android:id="@+id/LayoutTarefas">
-
-            <ProgressBar
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/PRGtarefas"
-                android:visibility="gone"
-                android:textAlignment="center"
-                style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large" />
 
             <ExpandableListView
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/LVprojetos"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="false"
-                android:layout_alignParentBottom="true"
                 android:touchscreenBlocksFocus="false"
                 android:groupIndicator="@android:drawable/screen_background_dark_transparent" />
 

@@ -132,7 +132,8 @@ public class ServicoTarefas extends Service implements Runnable{
         Handler refresh = new Handler(Looper.getMainLooper());
         refresh.post(new Runnable() {
             public void run(){
-                AtvBase.prgTarefas.setVisibility(View.GONE);
+                if (AtvBase.prgTarefas != null)
+                    AtvBase.prgTarefas.setVisibility(View.GONE);
             }
         });
     }
