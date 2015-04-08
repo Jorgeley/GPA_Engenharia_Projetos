@@ -76,7 +76,6 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      */
     @Override
     protected void onResume() {
-        this.prgTarefas.setVisibility(View.VISIBLE);
         super.onResume();
         if (AtvLogin.usuario == null)
             startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);

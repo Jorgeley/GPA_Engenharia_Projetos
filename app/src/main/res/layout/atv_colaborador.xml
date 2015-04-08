@@ -14,7 +14,8 @@
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/PRGtarefasColaborador" />
+            android:id="@+id/PRGtarefasColaborador"
+            android:visibility="gone" />
     </LinearLayout>
 
     <include layout="@layout/layout_base"></include>

@@ -130,7 +130,7 @@ public class Xml{
         Projeto projetoAtual = null;
         idsTarefas.clear();
         Set<String> tagsProjeto = new HashSet<String>(Arrays.asList("nome", "responsavel"));
-        Set<String> tagsTarefa = new HashSet<String>(Arrays.asList("nome", "responsavel", "descricao", "comentarios", "vencimento"));
+        Set<String> tagsTarefa = new HashSet<String>(Arrays.asList("nome", "responsavel", "descricao", "comentarios", "vencimento", "status"));
         //enquanto não chega no fim do documento xml...
         while (tipoEvento != XmlPullParser.END_DOCUMENT){
             String nomeNode = parser.getName();
@@ -189,6 +189,9 @@ public class Xml{
                                     }
                                     tarefaAtual.setVencimento(data);
                                     break;
+                                case "status":
+                                    tarefaAtual.setStatus(parser.nextText());
+                                    break;
                             }
                             parser.nextTag();
                             nomeNode = parser.getName();
@@ -232,7 +235,7 @@ public class Xml{
             int tipoEvento = parser.getEventType();
             Projeto projetoAtual = null;
             Set<String> tagsProjeto = new HashSet<String>(Arrays.asList("nome", "responsavel"));
-            Set<String> tagsTarefa = new HashSet<String>(Arrays.asList("nome", "responsavel", "descricao", "comentarios", "vencimento"));
+            Set<String> tagsTarefa = new HashSet<String>(Arrays.asList("nome", "responsavel", "descricao", "comentarios", "vencimento", "status"));
             //enquanto não chega no fim do documento xml...
             while (tipoEvento != XmlPullParser.END_DOCUMENT) {
                 String nomeNode = parser.getName();
@@ -298,6 +301,9 @@ public class Xml{
                                             e.printStackTrace();
                                         }
                                         tarefaAtual.setVencimento(data);
+                                        break;
+                                    case "status":
+                                        tarefaAtual.setStatus(parser.nextText());
                                         break;
                                 }
                                 parser.nextTag();

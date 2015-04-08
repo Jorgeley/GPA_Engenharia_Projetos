@@ -176,6 +176,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
             String data = formatoData.format(this.tarefa.getVencimento());//seta data
             this.EdtVencimento.setText(data);
+            if (this.tarefa.getStatus().equals("concluir"))
+                this.conclui();
         }else{//se nao tiver bundleTarefa entao e nova tarefa e tira o dialogo
             TableRow TrDialogo = (TableRow) findViewById(R.id.TRdialogo);
             TrDialogo.setVisibility(View.GONE);
@@ -342,29 +344,63 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
      * conclui a tarefa (administrador)
      */
     private void conclui() {
-        concluiTarefaWebservice concluiTarefaWebservice = new concluiTarefaWebservice();
-        concluiTarefaWebservice.execute(this.tarefa);
+        AlertDialog.Builder alerta = new AlertDialog.Builder(this);
+        alerta.setMessage("Confirma conclusao?");
+        alerta.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                concluiTarefaWebservice concluiTarefaWebservice = new concluiTarefaWebservice();
+                concluiTarefaWebservice.execute(new Object[]{AtvTarefa.this.tarefa, "sim"});
+            }
+        });
+        if (AtvLogin.usuario.getPerfil().equals("adm")) {
+            alerta.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    concluiTarefaWebservice concluiTarefaWebservice = new concluiTarefaWebservice();
+                    concluiTarefaWebservice.execute(new Object[]{AtvTarefa.this.tarefa, "nao"});
+                }
+            });
+        }else{
+            alerta.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) { }
+            });
+        }
+        alerta.show();
     }
 
-    private class concluiTarefaWebservice extends AsyncTask<Tarefa, Void, String> {
+    private class concluiTarefaWebservice extends AsyncTask<Object, Void, String> {
         @Override
         protected void onPreExecute() {
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
         }
         @Override
-        protected String doInBackground(Tarefa... tarefa) {
+        protected String doInBackground(Object... tarefa) {
             WebService webService = new WebService();
             webService.setUsuario(AtvLogin.usuario);
-            return webService.concluiTarefa(tarefa[0]);
+            return webService.concluiTarefa((Tarefa)tarefa[0], (String)tarefa[1]);
         }
         @Override
         protected void onPostExecute(String resposta) {
-            if (resposta.equals("concluida"))
-                Toast.makeText(AtvTarefa.this, "Tarefa concluida!", Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(AtvTarefa.this, "Foi solicitada a conclusao da tarefa." +
-                        "                       \nAguarde confirmaçao do administrador.", Toast.LENGTH_SHORT)
-                                        .show();
+            switch (resposta) {
+                case "concluida":
+                    Toast.makeText(AtvTarefa.this, "Tarefa concluida!", Toast.LENGTH_SHORT).show();
+                    break;
+                case "concluir":
+                    Toast.makeText( AtvTarefa.this,
+                                    "Foi solicitada a conclusao da tarefa.\n"
+                                            + "Aguarde confirmaçao do administrador.",
+                                    Toast.LENGTH_SHORT)
+                                .show();
+                    break;
+                case "rejeitada":
+                    Toast.makeText( AtvTarefa.this,
+                                    "O responsavel pela tarefa sera avisado da pendencia.",
+                                    Toast.LENGTH_SHORT)
+                                .show();
+                    break;
+            }
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
             AtvTarefa.this.finish();
         }

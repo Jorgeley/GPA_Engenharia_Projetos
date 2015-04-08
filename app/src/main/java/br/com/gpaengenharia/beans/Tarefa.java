@@ -4,12 +4,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.Date;
 
-public class Tarefa implements Comparable, Parcelable {
+public class Tarefa implements Comparable, Parcelable{
     private Integer id;
     private String nome;
     private String descricao;
     private String comentario;
     private Date vencimento;
+    private String status;
     private Usuario responsavel;
     private Projeto projeto;
 
@@ -53,6 +54,14 @@ public class Tarefa implements Comparable, Parcelable {
         this.vencimento = vencimento;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Usuario getResponsavel() {
         return responsavel;
     }
@@ -91,6 +100,7 @@ public class Tarefa implements Comparable, Parcelable {
         comentario = in.readString();
         long tmpVencimento = in.readLong();
         vencimento = tmpVencimento != -1 ? new Date(tmpVencimento) : null;
+        status = in.readString();
         responsavel = (Usuario) in.readValue(Usuario.class.getClassLoader());
         projeto = (Projeto) in.readValue(Projeto.class.getClassLoader());
     }
@@ -112,6 +122,7 @@ public class Tarefa implements Comparable, Parcelable {
         dest.writeString(descricao);
         dest.writeString(comentario);
         dest.writeLong(vencimento != null ? vencimento.getTime() : -1L);
+        dest.writeString(status);
         dest.writeValue(responsavel);
         dest.writeValue(projeto);
     }

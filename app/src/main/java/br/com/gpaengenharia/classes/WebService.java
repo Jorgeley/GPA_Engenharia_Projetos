@@ -142,19 +142,26 @@ public class WebService{
     /**
      * Conclui (administrador) ou solicita conclusao (colaborador) da tarefa
      * @param tarefa
+     * @param confirma
      * @return 'concluida' ou 'concluir'
      */
-    public String concluiTarefa(Tarefa tarefa) {
+    public String concluiTarefa(Tarefa tarefa, String confirma) {
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "concluiTarefa");
         //setando parametros do método do webservice 'projetosPessoais'
         requisicao.addProperty(this.getPropertyInfoUsuario());
-        //setando parametro 'idTarefa' do método do webservice 'gravacomentario'
+        //setando parametro 'idTarefa' do método do webservice 'concluiTarefa'
         PropertyInfo idTarefaWebservice = new PropertyInfo();
         idTarefaWebservice.setName("idTarefa");
         idTarefaWebservice.setValue(tarefa.getId());
         idTarefaWebservice.setType(Integer.class);
         requisicao.addProperty(idTarefaWebservice);
+        //setando parametro 'confirma' do método do webservice 'concluiTarefa'
+        PropertyInfo confirmaWebservice = new PropertyInfo();
+        confirmaWebservice.setName("confirma");
+        confirmaWebservice.setValue(confirma);
+        confirmaWebservice.setType(String.class);
+        requisicao.addProperty(confirmaWebservice);
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);

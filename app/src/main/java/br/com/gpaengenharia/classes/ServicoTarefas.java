@@ -79,9 +79,16 @@ public class ServicoTarefas extends Service implements Runnable{
                             bundleTarefa.putParcelable("tarefa", tarefa);
                             Intent atvTarefa = new Intent(this.getContexto(), AtvTarefa.class);
                             atvTarefa.putExtras(bundleTarefa);
+                            String msg = null;
+                            switch (tarefa.getStatus()){
+                                case "aberta":      msg = " [atualizada]"; break;
+                                case "concluir":    msg = " [confirmar conclusao?]"; break;
+                                case "rejeitada":   msg = " [rejeitada conclusao!]"; break;
+                                case "concluida":   msg = " [concluida!]"; break;
+                            }
                             Notificacao.create(this.getContexto(),
                                     "GPA",
-                                    tarefa.getNome() + " atualizada",
+                                    tarefa.getNome() + msg,
                                     R.drawable.logo_notificacao,
                                     tarefa.getId(), //se for igual os extras nao atualizam
                                     atvTarefa
@@ -91,34 +98,36 @@ public class ServicoTarefas extends Service implements Runnable{
                         }
                     }
                 }
-                //faz a atualizaçao dos XML's baseando-se nas flags enviadas pelo webservice
-                XmlTarefasPessoais xmlTarefasPessoais = null;
-                XmlTarefasEquipe xmlTarefasEquipe = null;
-                XmlTarefasHoje xmlTarefasHoje = null;
-                XmlTarefasSemana xmlTarefasSemana = null;
-                //indice [1][0] contem flag para sincronizar XML tarefas pessoais
-                Boolean sincronizaPessoais = (Boolean) respostasSincroniza.get(1).get(0);
-                //indice [1][1] contem flag para sincronizar XML tarefas equipes
-                Boolean sincronizaEquipes = (Boolean) respostasSincroniza.get(1).get(1);
-                //indice [1][2] contem flag para sincronizar XML tarefas hoje
-                Boolean sincronizaHoje = (Boolean) respostasSincroniza.get(1).get(2);
-                //indice [1][3] contem flag para sincronizar XML tarefas semana
-                Boolean sincronizaSemana = (Boolean) respostasSincroniza.get(1).get(3);
-                if (sincronizaPessoais) {
-                    xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
-                    xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
-                }
-                if (sincronizaEquipes) {
-                    xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
-                    xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
-                }
-                if (sincronizaHoje) {
-                    xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
-                    xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
-                }
-                if (sincronizaSemana) {
-                    xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
-                    xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
+                if (respostasSincroniza.get(1) != null) {
+                    //faz a atualizaçao dos XML's baseando-se nas flags enviadas pelo webservice
+                    XmlTarefasPessoais xmlTarefasPessoais = null;
+                    XmlTarefasEquipe xmlTarefasEquipe = null;
+                    XmlTarefasHoje xmlTarefasHoje = null;
+                    XmlTarefasSemana xmlTarefasSemana = null;
+                    //indice [1][0] contem flag para sincronizar XML tarefas pessoais
+                    Boolean sincronizaPessoais = (Boolean) respostasSincroniza.get(1).get(0);
+                    //indice [1][1] contem flag para sincronizar XML tarefas equipes
+                    Boolean sincronizaEquipes = (Boolean) respostasSincroniza.get(1).get(1);
+                    //indice [1][2] contem flag para sincronizar XML tarefas hoje
+                    Boolean sincronizaHoje = (Boolean) respostasSincroniza.get(1).get(2);
+                    //indice [1][3] contem flag para sincronizar XML tarefas semana
+                    Boolean sincronizaSemana = (Boolean) respostasSincroniza.get(1).get(3);
+                    if (sincronizaPessoais) {
+                        xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
+                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
+                    }
+                    if (sincronizaEquipes) {
+                        xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
+                        xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
+                    }
+                    if (sincronizaHoje) {
+                        xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
+                        xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
+                    }
+                    if (sincronizaSemana) {
+                        xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
+                        xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
+                    }
                 }
             }
         } catch (ConnectException e) {
