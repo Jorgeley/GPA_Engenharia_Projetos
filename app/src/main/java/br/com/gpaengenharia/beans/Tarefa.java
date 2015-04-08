@@ -11,7 +11,7 @@ public class Tarefa implements Comparable, Parcelable{
     private String comentario;
     private Date vencimento;
     private String status;
-    private Usuario responsavel;
+    private Usuario usuario;
     private Projeto projeto;
 
     public Integer getId() {
@@ -62,12 +62,12 @@ public class Tarefa implements Comparable, Parcelable{
         this.status = status;
     }
 
-    public Usuario getResponsavel() {
-        return responsavel;
+    public Usuario getUsuario() {
+        return usuario;
     }
 
-    public void setResponsavel(Usuario responsavel) {
-        this.responsavel = responsavel;
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     public Projeto getProjeto() {
@@ -101,7 +101,7 @@ public class Tarefa implements Comparable, Parcelable{
         long tmpVencimento = in.readLong();
         vencimento = tmpVencimento != -1 ? new Date(tmpVencimento) : null;
         status = in.readString();
-        responsavel = (Usuario) in.readValue(Usuario.class.getClassLoader());
+        usuario = (Usuario) in.readValue(Usuario.class.getClassLoader());
         projeto = (Projeto) in.readValue(Projeto.class.getClassLoader());
     }
 
@@ -123,7 +123,7 @@ public class Tarefa implements Comparable, Parcelable{
         dest.writeString(comentario);
         dest.writeLong(vencimento != null ? vencimento.getTime() : -1L);
         dest.writeString(status);
-        dest.writeValue(responsavel);
+        dest.writeValue(usuario);
         dest.writeValue(projeto);
     }
 

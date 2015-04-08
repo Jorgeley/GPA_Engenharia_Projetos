@@ -1,6 +1,7 @@
 package br.com.gpaengenharia.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,8 +13,16 @@ import br.com.gpaengenharia.R;
 public class AtvUsuarios extends Activity {
 
     @Override
+    protected void onRestart() {
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
         setContentView(R.layout.atv_usuarios);
     }
 

@@ -1,7 +1,6 @@
 package br.com.gpaengenharia.classes;
 
 import android.os.Parcel;
-import android.util.Log;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
@@ -411,7 +410,7 @@ public class WebService{
         requisicao.addProperty(projeto);
         PropertyInfo responsavel = new PropertyInfo();
         responsavel.setName("responsavel");
-        responsavel.setValue(tarefa.getResponsavel().getId());
+        responsavel.setValue(tarefa.getUsuario().getId());
         responsavel.setType(Integer.class);
         requisicao.addProperty(responsavel);
         //evelopando a requisição

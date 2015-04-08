@@ -42,8 +42,17 @@ public class AtvProjeto extends FragmentActivity implements Listener, OnItemSele
     private Spinner SpnEquipe;
     private ProgressBar PrgProjeto;
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
         setContentView(R.layout.atv_projeto);
         Utils.contexto = this;
         this.EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);

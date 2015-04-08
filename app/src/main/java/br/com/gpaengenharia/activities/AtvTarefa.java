@@ -55,8 +55,6 @@ import br.com.gpaengenharia.classes.xmls.XmlUsuario;
  * Activity de gerenciamento de tarefas
  */
 public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelectedListener, OnClickListener{
-    private Projeto projeto; //bean
-    private Tarefa tarefa; //bean
     private EditText EdtTarefa;
     private EditText EdtDescricao;
     private EditText EdtDialogo;
@@ -64,12 +62,19 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     private Spinner SpnResponsavel;
     private Spinner SpnProjeto;
     private ProgressBar PrgTarefa;
-    private Usuario usuario;
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
         setContentView(R.layout.atv_tarefa);
-        Utils.contexto = this;
         this.EdtTarefa = (EditText) findViewById(R.id.EDTtarefa);
         this.EdtDescricao = (EditText) findViewById(R.id.EDTdescricao);
         this.EdtDialogo = (EditText) findViewById(R.id.EDTdialogo);
@@ -78,7 +83,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         this.SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
         this.SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
         this.PrgTarefa = (ProgressBar) findViewById(R.id.PRGtarefa);
-        //caso usuário seja administrador, adiciona botões de administração no layout
         if (AtvLogin.usuario != null) {
             this.SpnProjeto.setOnItemSelectedListener(this);
             if (this.SpnProjeto.getAdapter() == null){
@@ -118,7 +122,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             }else
                 this.SpnProjeto.setSelection(((ArrayAdapter) this.SpnProjeto.getAdapter()).getPosition(AtvTarefa.this.getProjeto()));
             if (AtvLogin.usuario.getPerfil().equals("adm") ) {
-                addBotoes();
+                addBotoes();//caso usuário seja administrador, adiciona botões de administração no layout
                 this.SpnResponsavel.setOnItemSelectedListener(this);
                 if (this.SpnResponsavel.getAdapter() == null) {
                     /**
@@ -149,13 +153,13 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                                 public void run() {
                                     SpnResponsavel.setAdapter(new ArrayAdapter<>(AtvTarefa.this, android.R.layout.simple_spinner_item, usuarios));
                                     if (AtvTarefa.this.getTarefa() != null)
-                                        SpnResponsavel.setSelection(((ArrayAdapter) SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getResponsavel()));
+                                        SpnResponsavel.setSelection(((ArrayAdapter) SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getUsuario()));
                                 }
                             });
                         }
                     }.execute();
                 }else
-                    this.SpnResponsavel.setSelection(((ArrayAdapter) this.SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getResponsavel()));
+                    this.SpnResponsavel.setSelection(((ArrayAdapter) this.SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getUsuario()));
             }else
                 this.SpnResponsavel.setVisibility(View.GONE);
         }
@@ -168,15 +172,15 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         if (bundleTarefa != null) {
             this.setProjeto((Projeto) bundleTarefa.getParcelable("projeto"));
             this.setTarefa((Tarefa) bundleTarefa.getParcelable("tarefa"));
-            this.EdtTarefa.setText(this.tarefa.getNome());
+            this.EdtTarefa.setText(this.getTarefa().getNome());
             //SpnResponsavel.setAdapter(Utils.setAdaptador(this, this.responsaveis));
-            this.EdtDescricao.setText(Html.fromHtml(this.tarefa.getDescricao()));
-            if (this.tarefa.getComentario()!=null)
-                this.EdtDialogo.setText(Html.fromHtml(this.tarefa.getComentario()));
+            this.EdtDescricao.setText(Html.fromHtml(this.getTarefa().getDescricao()));
+            if (this.getTarefa().getComentario()!=null)
+                this.EdtDialogo.setText(Html.fromHtml(this.getTarefa().getComentario()));
             SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy", new Locale("pt", "BR"));
-            String data = formatoData.format(this.tarefa.getVencimento());//seta data
+            String data = formatoData.format(this.getTarefa().getVencimento());//seta data
             this.EdtVencimento.setText(data);
-            if (this.tarefa.getStatus().equals("concluir"))
+            if (this.getTarefa().getStatus().equals("concluir"))
                 this.conclui();
         }else{//se nao tiver bundleTarefa entao e nova tarefa e tira o dialogo
             TableRow TrDialogo = (TableRow) findViewById(R.id.TRdialogo);
@@ -185,6 +189,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         super.onResume();
     }
 
+    private Projeto projeto; //bean
     public Projeto getProjeto() {
         return this.projeto;
     }
@@ -193,6 +198,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         this.projeto = projeto;
     }
 
+    private Tarefa tarefa; //bean
     public Tarefa getTarefa() {
         return this.tarefa;
     }
@@ -255,10 +261,18 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.atv_tarefa, menu);
+        if ( this.getTarefa()!=null
+            && this.getTarefa().getUsuario()!=null
+            && this.getTarefa().getProjeto()!=null
+            && this.getTarefa().getProjeto().getUsuario()!=null)
+            if ( this.getTarefa().getUsuario().equals(AtvLogin.usuario)
+                && this.getTarefa().getProjeto().getUsuario().equals(AtvLogin.usuario) )
+                    menu.findItem(R.id.actionbar_exclui).setVisible(true);
+            else
+                    menu.findItem(R.id.actionbar_exclui).setVisible(false);
         return true;
     }
 
-    View layoutComentario = null;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
@@ -281,6 +295,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     /**
      * grava tarefa via webservice
      */
+    private Usuario usuario;
     private void grava(){
         String nome = ((EditText) findViewById(R.id.EDTtarefa)).getText().toString();
         String descricao = ((EditText) findViewById(R.id.EDTdescricao)).getText().toString();
@@ -301,9 +316,9 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         tarefa.setDescricao(descricao);
         tarefa.setVencimento(vencimento);
         if (this.usuario != null)
-            tarefa.setResponsavel(this.usuario);
+            tarefa.setUsuario(this.usuario);
         else
-            tarefa.setResponsavel(AtvLogin.usuario);
+            tarefa.setUsuario(AtvLogin.usuario);
         tarefa.setProjeto(this.projeto);
         gravaTarefaWebservice gravaTarefaWebservice = new gravaTarefaWebservice();
         gravaTarefaWebservice.execute(tarefa);
@@ -370,6 +385,9 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         alerta.show();
     }
 
+    /**
+     * chama metodo do webservice para concluir tarefa em segundo plano
+     */
     private class concluiTarefaWebservice extends AsyncTask<Object, Void, String> {
         @Override
         protected void onPreExecute() {
@@ -411,6 +429,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         this.novoComentario();
     }
 
+    View layoutComentario = null;
     private void novoComentario(){
         LayoutInflater factory = LayoutInflater.from(this);
         this.layoutComentario = factory.inflate(R.layout.comentario, null);
@@ -468,19 +487,19 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 AtvBase.atualizarTarefaId = AtvTarefa.this.tarefa.getId();
                 Vector<Boolean> flagsSincroniza = (Vector<Boolean>) resposta[1];
                 try { //grava localmente o Xml atualizado resultante do webservice
-                    if (flagsSincroniza.get(0)) {
+                    if (flagsSincroniza.get(0)) {//atualizar tarefas pessoais
                         XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
                         xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
                     }
-                    if (flagsSincroniza.get(1)) {
+                    if (flagsSincroniza.get(1)) {//atualizar tarefas equipes
                         XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
                         xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
                     }
-                    if (flagsSincroniza.get(2)) {
+                    if (flagsSincroniza.get(2)) {//atualizar tarefas hoje
                         XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
                         xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
                     }
-                    if (flagsSincroniza.get(3)) {
+                    if (flagsSincroniza.get(3)) {//atualizar tarefas semana
                         XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
                         xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
                     }

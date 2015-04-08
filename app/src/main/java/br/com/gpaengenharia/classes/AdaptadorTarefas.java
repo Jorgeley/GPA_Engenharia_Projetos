@@ -3,11 +3,9 @@ package br.com.gpaengenharia.classes;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.accessibility.CaptioningManager;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
@@ -17,10 +15,8 @@ import java.util.Locale;
 import java.util.TreeMap;
 
 import br.com.gpaengenharia.R;
-import br.com.gpaengenharia.activities.AtvBase;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
-import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
 
 /**
 Adaptador do listView expansível
@@ -102,7 +98,7 @@ public class AdaptadorTarefas extends BaseExpandableListAdapter {
             String data = formatoData.format(tarefa.getVencimento());//seta data
             String tarefaHTML = "<font face='sans-serif' color='#FFFFFF'>" + tarefa.getNome() + "</font>";
             //if (AtvBase.provedorDados instanceof ProvedorDadosTarefasEquipe)
-                tarefaHTML += " <small><font face='sans-serif-thin' color='#E8E8E8'><i>("+tarefa.getResponsavel()+")</i></font></small>";
+                tarefaHTML += " <small><font face='sans-serif-thin' color='#E8E8E8'><i>("+tarefa.getUsuario()+")</i></font></small>";
             tarefaHTML +="<br><small><font face='sans-serif-thin' color='#EEEED1'><i>" + projeto.getNome() + " [" + data + "]</i></font></small>";
             Spanned projetoString = Html.fromHtml(tarefaHTML);
             parentTextView.setText(projetoString);

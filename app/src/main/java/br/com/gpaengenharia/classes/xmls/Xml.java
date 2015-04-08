@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
-
 import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
@@ -143,8 +142,16 @@ public class Xml{
                         nomeNode = parser.getName();
                         while (tagsProjeto.contains(nomeNode)) {
                             switch (nomeNode) {
-                                case "nome": projetoAtual.setNome(parser.nextText()); break;
-                                case "responsavel": projetoAtual.setResponsavel(parser.nextText()); break;
+                                case "nome":
+                                    projetoAtual.setNome(parser.nextText());
+                                    break;
+                                case "responsavel":
+                                    Usuario responsavel = new Usuario(Parcel.obtain());
+                                    responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
+                                    responsavel.setNome(parser.nextText());
+                                    projetoAtual.setUsuario(responsavel);
+                                    //projetoAtual.setUsuario(parser.nextText());
+                                    break;
                             }
                             parser.nextTag();
                             nomeNode = parser.getName();
@@ -163,7 +170,7 @@ public class Xml{
                                     Usuario responsavel = new Usuario(Parcel.obtain());
                                     responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
                                     responsavel.setNome(parser.nextText());
-                                    tarefaAtual.setResponsavel(responsavel);
+                                    tarefaAtual.setUsuario(responsavel);
                                     break;
                                 case "descricao" : tarefaAtual.setDescricao(parser.nextText()); break;
                                 case "comentarios" :
@@ -196,6 +203,7 @@ public class Xml{
                             parser.nextTag();
                             nomeNode = parser.getName();
                         }
+                        tarefaAtual.setProjeto(projetoAtual);
                         tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                     }
                     break;
@@ -252,8 +260,11 @@ public class Xml{
                                         projetoAtual.setNome(parser.nextText());
                                         break;
                                     case "responsavel":
-                                        //responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
-                                        projetoAtual.setResponsavel(parser.nextText());
+                                        Usuario responsavel = new Usuario(Parcel.obtain());
+                                        responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
+                                        responsavel.setNome(parser.nextText());
+                                        projetoAtual.setUsuario(responsavel);
+                                        //projetoAtual.setUsuario(parser.nextText());
                                         break;
                                 }
                                 parser.nextTag();
@@ -274,7 +285,7 @@ public class Xml{
                                         Usuario responsavel = new Usuario(Parcel.obtain());
                                         responsavel.setId(Integer.valueOf(parser.getAttributeValue(0)));
                                         responsavel.setNome(parser.nextText());
-                                        tarefaAtual.setResponsavel(responsavel);
+                                        tarefaAtual.setUsuario(responsavel);
                                         break;
                                     case "descricao":
                                         tarefaAtual.setDescricao(parser.nextText());
@@ -309,6 +320,7 @@ public class Xml{
                                 parser.nextTag();
                                 nomeNode = parser.getName();
                             }
+                            tarefaAtual.setProjeto(projetoAtual);
                             tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                         }
                         break;

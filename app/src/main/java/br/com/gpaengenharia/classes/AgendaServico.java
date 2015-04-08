@@ -12,14 +12,14 @@ import java.util.Calendar;
  * das tarefas via webservice de 10 em 10 minutos
  */
 public class AgendaServico extends BroadcastReceiver {
-    private final static int intervaloSincronismo = 600000; //milisegundos: 10min
+    private final static int intervaloSincronismo = 60000; //milisegundos: 1minuto
 
     @Override
     public void onReceive(Context context, Intent intent) {
         //define o momento para disparar o sincronismo
         Calendar calendario = Calendar.getInstance();
         calendario.setTimeInMillis(System.currentTimeMillis()); //pega o tempo atual
-        calendario.add(Calendar.MINUTE, 10); //10 minutos depois do tempo atual
+        calendario.add(Calendar.MINUTE, 1); //1 minuto depois do tempo atual
         //alarme que disparara o sincronismo
         AlarmManager alarme = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         long tempo = calendario.getTimeInMillis();

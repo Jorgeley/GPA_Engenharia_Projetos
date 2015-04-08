@@ -40,6 +40,20 @@ import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasSemana;
  */
 public abstract class AtvBase extends Activity implements OnGroupClickListener, OnChildClickListener{
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
+    }
+
     /**
      * desliza o layout dashboard da esquerda para a direita
      * @return null, pois não é pra voltar na activity anterior

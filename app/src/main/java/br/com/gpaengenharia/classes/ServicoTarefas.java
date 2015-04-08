@@ -33,7 +33,7 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasSemana;
 
 /**
- * serviço agendado pela classe AgendaServico para ser executado de 10 em 10 minutos
+ * serviço agendado pela classe AgendaServico para ser executado a cada minuto
  * verifica via webservice se houve atualizaçoes nas tarefas do usuario, se sim, baixa
  * XML atualizado e cria notificaçao para cada tarefa atualizada
  */
@@ -98,12 +98,8 @@ public class ServicoTarefas extends Service implements Runnable{
                         }
                     }
                 }
+                //faz a atualizaçao dos XML's baseando-se nas flags enviadas pelo webservice
                 if (respostasSincroniza.get(1) != null) {
-                    //faz a atualizaçao dos XML's baseando-se nas flags enviadas pelo webservice
-                    XmlTarefasPessoais xmlTarefasPessoais = null;
-                    XmlTarefasEquipe xmlTarefasEquipe = null;
-                    XmlTarefasHoje xmlTarefasHoje = null;
-                    XmlTarefasSemana xmlTarefasSemana = null;
                     //indice [1][0] contem flag para sincronizar XML tarefas pessoais
                     Boolean sincronizaPessoais = (Boolean) respostasSincroniza.get(1).get(0);
                     //indice [1][1] contem flag para sincronizar XML tarefas equipes
@@ -113,19 +109,19 @@ public class ServicoTarefas extends Service implements Runnable{
                     //indice [1][3] contem flag para sincronizar XML tarefas semana
                     Boolean sincronizaSemana = (Boolean) respostasSincroniza.get(1).get(3);
                     if (sincronizaPessoais) {
-                        xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
+                        XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
                         xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
                     }
                     if (sincronizaEquipes) {
-                        xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
+                        XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(this.getContexto());
                         xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
                     }
                     if (sincronizaHoje) {
-                        xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
+                        XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(this.getContexto());
                         xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
                     }
                     if (sincronizaSemana) {
-                        xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
+                        XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
                         xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
                     }
                 }
