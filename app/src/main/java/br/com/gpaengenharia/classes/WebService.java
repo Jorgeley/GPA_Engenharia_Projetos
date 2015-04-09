@@ -1,12 +1,15 @@
 package br.com.gpaengenharia.classes;
 
 import android.os.Parcel;
+import android.util.Log;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
 import br.com.gpaengenharia.activities.AtvLogin;
@@ -83,11 +86,17 @@ public class WebService{
         try {//faz a chamada do método 'autentica' do webservice
             androidHttpTransport.call(SOAP_ACTION + "autentica", envelope);
             //pegando a resposta
-            Vector<SoapObject> resposta = (Vector<SoapObject>) envelope.getResponse();
-            //Log.i("usuario ", String.valueOf(resposta));
-            usuario.setId((Integer) resposta.get(0).getPrimitiveProperty("id"));
-            usuario.setNome((String) resposta.get(0).getPrimitiveProperty("nome"));
-            usuario.setPerfil((String) resposta.get(1).getPrimitiveProperty("perfil"));
+            Vector<Vector<Vector<Object>>> resposta = (Vector<Vector<Vector<Object>>>) envelope.getResponse();
+            usuario.setId((Integer) resposta.get(0).get(0).get(0));
+            usuario.setNome((String) resposta.get(0).get(0).get(1));
+            usuario.setEquipes(new HashSet<Equipe>());
+            Vector<Vector<Object>> equipesObjeto = resposta.get(1);
+            for (Vector<Object> equipeObjeto : equipesObjeto) {
+                Equipe equipe = new Equipe(Parcel.obtain());
+                equipe.setId((Integer) equipeObjeto.get(0));
+                equipe.setNome((String) equipeObjeto.get(1));
+                usuario.getEquipes().add(equipe);
+            }
         } catch (Exception e) {
             //se não conseguir autenticar retorna null
             usuario = null;

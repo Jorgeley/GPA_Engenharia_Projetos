@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -11,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import br.com.gpaengenharia.R;
+import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Usuario;
 import br.com.gpaengenharia.classes.AgendaServico;
 import br.com.gpaengenharia.classes.ServicoTarefas;
@@ -86,11 +88,15 @@ public class AtvLogin extends Activity{
             if (successo) {
                 /* OUT OF MEMORY!!!
                 WebService.tarefas(usuario.getId());*/
-                Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf("["+usuario.getPerfil()+"]"+usuario.getNome()), Toast.LENGTH_LONG).show();
-                if (usuario.getPerfil().equals("adm"))
+                Equipe equipeAdm = new Equipe(Parcel.obtain());
+                equipeAdm.setId(1);
+                if (usuario.getEquipes().contains(equipeAdm)) {
+                    usuario.setPerfil("adm");
                     startActivity(new Intent(AtvLogin.this, AtvAdministrador.class));
-                else
+                }else {
+                    usuario.setPerfil("col");
                     startActivity(new Intent(AtvLogin.this, AtvColaborador.class));
+                }
                 final ServicoTarefas servicoTarefas = new ServicoTarefas();
                 servicoTarefas.setContexto(AtvLogin.this);
                 new AsyncTask<Void, Void, Void>(){
@@ -100,6 +106,7 @@ public class AtvLogin extends Activity{
                         return null;
                     }
                 }.execute();
+                Toast.makeText(AtvLogin.this, "Bem vindo "+String.valueOf("["+usuario.getPerfil()+"]"+usuario.getNome()), Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(AtvLogin.this, "Usuário ou senha inválidos", Toast.LENGTH_LONG).show();
             }

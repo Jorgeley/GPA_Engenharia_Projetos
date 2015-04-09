@@ -81,6 +81,7 @@ public class Projeto implements Comparable, Parcelable {
         return this.nome;
     }
 
+
     public Projeto(Parcel in) {
         id = in.readByte() == 0x00 ? null : in.readInt();
         nome = in.readString();

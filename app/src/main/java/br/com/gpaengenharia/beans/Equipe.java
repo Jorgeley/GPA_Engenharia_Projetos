@@ -2,6 +2,7 @@ package br.com.gpaengenharia.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 public class Equipe implements Comparable, Parcelable{
     private int id;
@@ -31,6 +32,11 @@ public class Equipe implements Comparable, Parcelable{
     @Override
     public boolean equals(Object another) {
         return (this.id == ((Equipe)another).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 
     @Override

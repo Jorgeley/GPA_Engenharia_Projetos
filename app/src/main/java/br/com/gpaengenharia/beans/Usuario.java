@@ -2,14 +2,17 @@ package br.com.gpaengenharia.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Bean Usuario
  */
-public class Usuario implements Parcelable {
+public class Usuario implements Comparable, Parcelable {
     private int id;
     private String nome;
-    private String perfil;
+    private String perfil;//TODO arumar esse gato
+    private Set<Equipe> equipes;
 
     public int getId() {
         return id;
@@ -35,20 +38,34 @@ public class Usuario implements Parcelable {
         this.perfil = perfil;
     }
 
+    public Set<Equipe> getEquipes() {
+        return equipes;
+    }
+
     @Override
     public String toString() {
         return this.nome;
+    }
+    @Override
+    public boolean equals(Object o) {
+        return (this.id == ((Usuario)o).getId());
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (this.id < ((Usuario)o).getId())
+            return -1;
+        else if (this.id == ((Usuario)o).getId())
+            return 0;
+        else
+            return 1;
     }
 
     public Usuario(Parcel in) {
         id = in.readInt();
         nome = in.readString();
         perfil = in.readString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return (this.id == ((Usuario)o).getId());
+        equipes = (Set) in.readValue(Set.class.getClassLoader());
     }
 
     @Override
@@ -61,6 +78,7 @@ public class Usuario implements Parcelable {
         dest.writeInt(id);
         dest.writeString(nome);
         dest.writeString(perfil);
+        dest.writeValue(equipes);
     }
 
     @SuppressWarnings("unused")
@@ -75,4 +93,8 @@ public class Usuario implements Parcelable {
             return new Usuario[size];
         }
     };
+
+    public void setEquipes(HashSet<Equipe> equipes) {
+        this.equipes = equipes;
+    }
 }

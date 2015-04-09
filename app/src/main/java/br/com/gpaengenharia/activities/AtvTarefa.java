@@ -288,6 +288,10 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             case R.id.menu_conclui:
                 this.conclui();
                 break;
+            case R.id.actionbar_exclui:
+            case R.id.menu_exclui:
+                this.exclui();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -382,6 +386,21 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 public void onClick(DialogInterface dialogInterface, int i) { }
             });
         }
+        alerta.show();
+    }
+
+    private void exclui(){
+        AlertDialog.Builder alerta = new AlertDialog.Builder(this);
+        alerta.setMessage("Confirma exclusao? (nao podera ser desfeito)");
+        alerta.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        alerta.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) { }
+        });
         alerta.show();
     }
 

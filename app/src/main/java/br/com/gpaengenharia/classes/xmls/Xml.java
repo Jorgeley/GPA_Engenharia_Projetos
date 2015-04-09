@@ -128,7 +128,7 @@ public class Xml{
         int tipoEvento = parser.getEventType();
         Projeto projetoAtual = null;
         idsTarefas.clear();
-        Set<String> tagsProjeto = new HashSet<String>(Arrays.asList("nome", "responsavel"));
+        Set<String> tagsProjeto = new HashSet<String>(Arrays.asList("nome", "equipe", "responsavel"));
         Set<String> tagsTarefa = new HashSet<String>(Arrays.asList("nome", "responsavel", "descricao", "comentarios", "vencimento", "status"));
         //enquanto não chega no fim do documento xml...
         while (tipoEvento != XmlPullParser.END_DOCUMENT){
@@ -144,6 +144,12 @@ public class Xml{
                             switch (nomeNode) {
                                 case "nome":
                                     projetoAtual.setNome(parser.nextText());
+                                    break;
+                                case "equipe":
+                                    Equipe equipe = new Equipe(Parcel.obtain());
+                                    equipe.setId(Integer.valueOf(parser.getAttributeValue(0)));
+                                    equipe.setNome(parser.nextText());
+                                    projetoAtual.setEquipe(equipe);
                                     break;
                                 case "responsavel":
                                     Usuario responsavel = new Usuario(Parcel.obtain());
@@ -242,7 +248,7 @@ public class Xml{
             tarefas = new ArrayList<Tarefa>();
             int tipoEvento = parser.getEventType();
             Projeto projetoAtual = null;
-            Set<String> tagsProjeto = new HashSet<String>(Arrays.asList("nome", "responsavel"));
+            Set<String> tagsProjeto = new HashSet<String>(Arrays.asList("nome", "equipe", "responsavel"));
             Set<String> tagsTarefa = new HashSet<String>(Arrays.asList("nome", "responsavel", "descricao", "comentarios", "vencimento", "status"));
             //enquanto não chega no fim do documento xml...
             while (tipoEvento != XmlPullParser.END_DOCUMENT) {
@@ -258,6 +264,12 @@ public class Xml{
                                 switch (nomeNode) {
                                     case "nome":
                                         projetoAtual.setNome(parser.nextText());
+                                        break;
+                                    case "equipe":
+                                        Equipe equipe = new Equipe(Parcel.obtain());
+                                        equipe.setId(Integer.valueOf(parser.getAttributeValue(0)));
+                                        equipe.setNome(parser.nextText());
+                                        projetoAtual.setEquipe(equipe);
                                         break;
                                     case "responsavel":
                                         Usuario responsavel = new Usuario(Parcel.obtain());

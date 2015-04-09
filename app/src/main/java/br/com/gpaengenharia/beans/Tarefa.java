@@ -2,6 +2,8 @@ package br.com.gpaengenharia.beans;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
+
 import java.util.Date;
 
 public class Tarefa implements Comparable, Parcelable{
