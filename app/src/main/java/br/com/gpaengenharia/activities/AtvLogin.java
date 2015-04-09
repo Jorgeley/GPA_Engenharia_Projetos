@@ -25,6 +25,7 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
  */
 public class AtvLogin extends Activity{
     public static Usuario usuario; //objeto global
+    public static Equipe equipeAdm;
     private AutoCompleteTextView TxtEmail;
     private EditText EdtSenha;
     private LoginTask AtaskLogin = null;
@@ -84,11 +85,10 @@ public class AtvLogin extends Activity{
         @Override
         protected void onPostExecute(final Boolean successo) {
             AtaskLogin = null;
-            Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
             if (successo) {
                 /* OUT OF MEMORY!!!
                 WebService.tarefas(usuario.getId());*/
-                Equipe equipeAdm = new Equipe(Parcel.obtain());
+                equipeAdm = new Equipe(Parcel.obtain());
                 equipeAdm.setId(1);
                 if (usuario.getEquipes().contains(equipeAdm)) {
                     usuario.setPerfil("adm");
@@ -110,6 +110,7 @@ public class AtvLogin extends Activity{
             } else {
                 Toast.makeText(AtvLogin.this, "Usuário ou senha inválidos", Toast.LENGTH_LONG).show();
             }
+            Utils.barraProgresso(AtvLogin.this, PrgLogin, false);
         }
     }
 

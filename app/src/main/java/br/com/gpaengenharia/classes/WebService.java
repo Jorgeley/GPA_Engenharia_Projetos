@@ -438,6 +438,31 @@ public class WebService{
         return resposta;
     }
 
+    public Vector<Boolean> excluiTarefa(Tarefa tarefa){
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "excluiTarefa");
+        PropertyInfo idTarefa = new PropertyInfo();
+        idTarefa.setName("idTarefa");
+        idTarefa.setValue(tarefa.getId());
+        idTarefa.setType(Integer.class);
+        requisicao.addProperty(idTarefa);
+        requisicao.addProperty(getPropertyInfoUsuario());
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        Vector<Boolean> resposta = null;
+        try {//faz a chamada do método 'gravatarefa' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "excluiTarefa", envelope);
+            //pegando a resposta
+            resposta = (Vector<Boolean>) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resposta;
+    }
+
     /**
      * Retorna lista de equipes, usado na atvProjeto
      * @return XML das equipes

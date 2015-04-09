@@ -261,15 +261,22 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.atv_tarefa, menu);
-        if ( this.getTarefa()!=null
+        //habilita ou desabilita menu excluir
+        if (this.getTarefa()!=null
             && this.getTarefa().getUsuario()!=null
-            && this.getTarefa().getProjeto()!=null
-            && this.getTarefa().getProjeto().getUsuario()!=null)
-            if ( this.getTarefa().getUsuario().equals(AtvLogin.usuario)
-                && this.getTarefa().getProjeto().getUsuario().equals(AtvLogin.usuario) )
-                    menu.findItem(R.id.actionbar_exclui).setVisible(true);
+            && this.getTarefa().getProjeto()!=null)
+            //se a tarefa e pessoal (usuario dono da tarefa e do projeto)...
+            if (    (this.getTarefa().getProjeto().getUsuario()!=null
+                    && this.getTarefa().getUsuario().equals(AtvLogin.usuario)
+                    && this.getTarefa().getProjeto().getUsuario().equals(AtvLogin.usuario))
+                    //...ou se usuario pertence a equipe do projeto e perfil administrador
+                ||  (AtvLogin.usuario.getEquipes().contains(this.getTarefa().getProjeto().getEquipe())
+                    && AtvLogin.usuario.getPerfil() == "adm"))
+                        menu.findItem(R.id.actionbar_exclui).setVisible(true);//habilita excluir
             else
-                    menu.findItem(R.id.actionbar_exclui).setVisible(false);
+                menu.findItem(R.id.actionbar_exclui).setVisible(false);//desabilita excluir
+        else
+            menu.findItem(R.id.actionbar_exclui).setVisible(false);//desabilita excluir
         return true;
     }
 
@@ -395,6 +402,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         alerta.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                ExcluiTarefaTask excluiTarefaTask = new ExcluiTarefaTask();
+                excluiTarefaTask.execute(AtvTarefa.this.getTarefa());
             }
         });
         alerta.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
@@ -402,6 +411,62 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             public void onClick(DialogInterface dialogInterface, int i) { }
         });
         alerta.show();
+    }
+
+    /**
+     * Classe responsavel por excluir a tarefa
+     */
+    public class ExcluiTarefaTask extends AsyncTask<Tarefa, Void, Boolean> {
+        @Override
+        protected void onPreExecute() {
+            Log.i("exclui", "preexecute");
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
+        }
+        @Override
+        protected Boolean doInBackground(Tarefa... tarefas){
+            Log.i("exclui", "background");
+            //chama o webservice
+            WebService webService = new WebService();
+            webService.setUsuario(AtvLogin.usuario);
+            final Vector<Boolean> flagsSincroniza = webService.excluiTarefa(tarefas[0]);
+            /** se deu resultado o webservice atualiza localmente os Xmls de todas as tarefas */
+            if (flagsSincroniza != null) {
+                //sinaliza para a atvBase atualizar o listView
+                AtvBase.atualizaListView = true;
+                try {
+                    if (flagsSincroniza.get(0)) {//atualizar tarefas pessoais
+                        XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
+                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
+                    }
+                    if (flagsSincroniza.get(1)) {//atualizar tarefas equipes
+                        XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
+                        xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
+                    }
+                    if (flagsSincroniza.get(2)) {//atualizar tarefas hoje
+                        XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
+                        xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
+                    }
+                    if (flagsSincroniza.get(3)) {//atualizar tarefas semana
+                        XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
+                        xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return true;
+            }else
+                return false;
+        }
+        @Override
+        protected void onPostExecute(final Boolean successo) {
+            Log.i("exclui", "postexecute");
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
+            if (successo) {
+                Toast.makeText(AtvTarefa.this, "tarefa excluida", Toast.LENGTH_SHORT).show();
+                AtvTarefa.this.finish();
+            }else
+                Toast.makeText(AtvTarefa.this, "erro ao tentar excluir a tarefa", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -420,23 +485,25 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         }
         @Override
         protected void onPostExecute(String resposta) {
-            switch (resposta) {
-                case "concluida":
-                    Toast.makeText(AtvTarefa.this, "Tarefa concluida!", Toast.LENGTH_SHORT).show();
-                    break;
-                case "concluir":
-                    Toast.makeText( AtvTarefa.this,
-                                    "Foi solicitada a conclusao da tarefa.\n"
-                                            + "Aguarde confirmaçao do administrador.",
-                                    Toast.LENGTH_SHORT)
+            if (resposta!=null) {
+                switch (resposta) {
+                    case "concluida":
+                        Toast.makeText(AtvTarefa.this, "Tarefa concluida!", Toast.LENGTH_SHORT).show();
+                        break;
+                    case "concluir":
+                        Toast.makeText(AtvTarefa.this,
+                                "Foi solicitada a conclusao da tarefa.\n"
+                                        + "Aguarde confirmaçao do administrador.",
+                                Toast.LENGTH_SHORT)
                                 .show();
-                    break;
-                case "rejeitada":
-                    Toast.makeText( AtvTarefa.this,
-                                    "O responsavel pela tarefa sera avisado da pendencia.",
-                                    Toast.LENGTH_SHORT)
+                        break;
+                    case "rejeitada":
+                        Toast.makeText(AtvTarefa.this,
+                                "O responsavel pela tarefa sera avisado da pendencia.",
+                                Toast.LENGTH_SHORT)
                                 .show();
-                    break;
+                        break;
+                }
             }
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
             AtvTarefa.this.finish();
@@ -465,11 +532,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
      * @param i
      */
     private ComentarioTask aTaskComentario = null;
-    private ProgressBar prgComentario;
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
-        this.prgComentario = (ProgressBar) findViewById(R.id.prgComentario);
-        Utils.barraProgresso(this, this.prgComentario, true);
         EditText EdtComentario = (EditText) this.layoutComentario.findViewById(R.id.EDTcomentario);
         String comentario = EdtComentario.getText().toString();
         this.aTaskComentario = new ComentarioTask(comentario);
@@ -485,7 +549,10 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         public ComentarioTask(String textoComentario) {
             this.textoComentario = textoComentario;
         }
-
+        @Override
+        protected void onPreExecute() {
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
+        }
         @Override
         protected Boolean doInBackground(Void... params){
             //chama o webservice
@@ -538,11 +605,10 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             }else
                 return false;
         }
-
         @Override
         protected void onPostExecute(final Boolean successo) {
             aTaskComentario = null;
-            Utils.barraProgresso(AtvTarefa.this, prgComentario, false);
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
             if (successo) {
                 Toast.makeText(AtvTarefa.this, "comentario gravado", Toast.LENGTH_SHORT).show();
             }else
