@@ -261,22 +261,55 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.atv_tarefa, menu);
-        //habilita ou desabilita menu excluir
-        if (this.getTarefa()!=null
-            && this.getTarefa().getUsuario()!=null
-            && this.getTarefa().getProjeto()!=null)
-            //se a tarefa e pessoal (usuario dono da tarefa e do projeto)...
-            if (    (this.getTarefa().getProjeto().getUsuario()!=null
-                    && this.getTarefa().getUsuario().equals(AtvLogin.usuario)
-                    && this.getTarefa().getProjeto().getUsuario().equals(AtvLogin.usuario))
-                    //...ou se usuario pertence a equipe do projeto e perfil administrador
-                ||  (AtvLogin.usuario.getEquipes().contains(this.getTarefa().getProjeto().getEquipe())
-                    && AtvLogin.usuario.getPerfil() == "adm"))
-                        menu.findItem(R.id.actionbar_exclui).setVisible(true);//habilita excluir
-            else
-                menu.findItem(R.id.actionbar_exclui).setVisible(false);//desabilita excluir
-        else
+        //nova tarefa, habilita gravar, desabilita os outros
+        if (this.getTarefa()==null){
+            menu.findItem(R.id.actionbar_grava).setVisible(true);//habilita gravar
+            menu.findItem(R.id.menu_grava).setVisible(true);//habilita gravar
             menu.findItem(R.id.actionbar_exclui).setVisible(false);//desabilita excluir
+            menu.findItem(R.id.menu_exclui).setVisible(false);//desabilita excluir
+            menu.findItem(R.id.actionbar_comenta).setVisible(false);//desabilita comentar
+            menu.findItem(R.id.menu_comenta).setVisible(false);//desabilita comentar
+            menu.findItem(R.id.actionbar_conclui).setVisible(false);//desabilita concluir
+            menu.findItem(R.id.menu_conclui).setVisible(false);//desabilita concluir
+        }else if ( this.getTarefa().getUsuario()!=null
+                && this.getTarefa().getProjeto()!=null) {
+                //se a tarefa e pessoal (usuario dono da tarefa e do projeto), habilita tudo
+                if (this.getTarefa().getProjeto().getUsuario() != null
+                    && this.getTarefa().getUsuario().equals(AtvLogin.usuario)
+                    && this.getTarefa().getProjeto().getUsuario().equals(AtvLogin.usuario)) {
+                        menu.findItem(R.id.actionbar_grava).setVisible(true);//habilita gravar
+                        menu.findItem(R.id.menu_grava).setVisible(true);//habilita gravar
+                        menu.findItem(R.id.actionbar_exclui).setVisible(true);//habilita excluir
+                        menu.findItem(R.id.menu_exclui).setVisible(true);//habilita excluir
+                        menu.findItem(R.id.actionbar_comenta).setVisible(true);//habilita comentar
+                        menu.findItem(R.id.menu_comenta).setVisible(true);//habilita comentar
+                        menu.findItem(R.id.actionbar_conclui).setVisible(true);//habilita concluir
+                        menu.findItem(R.id.menu_conclui).setVisible(true);//habilita concluir
+                }
+                //se usuario pertence a equipe do projeto
+                if (AtvLogin.usuario.getEquipes().contains(this.getTarefa().getProjeto().getEquipe())) {
+                    //se perfil administrador, habilita tudo
+                    if (AtvLogin.usuario.getPerfil() == "adm") {
+                        menu.findItem(R.id.actionbar_grava).setVisible(true);//habilita gravar
+                        menu.findItem(R.id.menu_grava).setVisible(true);//habilita gravar
+                        menu.findItem(R.id.actionbar_exclui).setVisible(true);//habilita excluir
+                        menu.findItem(R.id.menu_exclui).setVisible(true);//habilita excluir
+                        menu.findItem(R.id.actionbar_comenta).setVisible(true);//habilita comentar
+                        menu.findItem(R.id.menu_comenta).setVisible(true);//habilita comentar
+                        menu.findItem(R.id.actionbar_conclui).setVisible(true);//habilita concluir
+                        menu.findItem(R.id.menu_conclui).setVisible(true);//habilita concluir
+                    } else {//senao e administrador, so habilita comentar e concluir
+                        menu.findItem(R.id.actionbar_grava).setVisible(false);//habilita gravar
+                        menu.findItem(R.id.menu_grava).setVisible(false);//habilita gravar
+                        menu.findItem(R.id.actionbar_exclui).setVisible(false);//habilita excluir
+                        menu.findItem(R.id.menu_exclui).setVisible(false);//habilita excluir
+                        menu.findItem(R.id.actionbar_comenta).setVisible(true);//habilita comentar
+                        menu.findItem(R.id.menu_comenta).setVisible(true);//habilita comentar
+                        menu.findItem(R.id.actionbar_conclui).setVisible(true);//habilita concluir
+                        menu.findItem(R.id.menu_conclui).setVisible(true);//habilita concluir
+                    }
+                }
+            }
         return true;
     }
 
