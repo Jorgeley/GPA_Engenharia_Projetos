@@ -12,6 +12,7 @@
         <string name="submenu_tarefa">Tarefas</string>
         <string name="submenu_projeto">Projetos</string>
     <string name="menu_conf">Configurações</string>
+    <string name="menu_arquivo">Arquivo</string>
     <string name="menu_sobre">Sobre</string>
 
 </resources>

@@ -9,9 +9,9 @@
     <item android:title="@string/menu_projetos" android:id="@+id/projetos" android:icon="@android:drawable/ic_media_play">
         <menu>
             <item android:id="@+id/projetos_pessoais" android:title="@string/submenu_pessoais" android:icon="@drawable/tarefa" android:orderInCategory="0" />
-            <item android:id="@+id/projetos_equipe" android:title="@string/submenu_equipe" android:icon="@drawable/equipe" android:orderInCategory="2" />
+            <item android:id="@+id/projetos_equipe" android:title="@string/submenu_equipe" android:icon="@mipmap/equipe" android:orderInCategory="2" />
             <item android:id="@+id/projetos_hoje" android:title="@string/submenu_hoje" android:icon="@drawable/hoje" android:orderInCategory="3" />
-            <item android:id="@+id/projetos_semana" android:title="@string/submenu_semana" android:icon="@drawable/semana" android:orderInCategory="4" />
+            <item android:id="@+id/projetos_semana" android:title="@string/submenu_semana" android:icon="@mipmap/semana" android:orderInCategory="4" />
         </menu>
     </item>
     <item android:title="@string/menu_agrupamento" android:id="@+id/agrupamento" android:icon="@android:drawable/ic_media_play">

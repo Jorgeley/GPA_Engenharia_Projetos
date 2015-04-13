@@ -51,7 +51,7 @@
                         android:layout_width="96dp"
                         android:layout_height="96dp"
                         android:id="@+id/BTNtarefas"
-                        android:background="@drawable/tarefa"
+                        android:background="@mipmap/tarefa_dashboard"
                         android:gravity="bottom|center"
                         android:elegantTextHeight="false"
                         android:width="150dp"
@@ -70,7 +70,7 @@
                         android:layout_width="96dp"
                         android:layout_height="96dp"
                         android:id="@+id/BTNequipe"
-                        android:background="@drawable/equipe"
+                        android:background="@mipmap/equipe"
                         android:gravity="bottom|center"
                         android:elegantTextHeight="false"
                         android:width="150dp"
@@ -128,7 +128,7 @@
                         android:layout_width="96dp"
                         android:layout_height="96dp"
                         android:id="@+id/BTNsemana"
-                        android:src="@drawable/semana"
+                        android:src="@mipmap/semana"
                         android:layout_column="1"
                         android:layout_marginLeft="30dp"
                         android:layout_marginTop="20dp"
@@ -166,12 +166,13 @@
                     <ImageView
                         android:layout_width="96dp"
                         android:layout_height="96dp"
-                        android:id="@+id/BTNconf"
+                        android:id="@+id/BTNarquivadas"
                         android:layout_column="0"
-                        android:src="@drawable/conf"
+                        android:src="@mipmap/arquivo"
                         android:layout_marginTop="20dp"
                         android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp" />
+                        android:layout_marginRight="30dp"
+                        android:onClick="tarefasArquivadas" />
 
                     <ImageView
                         android:layout_width="96dp"
@@ -192,7 +193,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/menu_conf"
+                        android:text="@string/menu_arquivo"
                         android:id="@+id/textView6"
                         android:layout_column="0"
                         android:layout_gravity="center_horizontal" />

@@ -74,16 +74,16 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         super.onCreate(savedInstanceState);
         if (AtvLogin.usuario == null)
             startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
-        setContentView(R.layout.atv_tarefa);
-        this.EdtTarefa = (EditText) findViewById(R.id.EDTtarefa);
-        this.EdtDescricao = (EditText) findViewById(R.id.EDTdescricao);
-        this.EdtDialogo = (EditText) findViewById(R.id.EDTdialogo);
-        this.EdtDialogo.setMovementMethod(new ScrollingMovementMethod());
-        this.EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
-        this.SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
-        this.SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
-        this.PrgTarefa = (ProgressBar) findViewById(R.id.PRGtarefa);
-        if (AtvLogin.usuario != null) {
+        else{
+            setContentView(R.layout.atv_tarefa);
+            this.EdtTarefa = (EditText) findViewById(R.id.EDTtarefa);
+            this.EdtDescricao = (EditText) findViewById(R.id.EDTdescricao);
+            this.EdtDialogo = (EditText) findViewById(R.id.EDTdialogo);
+            this.EdtDialogo.setMovementMethod(new ScrollingMovementMethod());
+            this.EdtVencimento = (EditText) findViewById(R.id.EDTvencimento);
+            this.SpnResponsavel = (Spinner) findViewById(R.id.SPNresponsavel);
+            this.SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
+            this.PrgTarefa = (ProgressBar) findViewById(R.id.PRGtarefa);
             this.SpnProjeto.setOnItemSelectedListener(this);
             if (this.SpnProjeto.getAdapter() == null){
                 /**
@@ -273,8 +273,17 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             menu.findItem(R.id.menu_conclui).setVisible(false);//desabilita concluir
         }else if ( this.getTarefa().getUsuario()!=null
                 && this.getTarefa().getProjeto()!=null) {
-                //se a tarefa e pessoal (usuario dono da tarefa e do projeto), habilita tudo
-                if (this.getTarefa().getProjeto().getUsuario() != null
+                if (this.getTarefa().getStatus().equals("concluida")){
+                    menu.findItem(R.id.actionbar_grava).setVisible(false);//desabilita gravar
+                    menu.findItem(R.id.menu_grava).setVisible(false);//desabilita gravar
+                    menu.findItem(R.id.actionbar_exclui).setVisible(false);//desabilita excluir
+                    menu.findItem(R.id.menu_exclui).setVisible(false);//desabilita excluir
+                    menu.findItem(R.id.actionbar_comenta).setVisible(false);//desabilita comentar
+                    menu.findItem(R.id.menu_comenta).setVisible(false);//desabilita comentar
+                    menu.findItem(R.id.actionbar_conclui).setVisible(false);//desabilita concluir
+                    menu.findItem(R.id.menu_conclui).setVisible(false);//desabilita concluir
+                }//se a tarefa e pessoal (usuario dono da tarefa e do projeto), habilita tudo
+                else if (this.getTarefa().getProjeto().getUsuario() != null
                     && this.getTarefa().getUsuario().equals(AtvLogin.usuario)
                     && this.getTarefa().getProjeto().getUsuario().equals(AtvLogin.usuario)) {
                         menu.findItem(R.id.actionbar_grava).setVisible(true);//habilita gravar
@@ -285,9 +294,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                         menu.findItem(R.id.menu_comenta).setVisible(true);//habilita comentar
                         menu.findItem(R.id.actionbar_conclui).setVisible(true);//habilita concluir
                         menu.findItem(R.id.menu_conclui).setVisible(true);//habilita concluir
-                }
-                //se usuario pertence a equipe do projeto
-                if (AtvLogin.usuario.getEquipes().contains(this.getTarefa().getProjeto().getEquipe())) {
+                }//se usuario pertence a equipe do projeto
+                else if (AtvLogin.usuario.getEquipes().contains(this.getTarefa().getProjeto().getEquipe())) {
                     //se perfil administrador, habilita tudo
                     if (AtvLogin.usuario.getPerfil() == "adm") {
                         menu.findItem(R.id.actionbar_grava).setVisible(true);//habilita gravar
@@ -452,12 +460,10 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     public class ExcluiTarefaTask extends AsyncTask<Tarefa, Void, Boolean> {
         @Override
         protected void onPreExecute() {
-            Log.i("exclui", "preexecute");
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
         }
         @Override
         protected Boolean doInBackground(Tarefa... tarefas){
-            Log.i("exclui", "background");
             //chama o webservice
             WebService webService = new WebService();
             webService.setUsuario(AtvLogin.usuario);
@@ -492,7 +498,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         }
         @Override
         protected void onPostExecute(final Boolean successo) {
-            Log.i("exclui", "postexecute");
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
             if (successo) {
                 Toast.makeText(AtvTarefa.this, "tarefa excluida", Toast.LENGTH_SHORT).show();

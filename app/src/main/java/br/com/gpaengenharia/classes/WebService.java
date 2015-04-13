@@ -291,6 +291,32 @@ public class WebService{
     }
 
     /**
+     * busca via webservice as tarefas arquivadas (concluidas)
+     * @return
+     */
+    public String tarefasArquivadas(){
+        //requisição SOAP
+        SoapObject requisicao = new SoapObject(NAMESPACE, "tarefasArquivadas");
+        //setando parametros do método do webservice 'tarefasArquivadas'
+        requisicao.addProperty(this.getPropertyInfoUsuario());
+        requisicao.addProperty(this.getForcarAtualizacao());
+        //evelopando a requisição
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(requisicao);
+        //requisição HTTP
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        String xml = null;
+        try {//faz a chamada do método 'tarefasArquivadas' do webservice
+            androidHttpTransport.call(SOAP_ACTION + "tarefasArquivadas", envelope);
+            //pegando a resposta
+            xml = (String) envelope.getResponse();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return xml;
+    }
+
+    /**
      * grava comentario de uma tarefa do usuario
      * @param idTarefa
      * @param textoComentario

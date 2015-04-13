@@ -28,6 +28,7 @@ import br.com.gpaengenharia.classes.AdaptadorTarefas;
 import br.com.gpaengenharia.classes.Notificacao;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDados;
+import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasArquivadas;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasEquipe;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasHoje;
 import br.com.gpaengenharia.classes.provedorDados.ProvedorDadosTarefasPessoais;
@@ -311,6 +312,21 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.agrupaTarefas();
     }
 
+    public void tarefasArquivadas(View v){
+        Utils.deslizaLayoutDireita(this.viewFlipper, findViewById(R.id.LayoutTarefas));
+        this.tarefasArquivadas(false);
+    }
+
+    public void tarefasArquivadas(final boolean forcarAtualizacao){
+        //singleton
+        if (!(this.provedorDados instanceof ProvedorDadosTarefasArquivadas)) {
+            this.zeraObjetos();
+            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
+            webserviceTarefas.execute('a');
+        }else
+            this.agrupaTarefas();
+    }
+
     //usado pelos metodos acima projetosPessoais, projetosEquipes, etc
     private void zeraObjetos(){
         this.projetosTreeMap = null;
@@ -416,6 +432,9 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                         break;
                     case 's':
                         AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, false));
+                        break;
+                    case 'a':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasArquivadas(AtvBase.this, false));
                         break;
                 }
                 return true;
