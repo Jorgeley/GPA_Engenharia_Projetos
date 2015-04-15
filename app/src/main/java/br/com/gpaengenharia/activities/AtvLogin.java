@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -18,7 +17,6 @@ import br.com.gpaengenharia.classes.AgendaServico;
 import br.com.gpaengenharia.classes.ServicoTarefas;
 import br.com.gpaengenharia.classes.Utils;
 import br.com.gpaengenharia.classes.WebService;
-import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
 
 /**
  * Activity inicial, Tela de Login
@@ -99,6 +97,7 @@ public class AtvLogin extends Activity{
                 }
                 final ServicoTarefas servicoTarefas = new ServicoTarefas();
                 servicoTarefas.setContexto(AtvLogin.this);
+                servicoTarefas.setNotificacoes(true);//nao criar notificaçoes
                 new AsyncTask<Void, Void, Void>(){
                     @Override
                     protected Void doInBackground(Void... voids) {

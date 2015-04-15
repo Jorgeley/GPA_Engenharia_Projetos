@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -69,21 +68,24 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     /**
      * seta os views comuns dos layouts Adm e Colaborador, chamado no OnCreate dos mesmos
      */;
-    private ExpandableListView lvProjetos;//listView expansível dos projetosPessoais
+    private ExpandableListView lvProjetos;//listView expansível dos projetos contendo tarefas
     public static ProgressBar prgTarefas;
     protected void setViews(){
-        //Log.i("onCreate", String.valueOf(atualizaListView));
-        this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
-        this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
-        this.lvProjetos.setGroupIndicator(null);
-        this.lvProjetos.setOnGroupClickListener(this);
-        this.lvProjetos.setOnChildClickListener(this);
-        if (AtvLogin.usuario.getPerfil().equals("adm"))
-            this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefasAdm);
-        else
-            this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefasColaborador);
-        //polimorfismo da classe ProvedorDados para ProvedorDadosTarefasPessoais
-        this.projetosPessoais(false);
+        if (AtvLogin.usuario != null) {
+            //Log.i("onCreate", String.valueOf(atualizaListView));
+            this.viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
+            this.lvProjetos = (ExpandableListView) findViewById(R.id.LVprojetos);
+            this.lvProjetos.setGroupIndicator(null);
+            this.lvProjetos.setOnGroupClickListener(this);
+            this.lvProjetos.setOnChildClickListener(this);
+            //nao deu para colocar uma unica barra de progresso no layoutBase
+            if (AtvLogin.usuario.getPerfil().equals("adm"))
+                this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefasAdm);
+            else
+                this.prgTarefas = (ProgressBar) findViewById(R.id.PRGtarefasColaborador);
+            //listView inicia com os projetos pessoais
+            this.projetosPessoais(false);
+        }
     }
 
     /**
@@ -100,7 +102,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
 
     /**
      * caso a activity esteja em primeiro plano (executando) verifica se tem que atualizar
-     * as tarefas caso a classe ServicoTarefas tenha setada a flag 'atualizaListView'
+     * as tarefas caso a classe ServicoTarefas (ou outra) tenha setada a flag 'atualizaListView'
      */
     @Override
     public void onUserInteraction() {
@@ -109,17 +111,14 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
     }
 
     /**
-     * atualiza tarefas caso a classe ServicoTarefas, que verifica se as tarefas foram atualizadas
-     * no servidor de 10 em 10min, tenha setado a flag 'atualizaListView'
+     * atualiza tarefas caso a classe ServicoTarefas (ou outra) tenha setado a flag 'atualizaListView'
      */
-    //instância polimórfica que provê os dados dos projetosPessoais pessoais, equipe, hoje e semana
-    public static ProvedorDados provedorDados;
     //flag setada pela classe ServicoTarefas indicando que houve atualizaçao das tarefas
     public static boolean atualizaListView;
     //---------------------------------------------------------------------------------------------
     private void atualizaListView(){
         if (atualizaListView){
-            this.provedorDados = null;
+            this.zeraObjetos();
             this.projetosPessoais(false);
             Notificacao.cancell(this,1);
             atualizaListView = false;
@@ -144,6 +143,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
      * retorna a árvore de projetosPessoais invertida,
      * lista de tarefas contendo sublista de projetosPessoais
      */
+    //instância polimórfica que provê os dados dos projetosPessoais pessoais, equipe, hoje e semana
+    public static ProvedorDados provedorDados;
     // <Projeto, List<Tarefa>> árvore de projetosPessoais com sublista de tarefas em cada projeto
     private TreeMap<Projeto, List<Tarefa>> projetosTreeMap;
     // <Tarefa, List<Projeto>> inversao do projetosTreeMap
@@ -155,7 +156,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.projetosTreeMap = this.provedorDados.getTreeMapBeanProjetosTarefas();
         if (this.tarefasTreeMap == null || this.tarefasTreeMap.isEmpty()) {
             this.tarefasTreeMap = new TreeMap<Tarefa, List<Projeto>>();
-            //gera novo TreeMap invertido com Tarefa e List<Projeto>
+            /**gera novo TreeMap invertido com Tarefa e List<Projeto>
+             * TODO encapsular isso no provedorDados*/
             for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : this.projetosTreeMap.entrySet()){
                 List<Projeto> projetos = new ArrayList<Projeto>();
                 projetos.add(projetoTarefas.getKey());
@@ -171,7 +173,7 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
 
     /**
      * retorna a árvore de projetosPessoais padrão:
-     * lista de projetosPessoais contendo sublista de tarefas
+     * lista de projetos contendo sublista de tarefas
      */
     private void agrupaProjetos(){
         if (this.projetosTreeMap == null || this.projetosTreeMap.isEmpty())
@@ -201,9 +203,19 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
                 this.adaptadorProjetos = new AdaptadorProjetos(this, this.projetosTreeMap);
             this.lvProjetos.setAdapter(this.adaptadorProjetos);
         }
-        //se o adaptador estiver vazio seta novo adaptador com String informando
+        //se o adaptador estiver vazio, informa
         if (this.lvProjetos.getAdapter().isEmpty())
             Toast.makeText(this,"nenhuma tarefa",Toast.LENGTH_LONG).show();
+    }
+
+    /**infla o xml do menu comum ao Adm e Colaborador
+     * @param menu
+     * @return o MenuInflater para adicionar mais opções de menu
+     */
+    public MenuInflater criaMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_base, menu);
+        return inflater;
     }
 
     /**opções comuns dos menus Adm e Colaborador
@@ -261,8 +273,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasPessoais)) {
             this.zeraObjetos();
-            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
-            webserviceTarefas.execute('p');
+            TarefasTask tarefasTask = new TarefasTask();
+            tarefasTask.execute('p');
         }else
             this.agrupaTarefas();
     }
@@ -276,8 +288,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasEquipe)) {
             this.zeraObjetos();
-            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
-            webserviceTarefas.execute('e');
+            TarefasTask tarefasTask = new TarefasTask();
+            tarefasTask.execute('e');
         }else
             this.agrupaTarefas();
     }
@@ -291,8 +303,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasHoje)) {
             this.zeraObjetos();
-            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
-            webserviceTarefas.execute('h');
+            TarefasTask tarefasTask = new TarefasTask();
+            tarefasTask.execute('h');
         }else
             this.agrupaTarefas();
     }
@@ -306,8 +318,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasSemana)) {
             this.zeraObjetos();
-            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
-            webserviceTarefas.execute('s');
+            TarefasTask tarefasTask = new TarefasTask();
+            tarefasTask.execute('s');
         }else
             this.agrupaTarefas();
     }
@@ -321,8 +333,8 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         //singleton
         if (!(this.provedorDados instanceof ProvedorDadosTarefasArquivadas)) {
             this.zeraObjetos();
-            WebserviceTarefas webserviceTarefas = new WebserviceTarefas();
-            webserviceTarefas.execute('a');
+            TarefasTask tarefasTask = new TarefasTask();
+            tarefasTask.execute('a');
         }else
             this.agrupaTarefas();
     }
@@ -335,14 +347,52 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
         this.adaptadorProjetos = null;
     }
 
-    /**infla o xml do menu comum ao Adm e Colaborador
-     * @param menu
-     * @return o MenuInflater para adicionar mais opções de menu
+    /**
+     * busca as tarefas via webservice em segundo plano
      */
-    public MenuInflater criaMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_base, menu);
-        return inflater;
+    public class TarefasTask extends AsyncTask<Character, Void, Boolean> {
+        @Override
+        protected void onPreExecute() {
+            Utils.barraProgresso(AtvBase.this, prgTarefas, true);
+        }
+        @Override
+        protected Boolean doInBackground(Character... provedorDados) {
+            if (AtvLogin.usuario != null) {
+                switch (provedorDados[0]) {
+                    case 'p':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, false));
+                        break;
+                    case 'e':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, false));
+                        break;
+                    case 'h':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, false));
+                        break;
+                    case 's':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, false));
+                        break;
+                    case 'a':
+                        AtvBase.setProvedorDados(new ProvedorDadosTarefasArquivadas(AtvBase.this, false));
+                        break;
+                }
+                return true;
+            }else
+                return false;
+        }
+        @Override
+        protected void onPostExecute(Boolean resultado) {
+            Utils.barraProgresso(AtvBase.this, prgTarefas, false);
+            if (resultado)
+                agrupaTarefas();
+        }
+    }
+
+    /**
+     * seta o provedor de dados para cada tipo de tarefa (pessoais, equipes, etc)
+     * @param provedorDados
+     */
+    public static void setProvedorDados(ProvedorDados provedorDados){
+        AtvBase.provedorDados = provedorDados;
     }
 
     /**Quando clica no grupo do ExpandableListView chama Activity AtvTarefa e repassa
@@ -407,54 +457,6 @@ public abstract class AtvBase extends Activity implements OnGroupClickListener, 
             this.projetosPessoais(false);
             atualizarTarefaId = 0; //sinaliza que ja atualizou o TreeMap
         }
-    }
-
-    /**
-     * busca as tarefas via webservice em segundo plano
-     */
-    public class WebserviceTarefas extends AsyncTask<Character, Void, Boolean> {
-        @Override
-        protected void onPreExecute() {
-            Utils.barraProgresso(AtvBase.this, prgTarefas, true);
-        }
-        @Override
-        protected Boolean doInBackground(Character... provedorDados) {
-            if (AtvLogin.usuario != null) {
-                switch (provedorDados[0]) {
-                    case 'p':
-                        AtvBase.setProvedorDados(new ProvedorDadosTarefasPessoais(AtvBase.this, false));
-                        break;
-                    case 'e':
-                        AtvBase.setProvedorDados(new ProvedorDadosTarefasEquipe(AtvBase.this, false));
-                        break;
-                    case 'h':
-                        AtvBase.setProvedorDados(new ProvedorDadosTarefasHoje(AtvBase.this, false));
-                        break;
-                    case 's':
-                        AtvBase.setProvedorDados(new ProvedorDadosTarefasSemana(AtvBase.this, false));
-                        break;
-                    case 'a':
-                        AtvBase.setProvedorDados(new ProvedorDadosTarefasArquivadas(AtvBase.this, false));
-                        break;
-                }
-                return true;
-            }else
-                return false;
-        }
-        @Override
-        protected void onPostExecute(Boolean resultado) {
-            Utils.barraProgresso(AtvBase.this, prgTarefas, false);
-            if (resultado)
-                agrupaTarefas();
-        }
-    }
-
-    /**
-     * seta o provedor de dados para cada tipo de tarefa (pessoais, equipes, etc)
-     * @param provedorDados
-     */
-    public static void setProvedorDados(ProvedorDados provedorDados){
-        AtvBase.provedorDados = provedorDados;
     }
 
 }

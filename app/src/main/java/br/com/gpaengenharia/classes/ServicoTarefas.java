@@ -27,6 +27,7 @@ import br.com.gpaengenharia.activities.AtvTarefa;
 import br.com.gpaengenharia.beans.Projeto;
 import br.com.gpaengenharia.beans.Tarefa;
 import br.com.gpaengenharia.classes.xmls.Xml;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasArquivadas;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
@@ -39,6 +40,11 @@ import br.com.gpaengenharia.classes.xmls.XmlTarefasSemana;
  */
 public class ServicoTarefas extends Service implements Runnable{
     private Context contexto;
+    private boolean notificacoes;
+
+    public ServicoTarefas() {
+        this.notificacoes = true;
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -67,34 +73,48 @@ public class ServicoTarefas extends Service implements Runnable{
             //chama o webservice que verifica se ha tarefas novas de acordo com a data de modificaçao do XML local
             respostasSincroniza = xml.sincronizaXmlTudoWebservice(AtvLogin.usuario, ultimaSincronizacao);
             if (respostasSincroniza != null) {
-                //monta treeMap de beans projetos contendo beans tarefas em cada
-                projetosTarefas = xml.leXmlProjetosTarefas(respostasSincroniza.get(0)); //indice 0 contem ids das tarefas atualizadas
-                if (!projetosTarefas.isEmpty()) {
-                    //Log.i("projetosTarefas", String.valueOf(projetosTarefas));
-                    for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : projetosTarefas.entrySet()) {
-                        //para cada tarefa nova cria uma notificaçao contendo a mesma
-                        for (Tarefa tarefa : projetoTarefas.getValue()) {
-                            Bundle bundleTarefa = new Bundle();
-                            bundleTarefa.putParcelable("projeto", projetoTarefas.getKey());
-                            bundleTarefa.putParcelable("tarefa", tarefa);
-                            Intent atvTarefa = new Intent(this.getContexto(), AtvTarefa.class);
-                            atvTarefa.putExtras(bundleTarefa);
-                            String msg = null;
-                            switch (tarefa.getStatus()){
-                                case "aberta":      msg = " [atualizada]"; break;
-                                case "concluir":    msg = " [confirmar conclusao?]"; break;
-                                case "rejeitada":   msg = " [rejeitada conclusao!]"; break;
-                                case "concluida":   msg = " [concluida!]"; break;
+                if (this.getNotificacoes()) {
+                    //monta treeMap de beans projetos contendo beans tarefas em cada
+                    projetosTarefas = xml.leXmlProjetosTarefas(respostasSincroniza.get(0)); //indice 0 contem ids das tarefas atualizadas
+                    if (!projetosTarefas.isEmpty()) {
+                        //Log.i("projetosTarefas", String.valueOf(projetosTarefas));
+                        for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : projetosTarefas.entrySet()) {
+                            //para cada tarefa nova cria uma notificaçao contendo a mesma
+                            for (Tarefa tarefa : projetoTarefas.getValue()) {
+                                Bundle bundleTarefa = new Bundle();
+                                bundleTarefa.putParcelable("projeto", projetoTarefas.getKey());
+                                bundleTarefa.putParcelable("tarefa", tarefa);
+                                Intent atvTarefa = new Intent(this.getContexto(), AtvTarefa.class);
+                                atvTarefa.putExtras(bundleTarefa);
+                                String msg = null;
+                                switch (tarefa.getStatus()) {
+                                    case "aberta":
+                                        msg = " [atualizada]";
+                                        break;
+                                    case "concluir":
+                                        msg = " [confirmar conclusao?]";
+                                        break;
+                                    case "rejeitada":
+                                        msg = " [rejeitada conclusao!]";
+                                        break;
+                                    case "concluida":
+                                        msg = " [concluida!]";
+                                        break;
+                                    case "excluir":
+                                        msg = " [excluida!]";
+                                        //atvTarefa = null;
+                                        break;
+                                }
+                                Notificacao.create(this.getContexto(),
+                                        "GPA",
+                                        tarefa.getNome() + msg,
+                                        R.drawable.logo_notificacao,
+                                        tarefa.getId(), //se for igual os extras nao atualizam
+                                        atvTarefa
+                                );
+                                //sinaliza para a atvBase atualizar o listView
+                                AtvBase.atualizaListView = true;
                             }
-                            Notificacao.create(this.getContexto(),
-                                    "GPA",
-                                    tarefa.getNome() + msg,
-                                    R.drawable.logo_notificacao,
-                                    tarefa.getId(), //se for igual os extras nao atualizam
-                                    atvTarefa
-                            );
-                            //sinaliza para a atvBase atualizar o listView
-                            AtvBase.atualizaListView = true;
                         }
                     }
                 }
@@ -108,6 +128,8 @@ public class ServicoTarefas extends Service implements Runnable{
                     Boolean sincronizaHoje = (Boolean) respostasSincroniza.get(1).get(2);
                     //indice [1][3] contem flag para sincronizar XML tarefas semana
                     Boolean sincronizaSemana = (Boolean) respostasSincroniza.get(1).get(3);
+                    //indice [1][4] contem flag para sincronizar XML tarefas arquivadas
+                    Boolean sincronizaArquivadas = (Boolean) respostasSincroniza.get(1).get(4);
                     if (sincronizaPessoais) {
                         XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(this.getContexto());
                         xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
@@ -123,6 +145,10 @@ public class ServicoTarefas extends Service implements Runnable{
                     if (sincronizaSemana) {
                         XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(this.getContexto());
                         xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
+                    }
+                    if (sincronizaArquivadas) {
+                        XmlTarefasArquivadas xmlTarefasArquivadas = new XmlTarefasArquivadas(this.getContexto());
+                        xmlTarefasArquivadas.criaXmlTarefasArquivadasWebservice(AtvLogin.usuario, true);
                     }
                 }
             }
@@ -152,5 +178,13 @@ public class ServicoTarefas extends Service implements Runnable{
             return getApplicationContext();
         else
             return this.contexto;
+    }
+
+    public void setNotificacoes(boolean notificacoes) {
+        this.notificacoes = notificacoes;
+    }
+
+    public boolean getNotificacoes() {
+        return this.notificacoes;
     }
 }

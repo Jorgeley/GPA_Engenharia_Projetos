@@ -210,7 +210,8 @@ public class Xml{
                             nomeNode = parser.getName();
                         }
                         tarefaAtual.setProjeto(projetoAtual);
-                        tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
+                        if (!tarefaAtual.getStatus().equals("excluir"))
+                            tarefas.add(tarefaAtual);//adiciona bean Tarefa na lista
                     }
                     break;
                 case XmlPullParser.END_TAG://se é fim de tag...

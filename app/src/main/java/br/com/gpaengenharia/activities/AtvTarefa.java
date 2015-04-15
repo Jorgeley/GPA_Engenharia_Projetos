@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,6 +44,7 @@ import br.com.gpaengenharia.classes.Utils.DatePickerFragment;
 import br.com.gpaengenharia.classes.Utils.DatePickerFragment.Listener;
 import br.com.gpaengenharia.classes.WebService;
 import br.com.gpaengenharia.classes.xmls.XmlProjeto;
+import br.com.gpaengenharia.classes.xmls.XmlTarefasArquivadas;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasEquipe;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasHoje;
 import br.com.gpaengenharia.classes.xmls.XmlTarefasPessoais;
@@ -62,13 +62,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     private Spinner SpnResponsavel;
     private Spinner SpnProjeto;
     private ProgressBar PrgTarefa;
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        if (AtvLogin.usuario == null)
-            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
-    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,7 +81,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             if (this.SpnProjeto.getAdapter() == null){
                 /**
                  * busca lista de projetos
-                 * TODO atualizar essa lista quando houver novos projetos
                  */
                 new AsyncTask<Void, Void, List<Projeto>>(){
                     @Override
@@ -127,7 +119,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 if (this.SpnResponsavel.getAdapter() == null) {
                     /**
                      * busca lista de usuarios
-                     * TODO atualizar essa lista quando houver novos usuarios
                      */
                     new AsyncTask<Void, Void, List<Usuario>>() {
                         @Override
@@ -163,6 +154,13 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             }else
                 this.SpnResponsavel.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (AtvLogin.usuario == null)
+            startActivityIfNeeded(new Intent(this, AtvLogin.class), 0);
     }
 
     @Override
@@ -205,20 +203,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
 
     public void setTarefa(Tarefa tarefa) {
         this.tarefa = tarefa;
-    }
-
-    /**retorna a data do datePicker
-     * @param data
-     */
-    @Override
-    public void getData(String data) {
-        this.EdtVencimento.setText(data);
-    }
-
-    /** setado diretamente na propriedade OnClick do EDTvencimento */
-    public void mostraDatePicker(View v) {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(this.getFragmentManager(), "datePicker");
     }
 
     /** adiciona botões addProjeto e addResponsavel ao layout  */
@@ -273,6 +257,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             menu.findItem(R.id.menu_conclui).setVisible(false);//desabilita concluir
         }else if ( this.getTarefa().getUsuario()!=null
                 && this.getTarefa().getProjeto()!=null) {
+                //tarefa concluida, desabilita tudo
                 if (this.getTarefa().getStatus().equals("concluida")){
                     menu.findItem(R.id.actionbar_grava).setVisible(false);//desabilita gravar
                     menu.findItem(R.id.menu_grava).setVisible(false);//desabilita gravar
@@ -367,20 +352,21 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         tarefa.setNome(nome);
         tarefa.setDescricao(descricao);
         tarefa.setVencimento(vencimento);
+        //setado no metodo 'onItemSelectedListener'
         if (this.usuario != null)
-            tarefa.setUsuario(this.usuario);
+            tarefa.setUsuario(this.usuario);//delegaçao de tarefa
         else
-            tarefa.setUsuario(AtvLogin.usuario);
+            tarefa.setUsuario(AtvLogin.usuario);//tarefa pessoal
         tarefa.setProjeto(this.projeto);
-        gravaTarefaWebservice gravaTarefaWebservice = new gravaTarefaWebservice();
-        gravaTarefaWebservice.execute(tarefa);
+        GravaTarefaTask gravaTarefaTask = new GravaTarefaTask();
+        gravaTarefaTask.execute(tarefa);
     }
 
 
     /**
      * grava a tarefa em segundo plano via webservice
      */
-    private class gravaTarefaWebservice extends AsyncTask<Tarefa, Void, Boolean>{
+    private class GravaTarefaTask extends AsyncTask<Tarefa, Void, Boolean>{
         @Override
         protected void onPreExecute() {
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
@@ -390,6 +376,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             boolean ok = WebService.gravaTarefa(tarefa[0]);
             if (ok) {//gravada a tarefa, executa atualizaçao
                 ServicoTarefas servicoTarefas = new ServicoTarefas();
+                servicoTarefas.setNotificacoes(false);//nao criar notificaçoes
                 servicoTarefas.setContexto(AtvTarefa.this);
                 servicoTarefas.run();
             }
@@ -407,36 +394,83 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
     }
 
     /**
-     * solicita conclusao (colaborador) da tarefa
+     * solicita conclusao (colaborador) da tarefa OU
      * conclui a tarefa (administrador)
      */
     private void conclui() {
         AlertDialog.Builder alerta = new AlertDialog.Builder(this);
         alerta.setMessage("Confirma conclusao?");
         alerta.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+            //confirmar conclusao tarefa
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                concluiTarefaWebservice concluiTarefaWebservice = new concluiTarefaWebservice();
-                concluiTarefaWebservice.execute(new Object[]{AtvTarefa.this.tarefa, "sim"});
+                ConcluiTarefaTask concluiTarefaTask = new ConcluiTarefaTask();
+                concluiTarefaTask.execute(new Object[]{AtvTarefa.this.tarefa, "sim"});
             }
         });
         if (AtvLogin.usuario.getPerfil().equals("adm")) {
             alerta.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
+                //rejeitar conclusao tarefa
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    concluiTarefaWebservice concluiTarefaWebservice = new concluiTarefaWebservice();
+                    ConcluiTarefaTask concluiTarefaWebservice = new ConcluiTarefaTask();
                     concluiTarefaWebservice.execute(new Object[]{AtvTarefa.this.tarefa, "nao"});
                 }
-            });
-        }else{
-            alerta.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) { }
             });
         }
         alerta.show();
     }
 
+    /**
+     * chama metodo do webservice para concluir tarefa em segundo plano
+     */
+    private class ConcluiTarefaTask extends AsyncTask<Object, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
+        }
+        @Override
+        protected String doInBackground(Object... tarefa) {
+            WebService webService = new WebService();
+            webService.setUsuario(AtvLogin.usuario);
+            return webService.concluiTarefa((Tarefa)tarefa[0], (String)tarefa[1]);
+        }
+        @Override
+        protected void onPostExecute(String resposta) {
+            if (resposta!=null) {
+                switch (resposta) {
+                    case "concluida":
+                        Toast.makeText(AtvTarefa.this, "Tarefa concluida e arquivada!", Toast.LENGTH_SHORT).show();
+                        XmlTarefasArquivadas xmlTarefasArquivadas = new XmlTarefasArquivadas(AtvTarefa.this);
+                        try {
+                            xmlTarefasArquivadas.criaXmlTarefasArquivadasWebservice(AtvLogin.usuario, true);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case "concluir":
+                        Toast.makeText(AtvTarefa.this,
+                                "Foi solicitada a conclusao da tarefa.\n"
+                                        + "Aguarde confirmaçao do administrador.",
+                                Toast.LENGTH_SHORT)
+                                .show();
+                        break;
+                    case "rejeitada":
+                        Toast.makeText(AtvTarefa.this,
+                                "O responsavel pela tarefa sera avisado da pendencia.",
+                                Toast.LENGTH_SHORT)
+                                .show();
+                        break;
+                }
+            }
+            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
+            AtvTarefa.this.finish();
+        }
+    }
+
+    /**
+     * exclui tarefa
+     */
     private void exclui(){
         AlertDialog.Builder alerta = new AlertDialog.Builder(this);
         alerta.setMessage("Confirma exclusao? (nao podera ser desfeito)");
@@ -446,10 +480,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 ExcluiTarefaTask excluiTarefaTask = new ExcluiTarefaTask();
                 excluiTarefaTask.execute(AtvTarefa.this.getTarefa());
             }
-        });
-        alerta.setNegativeButton("Nao", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) { }
         });
         alerta.show();
     }
@@ -468,7 +498,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             WebService webService = new WebService();
             webService.setUsuario(AtvLogin.usuario);
             final Vector<Boolean> flagsSincroniza = webService.excluiTarefa(tarefas[0]);
-            /** se deu resultado o webservice atualiza localmente os Xmls de todas as tarefas */
+            /** se deu resultado o webservice atualiza localmente os Xmls de todas as tarefas
+             * TODO atualizar o XML dos usuarios responsaveis pela tarefa*/
             if (flagsSincroniza != null) {
                 //sinaliza para a atvBase atualizar o listView
                 AtvBase.atualizaListView = true;
@@ -507,52 +538,14 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         }
     }
 
-    /**
-     * chama metodo do webservice para concluir tarefa em segundo plano
-     */
-    private class concluiTarefaWebservice extends AsyncTask<Object, Void, String> {
-        @Override
-        protected void onPreExecute() {
-            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
-        }
-        @Override
-        protected String doInBackground(Object... tarefa) {
-            WebService webService = new WebService();
-            webService.setUsuario(AtvLogin.usuario);
-            return webService.concluiTarefa((Tarefa)tarefa[0], (String)tarefa[1]);
-        }
-        @Override
-        protected void onPostExecute(String resposta) {
-            if (resposta!=null) {
-                switch (resposta) {
-                    case "concluida":
-                        Toast.makeText(AtvTarefa.this, "Tarefa concluida!", Toast.LENGTH_SHORT).show();
-                        break;
-                    case "concluir":
-                        Toast.makeText(AtvTarefa.this,
-                                "Foi solicitada a conclusao da tarefa.\n"
-                                        + "Aguarde confirmaçao do administrador.",
-                                Toast.LENGTH_SHORT)
-                                .show();
-                        break;
-                    case "rejeitada":
-                        Toast.makeText(AtvTarefa.this,
-                                "O responsavel pela tarefa sera avisado da pendencia.",
-                                Toast.LENGTH_SHORT)
-                                .show();
-                        break;
-                }
-            }
-            Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
-            AtvTarefa.this.finish();
-        }
-    }
-
     //utilizado pelo UIdget comentarios
     public void novoComentario(View v){
         this.novoComentario();
     }
 
+    /**
+     * cria dialog comentario
+     */
     View layoutComentario = null;
     private void novoComentario(){
         LayoutInflater factory = LayoutInflater.from(this);
@@ -569,41 +562,32 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
      * @param dialogInterface
      * @param i
      */
-    private ComentarioTask aTaskComentario = null;
+    private ComentarioTask comentarioTask = null;
     @Override
     public void onClick(DialogInterface dialogInterface, int i) {
         EditText EdtComentario = (EditText) this.layoutComentario.findViewById(R.id.EDTcomentario);
         String comentario = EdtComentario.getText().toString();
-        this.aTaskComentario = new ComentarioTask(comentario);
-        this.aTaskComentario.execute((Void)null);
+        this.comentarioTask = new ComentarioTask();
+        this.comentarioTask.execute(comentario);
     }
 
     /**
      * Classe responsavel por adicionar o comentario em segundo plano
      */
-    public class ComentarioTask extends AsyncTask<Void, Void, Boolean> {
-        private final String textoComentario;
-
-        public ComentarioTask(String textoComentario) {
-            this.textoComentario = textoComentario;
-        }
+    public class ComentarioTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected void onPreExecute() {
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, true);
         }
         @Override
-        protected Boolean doInBackground(Void... params){
+        protected Boolean doInBackground(String... comentario){
             //chama o webservice
             WebService webService = new WebService();
             webService.setUsuario(AtvLogin.usuario);
             final Object[] resposta = webService.gravacomentario(
                     AtvTarefa.this.tarefa.getId(),
-                    this.textoComentario
+                    comentario[0]
             );
-            /**se deu resultado o webservice entao sinaliza para a Activity AtvBase atualizar o
-             * TreeMap e tambem ja atualiza localmente os Xmls de todas as tarefas
-             * TODO melhorar essa logica, pois deveria atualizar apenas os XMLs da tarefa comentada
-             */
             if (resposta != null) {
                 /**flag enviada p/ Activity AtvBase sinalizando que deve atualizar o TreeMap se
                  * caso reabrir a tarefa que confere com o Id abaixo, pois houve atualizaçao dos
@@ -645,7 +629,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         }
         @Override
         protected void onPostExecute(final Boolean successo) {
-            aTaskComentario = null;
+            comentarioTask = null;
             Utils.barraProgresso(AtvTarefa.this, PrgTarefa, false);
             if (successo) {
                 Toast.makeText(AtvTarefa.this, "comentario gravado", Toast.LENGTH_SHORT).show();
@@ -654,6 +638,21 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         }
     }
 
+    /**retorna a data do datePicker
+     * @param data
+     */
+    @Override
+    public void getData(String data) {
+        this.EdtVencimento.setText(data);
+    }
+
+    /** setado diretamente na propriedade OnClick do EDTvencimento */
+    public void mostraDatePicker(View v) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(this.getFragmentManager(), "datePicker");
+    }
+
+    //utilizado pelos Spinners SpnProjeto e SpnResponsavel
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (parent.getSelectedItem() instanceof Usuario)

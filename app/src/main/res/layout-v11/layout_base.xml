@@ -165,12 +165,13 @@
                     <ImageView
                         android:layout_width="96dp"
                         android:layout_height="96dp"
-                        android:id="@+id/BTNconf"
+                        android:id="@+id/BTNarquivadas"
                         android:layout_column="0"
-                        android:src="@drawable/conf"
+                        android:src="@mipmap/arquivo"
                         android:layout_marginTop="20dp"
                         android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp" />
+                        android:layout_marginRight="30dp"
+                        android:onClick="tarefasArquivadas" />
 
                     <ImageView
                         android:layout_width="96dp"
