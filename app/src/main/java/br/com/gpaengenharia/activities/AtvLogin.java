@@ -5,11 +5,21 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import br.com.gpaengenharia.R;
 import br.com.gpaengenharia.beans.Equipe;
 import br.com.gpaengenharia.beans.Usuario;
@@ -27,6 +37,8 @@ public class AtvLogin extends Activity{
     private AutoCompleteTextView TxtEmail;
     private EditText EdtSenha;
     private LoginTask AtaskLogin = null;
+    private String nomeArquivo = "credenciais";
+    private File arquivo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +48,25 @@ public class AtvLogin extends Activity{
         this.TxtEmail = (AutoCompleteTextView) findViewById(R.id.email);
         this.EdtSenha = (EditText) findViewById(R.id.password);
         this.PrgLogin = (ProgressBar) findViewById(R.id.PRGlogin);
+        this.arquivo = new File(AtvLogin.this.getFilesDir() +"/"+ nomeArquivo);
+    }
+
+    @Override
+    protected void onResume() {
+        if (this.arquivo.exists()){
+            try {
+                FileInputStream arquivo = this.openFileInput(this.nomeArquivo);
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(arquivo));
+                //Log.i(buffer.readLine(),buffer.readLine());
+                this.AtaskLogin = new LoginTask(buffer.readLine(),buffer.readLine());
+                this.AtaskLogin.execute((Void) null);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        super.onResume();
     }
 
     /**
@@ -80,10 +111,39 @@ public class AtvLogin extends Activity{
                 return false;
         }
 
+        private void gravaArquivo(){
+            try {
+                FileOutputStream arquivo = AtvLogin.this.openFileOutput(AtvLogin.this.nomeArquivo, 0);
+                arquivo.write(this.login.getBytes());
+                arquivo.write("\n".getBytes());
+                arquivo.write(this.senha.getBytes());
+                arquivo.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         @Override
         protected void onPostExecute(final Boolean successo) {
             AtaskLogin = null;
             if (successo) {
+                if (!AtvLogin.this.arquivo.exists()) {
+                    this.gravaArquivo();
+                }else{
+                    FileInputStream arquivo = null;
+                    try {
+                        arquivo = AtvLogin.this.openFileInput(AtvLogin.this.nomeArquivo);
+                        BufferedReader buffer = new BufferedReader(new InputStreamReader(arquivo));
+                        if ( buffer.readLine()!=this.login || buffer.readLine()!=this.senha)
+                            this.gravaArquivo();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 /* OUT OF MEMORY!!!
                 WebService.tarefas(usuario.getId());*/
                 equipeAdm = new Equipe(Parcel.obtain());

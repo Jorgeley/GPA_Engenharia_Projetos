@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -81,39 +82,54 @@ public class ServicoTarefas extends Service implements Runnable{
                         for (Map.Entry<Projeto, List<Tarefa>> projetoTarefas : projetosTarefas.entrySet()) {
                             //para cada tarefa nova cria uma notificaçao contendo a mesma
                             for (Tarefa tarefa : projetoTarefas.getValue()) {
-                                Bundle bundleTarefa = new Bundle();
-                                bundleTarefa.putParcelable("projeto", projetoTarefas.getKey());
-                                bundleTarefa.putParcelable("tarefa", tarefa);
-                                Intent atvTarefa = new Intent(this.getContexto(), AtvTarefa.class);
-                                atvTarefa.putExtras(bundleTarefa);
-                                String msg = null;
-                                switch (tarefa.getStatus()) {
-                                    case "aberta":
-                                        msg = " [atualizada]";
-                                        break;
-                                    case "concluir":
-                                        msg = " [confirmar conclusao?]";
-                                        break;
-                                    case "rejeitada":
-                                        msg = " [rejeitada conclusao!]";
-                                        break;
-                                    case "concluida":
-                                        msg = " [concluida!]";
-                                        break;
-                                    case "excluir":
-                                        msg = " [excluida!]";
-                                        //atvTarefa = null;
-                                        break;
+                                if (!tarefa.getStatus().equals("arquivada")) {
+                                    Bundle bundleTarefa = new Bundle();
+                                    bundleTarefa.putParcelable("projeto", projetoTarefas.getKey());
+                                    bundleTarefa.putParcelable("tarefa", tarefa);
+                                    Intent atvTarefa = new Intent(this.getContexto(), AtvTarefa.class);
+                                    atvTarefa.putExtras(bundleTarefa);
+                                    String msg = null;
+                                    switch (tarefa.getStatus()) {
+                                        case "aberta":
+                                            msg = " [atualizada]";
+                                            break;
+                                        case "concluir":
+                                            msg = " [confirmar conclusao?]";
+                                            break;
+                                        case "rejeitada":
+                                            msg = " [rejeitada conclusao!]";
+                                            break;
+                                        case "concluida":
+                                            msg = " [concluida!]";
+                                            break;
+                                        case "excluir":
+                                            msg = " [excluida!]";
+                                            //atvTarefa = null;
+                                            break;
+                                    }
+                                    Notificacao.create(this.getContexto(),
+                                            "GPA",
+                                            tarefa.getNome() + msg,
+                                            R.drawable.logo_notificacao,
+                                            tarefa.getId(), //se for igual os extras nao atualizam
+                                            atvTarefa
+                                    );
+                                    Date hoje = new Date();
+                                    Long diferenca = tarefa.getVencimento().getTime() - hoje.getTime();
+                                    Log.i("diferença", String.valueOf(diferenca));
+                                    if (diferenca <= 432000000){ //5*24*60*60*1000 = 432000000 milisegundos (5 dias)
+                                        SimpleDateFormat formatoDataDiferenca = new SimpleDateFormat("dd", new Locale("pt", "BR"));
+                                        Notificacao.create(this.getContexto(),
+                                                "GPA",
+                                                "-"+formatoDataDiferenca.format(diferenca)+" dias p/ vencimento: "+tarefa.getNome(),
+                                                R.drawable.logo_notificacao,
+                                                tarefa.getId(), //se for igual os extras nao atualizam
+                                                atvTarefa
+                                        );
+                                    }
+                                    //sinaliza para a atvBase atualizar o listView
+                                    AtvBase.atualizaListView = true;
                                 }
-                                Notificacao.create(this.getContexto(),
-                                        "GPA",
-                                        tarefa.getNome() + msg,
-                                        R.drawable.logo_notificacao,
-                                        tarefa.getId(), //se for igual os extras nao atualizam
-                                        atvTarefa
-                                );
-                                //sinaliza para a atvBase atualizar o listView
-                                AtvBase.atualizaListView = true;
                             }
                         }
                     }

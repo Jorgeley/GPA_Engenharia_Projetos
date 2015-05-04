@@ -516,15 +516,17 @@ public class WebService{
     /**
      * Retorna lista de projetos, usado na atvTarefa
      * @return XML dos projetos
+     * @param ultimaSincronizacao
      */
-    public static String getProjetos() {
+    public String getProjetos(String ultimaSincronizacao) {
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "getProjetos");
-        PropertyInfo usuarioProjetos = new PropertyInfo();
-        usuarioProjetos.setName("usuario");
-        usuarioProjetos.setValue(AtvLogin.usuario.getId());
-        usuarioProjetos.setType(Integer.class);
-        requisicao.addProperty(usuarioProjetos);
+        requisicao.addProperty(this.getPropertyInfoUsuario());
+        PropertyInfo ultimaSincronizacaoWebservice = new PropertyInfo();
+        ultimaSincronizacaoWebservice.setName("ultimaSincronizacao");
+        ultimaSincronizacaoWebservice.setValue(ultimaSincronizacao);
+        ultimaSincronizacaoWebservice.setType(String.class);
+        requisicao.addProperty(ultimaSincronizacaoWebservice);
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);
@@ -544,11 +546,16 @@ public class WebService{
     /**
      * Retorna lista de usuarios, usado na atvTarefa
      * @return XML dos usuarios
+     * @param ultimaSincronizacao
      */
-    public static String getUsuarios() {
-        List<Usuario> usuarios = null;
+    public static String getUsuarios(String ultimaSincronizacao) {
         //requisição SOAP
         SoapObject requisicao = new SoapObject(NAMESPACE, "getUsuarios");
+        PropertyInfo ultimaSincronizacaoWebservice = new PropertyInfo();
+        ultimaSincronizacaoWebservice.setName("ultimaSincronizacao");
+        ultimaSincronizacaoWebservice.setValue(ultimaSincronizacao);
+        ultimaSincronizacaoWebservice.setType(String.class);
+        requisicao.addProperty(ultimaSincronizacaoWebservice);
         //evelopando a requisição
         SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
         envelope.setOutputSoapObject(requisicao);

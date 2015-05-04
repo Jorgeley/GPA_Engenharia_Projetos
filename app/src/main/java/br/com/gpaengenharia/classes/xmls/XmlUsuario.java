@@ -2,18 +2,28 @@ package br.com.gpaengenharia.classes.xmls;
 
 import android.content.Context;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
+import br.com.gpaengenharia.activities.AtvLogin;
 import br.com.gpaengenharia.classes.WebService;
 
 /**
  * Chama o metodo do Webservice que retorna o XML dos usuarios
  */
 public class XmlUsuario extends Xml implements XmlInterface {
+    private static String ultimaSincronizacao;
 
     public XmlUsuario(Context contexto) {
         super(contexto);
-        setNomeArquivoXML();
+        setNomeArquivoXML();File arquivo = new File(contexto.getFilesDir() + "/" + this.getNomeArquivoXML());
+        SimpleDateFormat formatoData = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", new Locale("pt", "BR"));
+        Date data = new Date();
+        data.setTime(arquivo.lastModified());//pega a data de modificaçao do arquivo XML
+        this.ultimaSincronizacao = formatoData.format(data);
     }
 
     //nome do arquivo para gravar o xml
@@ -39,13 +49,14 @@ public class XmlUsuario extends Xml implements XmlInterface {
      * @return true: houve atualizaçao, false: nao houve atualizaçao
      * @throws java.io.IOException
      */
-    public static boolean criaXmlUsuariosWebservice(boolean forcarAtualizacao) throws IOException {
+    public boolean criaXmlUsuariosWebservice(boolean forcarAtualizacao) throws IOException {
         /**
          * TODO nao deixar o webservice ser chamado sem restricao
          */
         WebService webService = new WebService();
         webService.setForcarAtualizacao(forcarAtualizacao);
-        String xml = webService.getUsuarios();
+        webService.setUsuario(AtvLogin.usuario);
+        String xml = webService.getUsuarios(this.ultimaSincronizacao);
         if (xml != null) {
             escreveXML(xml);
             return true;

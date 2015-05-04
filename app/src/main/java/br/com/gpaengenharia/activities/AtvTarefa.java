@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,29 +79,27 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
             this.SpnProjeto = (Spinner) findViewById(R.id.SPNprojeto);
             this.PrgTarefa = (ProgressBar) findViewById(R.id.PRGtarefa);
             this.SpnProjeto.setOnItemSelectedListener(this);
-            if (this.SpnProjeto.getAdapter() == null){
-                /**
-                 * busca lista de projetos
-                 */
-                new AsyncTask<Void, Void, List<Projeto>>(){
-                    @Override
-                    protected List<Projeto> doInBackground(Void... voids) {
-                        List<Projeto> projetos = null;
-                        try {
-                            File arquivo = new File(AtvTarefa.this.getFilesDir() + "/" + XmlProjeto.getNomeArquivoXML());
-                            XmlProjeto xmlProjeto = new XmlProjeto(AtvTarefa.this);
-                            if (!arquivo.exists())
-                                xmlProjeto.criaXmlProjetosWebservice(false);
-                            projetos = xmlProjeto.leXmlProjetos();
-                        } catch (XmlPullParserException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return projetos;
+            /**
+             * busca lista de projetos
+             */
+            new AsyncTask<Void, Void, List<Projeto>>(){
+                @Override
+                protected List<Projeto> doInBackground(Void... voids) {
+                    List<Projeto> projetos = null;
+                    try {
+                        XmlProjeto xmlProjeto = new XmlProjeto(AtvTarefa.this);
+                        xmlProjeto.criaXmlProjetosWebservice(false);
+                        projetos = xmlProjeto.leXmlProjetos();
+                    } catch (XmlPullParserException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    @Override
-                    protected void onPostExecute(final List<Projeto> projetos) {
+                    return projetos;
+                }
+                @Override
+                protected void onPostExecute(final List<Projeto> projetos) {
+                    if (projetos != null) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -110,35 +109,34 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                             }
                         });
                     }
-                }.execute();
-            }else
+                }
+            }.execute();
+            if (this.SpnProjeto.getAdapter()!=null && this.getProjeto()!=null)
                 this.SpnProjeto.setSelection(((ArrayAdapter) this.SpnProjeto.getAdapter()).getPosition(AtvTarefa.this.getProjeto()));
             if (AtvLogin.usuario.getPerfil().equals("adm") ) {
                 addBotoes();//caso usuário seja administrador, adiciona botões de administração no layout
                 this.SpnResponsavel.setOnItemSelectedListener(this);
-                if (this.SpnResponsavel.getAdapter() == null) {
-                    /**
-                     * busca lista de usuarios
-                     */
-                    new AsyncTask<Void, Void, List<Usuario>>() {
-                        @Override
-                        protected List<Usuario> doInBackground(Void... voids) {
-                            List<Usuario> usuarios = null;
-                            try {
-                                File arquivo = new File(AtvTarefa.this.getFilesDir() + "/" + XmlUsuario.getNomeArquivoXML());
-                                XmlUsuario xmlUsuario = new XmlUsuario(AtvTarefa.this);
-                                if (!arquivo.exists())
-                                    xmlUsuario.criaXmlUsuariosWebservice(false);
-                                usuarios = xmlUsuario.leXmlUsuarios();
-                            } catch (XmlPullParserException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            return usuarios;
+                /**
+                 * busca lista de usuarios
+                 */
+                new AsyncTask<Void, Void, List<Usuario>>() {
+                    @Override
+                    protected List<Usuario> doInBackground(Void... voids) {
+                        List<Usuario> usuarios = null;
+                        try {
+                            XmlUsuario xmlUsuario = new XmlUsuario(AtvTarefa.this);
+                            xmlUsuario.criaXmlUsuariosWebservice(false);
+                            usuarios = xmlUsuario.leXmlUsuarios();
+                        } catch (XmlPullParserException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                        @Override
-                        protected void onPostExecute(final List<Usuario> usuarios) {
+                        return usuarios;
+                    }
+                    @Override
+                    protected void onPostExecute(final List<Usuario> usuarios) {
+                        if (usuarios != null) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -148,8 +146,9 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                                 }
                             });
                         }
-                    }.execute();
-                }else
+                    }
+                }.execute();
+                if (this.SpnResponsavel.getAdapter()!=null && this.getTarefa()!=null)
                     this.SpnResponsavel.setSelection(((ArrayAdapter) this.SpnResponsavel.getAdapter()).getPosition(AtvTarefa.this.getTarefa().getUsuario()));
             }else
                 this.SpnResponsavel.setVisibility(View.GONE);
@@ -182,7 +181,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 this.conclui();
         }else{//se nao tiver bundleTarefa entao e nova tarefa e tira o dialogo
             TableRow TrDialogo = (TableRow) findViewById(R.id.TRdialogo);
-            TrDialogo.setVisibility(View.GONE);
+            if (TrDialogo != null)
+                TrDialogo.setVisibility(View.GONE);
         }
         super.onResume();
     }
@@ -213,6 +213,8 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         //cria botões
         ImageButton BtnAddProjeto = new ImageButton(this);
         BtnAddProjeto.setImageResource(android.R.drawable.ic_menu_add);
+        BtnAddProjeto.setMinimumWidth(0);
+        BtnAddProjeto.setMaxWidth(5);//setLayoutParams(new TableRow.LayoutParams(100,10));
         BtnAddProjeto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -258,7 +260,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         }else if ( this.getTarefa().getUsuario()!=null
                 && this.getTarefa().getProjeto()!=null) {
                 //tarefa concluida, desabilita tudo
-                if (this.getTarefa().getStatus().equals("concluida")){
+                if (this.getTarefa().getStatus().equals("concluida") || this.getTarefa().getStatus().equals("arquivada")){
                     menu.findItem(R.id.actionbar_grava).setVisible(false);//desabilita gravar
                     menu.findItem(R.id.menu_grava).setVisible(false);//desabilita gravar
                     menu.findItem(R.id.actionbar_exclui).setVisible(false);//desabilita excluir
@@ -386,6 +388,7 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         protected void onPostExecute(Boolean ok) {
             if (ok) {
                 Toast.makeText(AtvTarefa.this, "Tarefa Gravada", Toast.LENGTH_SHORT).show();
+                AtvBase.atualizaListView = true;
                 AtvTarefa.this.finish();
             }else
                 Toast.makeText(AtvTarefa.this, "Erro ao tentar gravar Tarefa", Toast.LENGTH_SHORT).show();
@@ -433,7 +436,17 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
         protected String doInBackground(Object... tarefa) {
             WebService webService = new WebService();
             webService.setUsuario(AtvLogin.usuario);
-            return webService.concluiTarefa((Tarefa)tarefa[0], (String)tarefa[1]);
+            String resposta = webService.concluiTarefa((Tarefa)tarefa[0], (String)tarefa[1]);
+            if (resposta.equals("concluida")) {
+                XmlTarefasArquivadas xmlTarefasArquivadas = new XmlTarefasArquivadas(AtvTarefa.this);
+                AtvBase.atualizaListView = true;
+                try {
+                    xmlTarefasArquivadas.criaXmlTarefasArquivadasWebservice(AtvLogin.usuario, true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return resposta;
         }
         @Override
         protected void onPostExecute(String resposta) {
@@ -441,12 +454,6 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 switch (resposta) {
                     case "concluida":
                         Toast.makeText(AtvTarefa.this, "Tarefa concluida e arquivada!", Toast.LENGTH_SHORT).show();
-                        XmlTarefasArquivadas xmlTarefasArquivadas = new XmlTarefasArquivadas(AtvTarefa.this);
-                        try {
-                            xmlTarefasArquivadas.criaXmlTarefasArquivadasWebservice(AtvLogin.usuario, true);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                         break;
                     case "concluir":
                         Toast.makeText(AtvTarefa.this,
@@ -595,21 +602,23 @@ public class AtvTarefa extends FragmentActivity implements Listener, OnItemSelec
                 AtvBase.atualizarTarefaId = AtvTarefa.this.tarefa.getId();
                 Vector<Boolean> flagsSincroniza = (Vector<Boolean>) resposta[1];
                 try { //grava localmente o Xml atualizado resultante do webservice
-                    if (flagsSincroniza.get(0)) {//atualizar tarefas pessoais
-                        XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
-                        xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
-                    }
-                    if (flagsSincroniza.get(1)) {//atualizar tarefas equipes
-                        XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
-                        xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
-                    }
-                    if (flagsSincroniza.get(2)) {//atualizar tarefas hoje
-                        XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
-                        xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
-                    }
-                    if (flagsSincroniza.get(3)) {//atualizar tarefas semana
-                        XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
-                        xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
+                    if (flagsSincroniza != null) {
+                        if (flagsSincroniza.get(0)) {//atualizar tarefas pessoais
+                            XmlTarefasPessoais xmlTarefasPessoais = new XmlTarefasPessoais(AtvTarefa.this);
+                            xmlTarefasPessoais.criaXmlProjetosPessoaisWebservice(AtvLogin.usuario, true);
+                        }
+                        if (flagsSincroniza.get(1)) {//atualizar tarefas equipes
+                            XmlTarefasEquipe xmlTarefasEquipe = new XmlTarefasEquipe(AtvTarefa.this);
+                            xmlTarefasEquipe.criaXmlProjetosEquipesWebservice(AtvLogin.usuario, true);
+                        }
+                        if (flagsSincroniza.get(2)) {//atualizar tarefas hoje
+                            XmlTarefasHoje xmlTarefasHoje = new XmlTarefasHoje(AtvTarefa.this);
+                            xmlTarefasHoje.criaXmlProjetosHojeWebservice(AtvLogin.usuario, true);
+                        }
+                        if (flagsSincroniza.get(3)) {//atualizar tarefas semana
+                            XmlTarefasSemana xmlTarefasSemana = new XmlTarefasSemana(AtvTarefa.this);
+                            xmlTarefasSemana.criaXmlProjetosSemanaWebservice(AtvLogin.usuario, true);
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
